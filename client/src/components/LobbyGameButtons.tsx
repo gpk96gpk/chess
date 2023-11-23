@@ -10,3 +10,18 @@
 //and player turn with a roomCode another player can use to join the game
 //that will load a game from the database and render the game page
 //with the saved game state and player turn
+
+import ConnectionManager from "./ConnectionManager";
+import LobbySavedGames from "./LobbySavedGames";
+
+const LobbyGameButtons = () => {
+
+return (
+    <>
+        <ConnectionManager />
+        <LobbySavedGames />
+    </>
+);
+}
+
+export default LobbyGameButtons;

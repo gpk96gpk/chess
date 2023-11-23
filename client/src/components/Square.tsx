@@ -1,7 +1,6 @@
 //TODO:
 // Square component takes in the props for position children and handleDrop
 
-import e from "express";
 
 // passed in function handleDropWrapper takes in event and sets piece to the event dataTransfer
 //passes piece that was take from event and position to handleDrop function

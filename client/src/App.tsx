@@ -89,6 +89,18 @@ function App() {
     }, []);
 
     useEffect(() => {
+        socket.on('leaveRoom', (roomId) => {
+            setGameOver(true);
+            setWinner(null);
+            console.log(`Left room ${roomId}`);
+        });
+
+        return () => {
+            socket.off('leaveRoom');
+        };
+    }, []);
+
+    useEffect(() => {
         socket.on('connect', () => {
             console.log('Connected to the server');
         });
@@ -138,15 +150,15 @@ function App() {
     }, []);
 
     useEffect(() => {
-        const gameOver = (arg: React.SetStateAction<boolean>) => {
+        const handleGameOver = (arg: React.SetStateAction<boolean>) => {
             setGameOver(arg);
         }
 
-        socket.on("gameOver", gameOver);
+        socket.on("gameOver", handleGameOver);
 
 
         return () => {
-            socket.off("gameOver", gameOver)
+            socket.off("gameOver", handleGameOver)
         }
     }, []);
 

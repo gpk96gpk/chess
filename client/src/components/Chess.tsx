@@ -14,8 +14,8 @@ import isCheckmate from '../gameLogic/isCheckmate'
 import validMoves from '../gameLogic/validMoves'
 import isDraw from '../gameLogic/isDraw'
 import Board from './Board';
-import LobbyButtons from './LobbyButtons';
 import GameOver from './GameOver';
+// import BoardTimer from './BoardTimer';
 
 
 
@@ -142,7 +142,7 @@ const Chess: React.FC = (props) => {
 
     // Check for stalemate and draw
     useEffect(() => {
-        if (isDraw(props.gameState)) {
+        if (isDraw(props.gameState, props.playerNumber)) {
             props.setGameOver(true);
             props.setWinner('Draw');
             props.setTurnState(0);
@@ -164,11 +164,10 @@ const Chess: React.FC = (props) => {
           <h2>Room Code: {roomCode}</h2>
           <h2>{props.playerTurn === props.turnState ? "Your Turn" : "Opponent's Turn"}</h2>
           
-          {props.isGameOver && <GameOver winner={props.winner} />}
+          {props.gameOver && <GameOver gameState={props.gameState} winner={props.winner} />}
           
           <Board gameState={props.gameState} highlightedTiles={props.highlightedTiles} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
-          
-          <LobbyButtons gameState={props.gameState} playerTurn={props.playerTurn} />
+          {/* <BoardTimer playerNumber={props.playerNumber} playerTurn={props.playerTurn} initialTime={props.initialTime}/> */}
         </div>
     );
 }

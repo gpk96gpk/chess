@@ -6,6 +6,7 @@ interface ServerToClientEvents {
     reset: () => void;
     turn: (xTurn: boolean) => void;
     gameState: (gameState: any) => void;
+    leaveRoom: () => void;
 }
 
 interface ClientToServerEvents {

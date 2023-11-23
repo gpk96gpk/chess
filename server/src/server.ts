@@ -101,8 +101,10 @@ io.on('connection', (socket: Socket) => {
         socket.emit('playerNumber', playerNumber);
     });
     //Leave a room
-    socket.on('leaveRoom', () => {
-        const { roomCode } = players[socket.id];
+    socket.on('leaveRoom', (roomCode) => {
+        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+        io.to(otherPlayerSocketId).emit('leaveRoom');
+        // const { roomCode } = players[socket.id];
         socket.leave(roomCode);
         const index = rooms[roomCode].indexOf(socket.id);
         rooms[roomCode].splice(index, 1);
@@ -115,11 +117,11 @@ io.on('connection', (socket: Socket) => {
     //Game state
     socket.on('gameState', (gameState, roomCode) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit<any>('gameState', gameState);
+        io.to(otherPlayerSocketId).emit('gameState', gameState);
     });
     //Game over
     socket.on('gameOver', (isGameOver, roomCode) => {
-        io.to(roomCode).emit<any>('gameOver', isGameOver);
+        io.to(roomCode).emit('gameOver', isGameOver);
       });
     //Reset
     socket.on('reset', () => {
@@ -138,7 +140,7 @@ io.on('connection', (socket: Socket) => {
 
 //SERVER ROUTES
 //Sign in for users
-app.post("/api/v1/users/login", async (req, res) => {
+app.post("/api/v1/chess/users/login", async (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -182,7 +184,7 @@ app.post("/api/v1/users/login", async (req, res) => {
 });
 
 //Create a new user and password
-app.post("/api/v1/users/register", async (req, res) => {
+app.post("/api/v1/chess/users/register", async (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -224,7 +226,7 @@ app.post("/api/v1/users/register", async (req, res) => {
 });
 
 //Save a game to a user
-app.post("/api/v1/games/save", authenticateJWT, async (req, res) => {
+app.post("/api/v1/chess/games/save", authenticateJWT, async (req, res) => {
     try {
         const { gameState } = req.body;
         const { user } = req;
@@ -250,7 +252,7 @@ app.post("/api/v1/games/save", authenticateJWT, async (req, res) => {
 });
 
 //Update a saved game for a user
-app.put("/api/v1/games/:gameId", authenticateJWT, async (req, res) => {
+app.put("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
     try {
         const { user } = req;
         const { gameId } = req.params;
@@ -284,7 +286,7 @@ app.put("/api/v1/games/:gameId", authenticateJWT, async (req, res) => {
 });
 
 //Get the list of saved games for a user
-app.get("/api/v1/games", authenticateJWT, async (req, res) => {
+app.get("/api/v1/chess/games", authenticateJWT, async (req, res) => {
     try {
         const { user } = req;
 
@@ -309,7 +311,7 @@ app.get("/api/v1/games", authenticateJWT, async (req, res) => {
 });
 
 //Get selected saved game for a user
-app.get("/api/v1/games/:gameId", authenticateJWT, async (req, res) => {
+app.get("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
     try {
         const { user } = req;
         const { gameId } = req.params;
@@ -342,7 +344,7 @@ app.get("/api/v1/games/:gameId", authenticateJWT, async (req, res) => {
 });
 
 //Delete a saved game for a user
-app.delete("/api/v1/games/:gameId", authenticateJWT, async (req, res) => {
+app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
     try {
         const { user } = req;
         const { gameId } = req.params;
