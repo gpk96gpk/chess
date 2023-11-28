@@ -2,17 +2,38 @@
 //import Piece
 import Square from './Square';
 import Piece from './Piece';
+import { Position, Piece as PieceType, GameState, HighlightedTile, Props } from '../types/clientTypes';
 
+
+type BoardProps = {
+    gameState: GameState;
+    highlightedTiles: HighlightedTile[];
+    handleDragStart: (
+        event: React.DragEvent<HTMLDivElement>, 
+        piece: PieceType, 
+        position: Position, 
+        setHighlightedTiles: (tiles: Position[]) => void, 
+        props: Props
+    ) => void;
+    handleDragOver: (
+        event: React.DragEvent<HTMLDivElement>, 
+        position: Position
+    ) => void;
+    handleDrop: (
+        event: React.DragEvent<HTMLDivElement>, 
+        props: Props
+    ) => void;
+};
 // component render
 // div for container of board
 // render chess board as array or Square components mapped from gameState array
 // if the gameState array has a piece in the tile render the piece
-const Board = ({gameState, highlightedTiles, handleDragStart, handleDragOver, handleDrop}) => {
+const Board: React.FC<BoardProps> = ({gameState, highlightedTiles, handleDragStart, handleDragOver, handleDrop}) => {
     return (
         <div className="board">
-            {gameState.map((row, i) => (
+            {gameState.board.map((row: PieceType[], i:number) => (
                 <div key={i} className="row">
-                    {row.map((piece, j) => (
+                    {row.map((piece: PieceType, j:number) => (
                         <Square key={j} position={[i, j]} highlightedTiles={highlightedTiles} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop}>
                             {piece && <Piece piece={piece} position={[i, j]} />}
                         </Square>

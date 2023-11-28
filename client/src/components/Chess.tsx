@@ -6,7 +6,7 @@
 //take in piece and board info and perform checkmate logic
 //take in piece board and info and perform en passant logic
 //take in piece board and info and perform castling logic
-import { useState, useEffect, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import { useParams } from "react-router-dom";
 import { SocketContext } from "../context/SocketContext";
 import isCheck from '../gameLogic/isCheck'
@@ -16,6 +16,7 @@ import isDraw from '../gameLogic/isDraw'
 import Board from './Board';
 import GameOver from './GameOver';
 // import BoardTimer from './BoardTimer';
+import { Props, Position, Piece } from '../types/clientTypes';
 
 
 
@@ -30,7 +31,7 @@ import GameOver from './GameOver';
 //and pass it to the timer component
 //pass playerNumber and playerTurn to the board and Timer component
 
-const Chess: React.FC = (props) => {
+const Chess: React.FC<Props> = (props) => {
     const { roomCode } = useParams();
     const socket = useContext(SocketContext);
 
@@ -56,14 +57,20 @@ const Chess: React.FC = (props) => {
     //those valid moves are pulled from a list of valid moves based on each piece
     // based off the piece a switch statement will be used to determine the valid coordinates
     //the selected piece can move to
-    const handleDragStart = (event, piece, position, setHighlightedTiles, props) => {
+    const handleDragStart = (
+        event: React.DragEvent, 
+        piece: Piece, 
+        position: Position, 
+        setHighlightedTiles: (tiles: Position[]) => void, 
+        props: Props
+      ) => {
         event.dataTransfer.setData('piece', JSON.stringify({ piece, position }));
         event.dataTransfer.setData('source', JSON.stringify(position));
         const pieceValidMoves = validMoves(piece, position, props.gameState, props.playerNumber);
         setHighlightedTiles(pieceValidMoves);
     };
 
-    const handleDragOver = (event, position) => {
+    const handleDragOver = (event: React.DragEvent<HTMLDivElement>, position: Position) => {
         event.preventDefault();
         event.dataTransfer.setData('target', JSON.stringify(position));
     }
@@ -77,7 +84,7 @@ const Chess: React.FC = (props) => {
     //emit the playerTurn state to the server
     //if move is invalid set piece back to original tile 
     //pass handleDrop event to the piece component
-    const handleDrop = (event, props) => {
+    const handleDrop = (event: React.DragEvent, props: Props) => {
         const piece = JSON.parse(event.dataTransfer.getData('piece'));
         const target = JSON.parse(event.dataTransfer.getData('target'));
         const pieceValidMoves = validMoves(piece, piece.position, props.gameState, props.playerNumber);
@@ -92,12 +99,12 @@ const Chess: React.FC = (props) => {
                 from: [fromX, fromY], 
                 to: [toX, toY], 
                 board: JSON.parse(JSON.stringify(newGameState.board)),
-                turn: newGameState.history.length
+                turnNumber: newGameState.history.length,
+                turn: props.turnState === 2 ? 'white' : 'black'
             });
             props.setHighlightedTiles([]);
             props.setGameState(newGameState);
-            const opponentKing = newGameState.find(piece => piece.type === 'king' && piece.color !== (props.playerNumber === 1 ? 'white' : 'black'));
-            props.setGameState(newGameState);
+            const opponentKing = newGameState.board.flat().find(piece => piece && piece.type === 'king' && piece.color !== (props.playerNumber === 1 ? 'white' : 'black'));            props.setGameState(newGameState);
             if (opponentKing && opponentKing.position.join(',') === target.join(',') || isCheck(newGameState, props.playerNumber)) {
                 props.setGameOver(true);
                 if (socket) {
@@ -106,7 +113,7 @@ const Chess: React.FC = (props) => {
 
             }
             if (socket) {
-                socket.emit('gameState', props.newGameState);
+                socket.emit('gameState', newGameState);
             }
             if (socket) {
                 socket.emit('turn', props.turnState === 1 ? 2 : 1);
@@ -117,57 +124,48 @@ const Chess: React.FC = (props) => {
     //useEffect hooks to update the gameState/board, gameOver/winner, check, 
     //checkmate, stalemate, draw, and playerTurn
     //the useEffects are loops for check and checkmate
-    
-    // Update gameState/board
-    useEffect(() => {
-        const newGameState = [...props.gameState];
-        props.setGameState([...newGameState]);
-    }, [props.gameState]);
+    const { gameState, gameOver, playerNumber, turnState, setGameState, setTurnState, setWinner, setGameOver, setIsPlayerInCheck } = props;
 
     useEffect(() => {
-    // Check for game over and winner
-        if (props.gameOver || isCheckmate(props.gameState, props.playerNumber)) {
-          props.setTurnState(0);
-          props.setWinner(props.turnState === 1 ? 'Black' : 'White')
+        const newGameState = { ...gameState };
+        setGameState(newGameState);
+    }, [gameState, setGameState]);
+
+    useEffect(() => {
+        // Check for game over and winner
+        if (gameOver || isCheckmate(gameState, playerNumber)) {
+            setTurnState(0);
+            setWinner(turnState === 1 ? 'Black' : 'White')
         }
-    }, [props.gameState]);
+    }, [gameState, gameOver, playerNumber, turnState, setTurnState, setWinner]);
 
     // Check for check and checkmate
     useEffect(() => {
         // Code to check if the current player is in check or checkmate
-        if (isCheck(props.gameState, props.playerNumber)) {
-            props.setIsPlayerInCheck(true);
+        if (isCheck(gameState, playerNumber)) {
+            setIsPlayerInCheck(true);
         }
-    }, [props.gameState, props.playerTurn]);
+    }, [gameState, playerNumber, setIsPlayerInCheck]);
 
     // Check for stalemate and draw
     useEffect(() => {
-        if (isDraw(props.gameState, props.playerNumber)) {
-            props.setGameOver(true);
-            props.setWinner('Draw');
-            props.setTurnState(0);
+        if (isDraw(gameState, playerNumber)) {
+            setGameOver(true);
+            setWinner('Draw');
+            setTurnState(0);
         }
-    }, [props.gameState, props.playerTurn]);
-
-
+    }, [gameState, playerNumber, setGameOver, setWinner, setTurnState]);
     //render
-    //header Chess Game
-    //subheader Room Code: Room Code
-    //subheader Your Turn || Opponent's Turn
-    //gameOver overlay component
-    //board component with props for gameState and handleDrop function
-    //LobbyButtons component that has a button to leave and save the game
-    //pass gameState and player turn into the LobbyButtons component for saves
     return (
         <div>
-          <h1>Chess Game</h1>
-          <h2>Room Code: {roomCode}</h2>
-          <h2>{props.playerTurn === props.turnState ? "Your Turn" : "Opponent's Turn"}</h2>
-          
-          {props.gameOver && <GameOver gameState={props.gameState} winner={props.winner} />}
-          
-          <Board gameState={props.gameState} highlightedTiles={props.highlightedTiles} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
-          {/* <BoardTimer playerNumber={props.playerNumber} playerTurn={props.playerTurn} initialTime={props.initialTime}/> */}
+            <h1>Chess Game</h1>
+            <h2>Room Code: {roomCode}</h2>
+            <h2>{playerNumber === turnState ? "Your Turn" : "Opponent's Turn"}</h2>
+            
+            {gameOver && <GameOver gameState={gameState} winner={props.winner} />}
+            
+            <Board gameState={gameState} highlightedTiles={props.highlightedTiles} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
+            {/* <BoardTimer playerNumber={props.playerNumber} playerTurn={props.playerTurn} initialTime={props.initialTime}/> */}
         </div>
     );
 }

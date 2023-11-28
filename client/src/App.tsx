@@ -18,21 +18,6 @@
 //route for lobby
 //route for game
 
-type GameStateType = {
-    board: Piece[][];
-    history: Move[];
-};
-
-const initialBoard: GameStateType = {
-    board: [
-        majorPieces.map(type => createPiece(type, 'black')),
-        Array(8).fill(createPawn('black')),
-        ...Array(4).fill(Array(8).fill(null)),
-        Array(8).fill(createPawn('white')),
-        majorPieces.map(type => createPiece(type, 'white')),
-    ],
-    history: [],
-};
 
 import { io } from 'socket.io-client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -40,32 +25,35 @@ import { SocketContext } from './context/SocketContext';
 import { useEffect, useState } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
-import { GameStateType } from './types/clientTypes';
+import { Props, GameStateType, Position, HighlightedTile } from './types/clientTypes';
 
 const socket = io('http://localhost:3002');
 
-const createPiece = (type, color) => ({ type, color, hasMoved: false, isHighlighted: false });
-const createPawn = color => ({ type: 'pawn', color, hasMoved: false, isHighlighted: false });
+const createPiece = (type: string, color: string, position: Position) => ({ type, color, position, hasMoved: false, isHighlighted: false });
+const createPawn = (color: string, position: Position) => ({ type: 'pawn', color, position, hasMoved: false, isHighlighted: false });
 const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+
 
 const initialBoard: GameStateType = {
     board: [
-        majorPieces.map(type => createPiece(type, 'black')),
-        Array(8).fill(createPawn('black')),
+        majorPieces.map((type, index) => createPiece(type, 'black', [0, index])),
+        Array(8).fill(null).map((_, index) => createPawn('black', [1, index])),
         ...Array(4).fill(Array(8).fill(null)),
-        Array(8).fill(createPawn('white')),
-        majorPieces.map(type => createPiece(type, 'white')),
+        Array(8).fill(null).map((_, index) => createPawn('white', [6, index])),
+        majorPieces.map((type, index) => createPiece(type, 'white', [7, index])),
     ],
     history: [],
+    turn: 'black'
 };
 
+
 function App() {
-    const [playerNumber, setPlayerNumber] = useState<number | null>(null);
+    const [playerNumber, setPlayerNumber] = useState<number>(0);
     const [gameOver, setGameOver] = useState(false);
     const [gameState, setGameState] = useState<GameStateType>(initialBoard);
-    const [turnState, setTurnState] = useState<number>(0);
-    const [highlightedTiles, setHighlightedTiles] = useState<Array<number[]>>([]);
-    const [winner, setWinner] = useState<number | null>(null);
+    const [turnState, setTurnState] = useState<0 | 1 | 2>(1);
+    const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
+    const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
 
     useEffect(() => {
@@ -136,9 +124,8 @@ function App() {
     }, []);
 
     useEffect(() => {
-        //TODO: Add GameStateType that is a 2D array of strings representing the chess board
-        const handleGameState = (arg: GameStateType) => {
-            setGameState([...arg]);
+        const handleGameState = (arg:React.SetStateAction<GameStateType>) => {
+            setGameState(arg);
         }
 
         socket.on('gameState', handleGameState);
@@ -163,9 +150,9 @@ function App() {
     }, []);
 
     useEffect(() => {
-        const turnStateChange = (arg: boolean | ((prevState: boolean | null) => boolean | null) | null) => {
+        const turnStateChange = (arg:React.SetStateAction< 0| 1 | 2 >) => {
             setTurnState(arg);
-        }
+          }
 
         socket.on('turn', turnStateChange);
 
@@ -198,7 +185,7 @@ function App() {
         setGameOver(false);
     };
 
-    const chessProps = {
+    const chessProps: Props = {
         playerNumber,
         gameOver,
         gameState,
@@ -213,6 +200,7 @@ function App() {
         setHighlightedTiles,
         setWinner,
         setIsPlayerInCheck,
+        handleReset,
     };
 
     return (

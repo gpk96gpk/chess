@@ -4,7 +4,14 @@
 
 import { useEffect, useState } from 'react';
 
-const BoardTimer = ({ playerTurn, playerNumber, initialTime }) => {
+interface BoardTimerProps {
+  playerTurn: number;
+  playerNumber: number;
+  initialTime: number;
+}
+
+
+const BoardTimer: React.FC<BoardTimerProps> = ({ playerTurn, playerNumber, initialTime }) => {
   const [seconds, setSeconds] = useState(initialTime);
   const isPlayerTurn = playerTurn === playerNumber;
 

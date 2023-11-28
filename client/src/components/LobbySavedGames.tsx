@@ -10,20 +10,27 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getSavedGames, deleteGame } from '../apis/ChessGame';
 
-const LobbySavedGames = ({ username }) => {
-  const [games, setGames] = useState([]);
+interface Game {
+  id: number;
+  username1: string;
+  username2: string;
+  date: string;
+}
+
+const LobbySavedGames = ({ username }: { username: string }) => {
+  const [games, setGames] = useState<Game[]>([]);
   const [showGames, setShowGames] = useState(false);
 
   useEffect(() => {
     const fetchGames = async () => {
-      const savedGames = await getSavedGames(username);
+      const savedGames = await getSavedGames();
       setGames(savedGames);
     };
 
     fetchGames();
   }, [username]);
 
-  const handleDeleteGame = async (gameId) => {
+  const handleDeleteGame = async (gameId: number) => {
     await deleteGame(gameId);
     setGames(games.filter(game => game.id !== gameId));
   };

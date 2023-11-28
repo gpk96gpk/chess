@@ -5,12 +5,12 @@ import { signUp } from '../apis/ChessGame';
 const LobbySignUpButton = () => {
   const [showSignUp, setShowSignUp] = useState(false);
   const [username, setUsername] = useState('');
-  const passwordRef = useRef();
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
-    const password = passwordRef.current.value;
+    const password = passwordRef.current ? passwordRef.current.value : '';
     const token = await signUp(username, password);
     if (token) {
       localStorage.setItem('jwt', token);

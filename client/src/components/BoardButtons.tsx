@@ -15,8 +15,9 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SocketContext } from "../context/SocketContext";
 import BoardSaveGameButton from './BoardSaveGameButton';
+import { BoardButtonsProps } from '../types/clientTypes';
 
-function BoardButtons({ gameState }) {
+const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState }) => {
   const socket = useContext(SocketContext);
   const [showExitOverlay, setShowExitOverlay] = useState(false);
   const navigate = useNavigate();

@@ -1,13 +1,14 @@
 //TODO:
 //render overlay with 2 buttons
-// Reset button will be a react router link to the game page to reset the game state
+//Reset button will be a react router link to the game page to reset the game state
 //Exit button will be a react router link to the lobby page
 import { useNavigate } from 'react-router-dom';
 import { saveGame } from '../apis/ChessGame';
 import { useState } from 'react';
+import { GameState } from '../types/clientTypes';
 
 
-function GameOver({ gameState, winner }) {
+function GameOver({ gameState, winner }: { gameState: GameState, winner: string | null }) {
     const [saveStatus, setSaveStatus] = useState<null | string>(null);
     const navigate = useNavigate();
     let headerText = '';
