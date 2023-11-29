@@ -14,12 +14,13 @@
 import ConnectionManager from "./ConnectionManager";
 import LobbySavedGames from "./LobbySavedGames";
 
-const LobbyGameButtons = () => {
+
+const LobbyGameButtons = ({ username }: { username: string }) => {
 
 return (
     <>
         <ConnectionManager />
-        <LobbySavedGames />
+        <LobbySavedGames username={username}/>
     </>
 );
 }

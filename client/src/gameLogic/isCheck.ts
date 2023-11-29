@@ -1,15 +1,16 @@
-import { getMovesForPiece } from './getMovesForPiece';
+import { GameState, Position, Piece, Move } from '../types/clientTypes';
+import getMovesForPiece from './pieceMoves';
 
-function isCheck(gameState, playerNumber) {
-  let kingPosition = null;
+function isCheck(gameState: GameState, playerNumber: number): boolean {
+  let kingPosition: Position | null = null;
   const currentPlayerColor = playerNumber === 1 ? 'white' : 'black';
 
   // Find the king's position
-  for (let i = 0; i < gameState.length; i++) {
-    for (let j = 0; j < gameState[i].length; j++) {
-      const piece = gameState[i][j];
+  for (let i = 0; i < gameState.board.length; i++) {
+    for (let j = 0; j < gameState.board[i].length; j++) {
+      const piece: Piece | null = gameState.board[i][j];
       if (piece && piece.type === 'king' && piece.color === currentPlayerColor) {
-        kingPosition = { x: j, y: i };
+        kingPosition = [j, i];
         break;
       }
     }
@@ -17,14 +18,17 @@ function isCheck(gameState, playerNumber) {
   }
 
   // Check if any opponent's piece can attack the king
-  for (let i = 0; i < gameState.length; i++) {
-    for (let j = 0; j < gameState[i].length; j++) {
-      const piece = gameState[i][j];
+  for (let i = 0; i < gameState.board.length; i++) {
+    for (let j = 0; j < gameState.board[i].length; j++) {
+      const piece: Piece | null = gameState.board[i][j];
       if (piece && piece.color !== currentPlayerColor) {
-        const moves = getMovesForPiece(piece, { x: j, y: i }, gameState);
-        if (moves.some(([x, y]) => x === kingPosition.x && y === kingPosition.y)) {
-          return true;
-        }
+        const moves: Move[] = getMovesForPiece(piece, [j, i], gameState);
+        if (kingPosition !== null) {
+          const [kingX, kingY] = kingPosition;
+          if (moves.some(move => move.to[0] === kingX && move.to[1] === kingY)) {
+              return true;
+          }
+      }
       }
     }
   }

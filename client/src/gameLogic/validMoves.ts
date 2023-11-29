@@ -17,27 +17,30 @@
 //
 import enPassant from '../gameLogic/enPassant'
 import castling from '../gameLogic/castling'
-import { getMovesForPiece } from './pieceMoves';
+import getMovesForPiece from './pieceMoves';
+import { GameState, Move, Piece, Position } from '../types/clientTypes';
 
 
 
-function validMoves(piece, position, gameState, playerNumber) {
-    let moves = [];
+function validMoves(piece: Piece, position: Position, gameState: GameState, playerNumber: number) {
+    let moves: Move[] = [];
 
     const normalMoves = getMovesForPiece(piece, position, gameState);
-    moves = moves.concat(normalMoves);
+    if (normalMoves) {
+        moves = moves.concat(normalMoves);
+    }
 
-    if (piece.type === 'pawn') {
+    if (piece && piece.type === 'pawn') {
         const enPassantMove = enPassant(piece, position, gameState, playerNumber);
         if (enPassantMove) {
             moves.push(enPassantMove);
         }
     }
 
-    if (piece.type === 'king') {
-        const castlingMoves = castling(piece, position, gameState, playerNumber);
-        if (castlingMoves) {
-            moves = moves.concat(castlingMoves);
+    if (piece && piece.type === 'king') {
+        const castlingMove = castling(piece, position, gameState, playerNumber) || [];
+        if (castlingMove) {
+            moves = moves.concat(castlingMove);
         }
     }
 

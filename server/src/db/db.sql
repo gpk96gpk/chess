@@ -2,8 +2,8 @@
 CREATE TABLE users (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(50) NOT NULL,
-)
+    password VARCHAR(50) NOT NULL
+);
 
 --Create savedGames table
 CREATE TABLE savedGames (
@@ -12,7 +12,7 @@ CREATE TABLE savedGames (
     gameState VARCHAR(255) NOT NULL,
     savedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userId) REFERENCES users(id)
-)
+);
 
 --Select all users
 SELECT
@@ -20,7 +20,7 @@ SELECT
 FROM
     users
 WHERE
-    username = $ 1
+    username = $ 1;
 
 --Create a new user and password
 INSERT INTO users (

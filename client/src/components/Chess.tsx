@@ -16,7 +16,7 @@ import isDraw from '../gameLogic/isDraw'
 import Board from './Board';
 import GameOver from './GameOver';
 // import BoardTimer from './BoardTimer';
-import { Props, Position, Piece } from '../types/clientTypes';
+import { Props, Position, Piece, Move } from '../types/clientTypes';
 
 
 
@@ -66,8 +66,9 @@ const Chess: React.FC<Props> = (props) => {
       ) => {
         event.dataTransfer.setData('piece', JSON.stringify({ piece, position }));
         event.dataTransfer.setData('source', JSON.stringify(position));
-        const pieceValidMoves = validMoves(piece, position, props.gameState, props.playerNumber);
-        setHighlightedTiles(pieceValidMoves);
+        const pieceValidMoves: Move[] = validMoves(piece, position, props.gameState, props.playerNumber);
+        const positions: Position[] = pieceValidMoves.map(move => move.to);
+        setHighlightedTiles(positions);
     };
 
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>, position: Position) => {

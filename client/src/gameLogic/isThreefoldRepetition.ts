@@ -1,10 +1,12 @@
-function isThreefoldRepetition(history) {
+import { Move } from "../types/clientTypes";
+
+function isThreefoldRepetition(history: Move[]) {
     const positions = history.map(move => JSON.stringify({
         board: move.board,
         turn: move.turn
     }));
     const uniquePositions = [...new Set(positions)];
-    for (let position of uniquePositions) {
+    for (const position of uniquePositions) {
         const occurrences = positions.filter(p => p === position).length;
         if (occurrences >= 3) {
             return true;
