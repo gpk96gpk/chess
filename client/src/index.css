@@ -67,3 +67,20 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.board {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+}
+.empty-square {
+ display: flex;
+ width: 100%;
+ height: 100%;
+}
+.square {
+  width: 3em;
+  height: 3em;
+}

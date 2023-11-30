@@ -1,4 +1,4 @@
-import { GameState, Piece, Position, Move } from "../types/clientTypes";
+import { GameState, Piece as PieceType, Position, Move } from "../types/clientTypes";
 
 function castling(piece: { type: string; color: 'white' | 'black'; hasMoved: boolean}, position: Position, gameState: GameState, playerNumber: number): Move | null {
     if (piece.type !== 'king' || piece.hasMoved) {
@@ -9,7 +9,7 @@ function castling(piece: { type: string; color: 'white' | 'black'; hasMoved: boo
     let castlingMove: Move | null = null;
 
     for (const [y, x] of rookPositions) {
-        const rook = gameState.board[y][x] as Piece;
+        const rook = gameState.board[y][x] as PieceType;
         if (rook && rook.type === 'rook' && !rook.hasMoved) {
             const direction = x < position[0] ? -1 : 1;
             let canCastle = true;

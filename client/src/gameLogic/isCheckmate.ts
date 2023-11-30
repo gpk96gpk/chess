@@ -1,4 +1,4 @@
-import { GameState, Piece, Position } from '../types/clientTypes';
+import { GameState, Piece as PieceType, Position } from '../types/clientTypes';
 import isCheck from './isCheck';
 import getMovesForPiece from './pieceMoves';
 
@@ -12,7 +12,7 @@ function isCheckmate(gameState: GameState, playerNumber: number): boolean {
   const currentPlayerColor = playerNumber === 1 ? 'white' : 'black';
   for (let i = 0; i < gameState.board.length; i++) {
     for (let j = 0; j < gameState.board[i].length; j++) {
-      const piece: Piece | null = gameState.board[i][j];
+      const piece: PieceType | null = gameState.board[i][j];
       if (piece && piece.type === 'king' && piece.color === currentPlayerColor) {
         kingPosition = [j, i];
         break;
@@ -23,7 +23,7 @@ function isCheckmate(gameState: GameState, playerNumber: number): boolean {
 
   // Check if the king can move to any safe square
   if (kingPosition) {
-    const king: Piece = {
+    const king: PieceType = {
       position: kingPosition,
       type: 'king', 
       color: currentPlayerColor,

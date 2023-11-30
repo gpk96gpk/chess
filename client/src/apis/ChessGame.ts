@@ -1,15 +1,14 @@
 import axios from 'axios'
 import { GameState } from '../types/clientTypes';
 //axios creates a base url for us to use to not have to repeat the same url over and over again
-export default axios.create({
-    //uses this baseURL because all urls will start with this
+const axiosInstance = axios.create({
     baseURL: 'http://localhost:3005/api/v1/chess'
 })
 
 export const saveGame = async (gameState: GameState) => {
     try {
         const token = localStorage.getItem('jwt');
-        const response = await axios.post('/games/save', {
+        const response = await axiosInstance.post('/games/save', {
             gameState,
         }, {
             headers: {
@@ -32,7 +31,7 @@ export const saveGame = async (gameState: GameState) => {
 
 export const signIn = async (username: string, password: string) => {
     try {
-        const response = await axios.post('/users/login', {
+        const response = await axiosInstance.post('/users/login', {
             username,
             password,
         });
@@ -54,22 +53,29 @@ export const signIn = async (username: string, password: string) => {
 // Get the list of saved games for a user
 export const getSavedGames = async () => {
     try {
-        const response = await axios.get(`/api/v1/chess/games`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-        return response.data.data.games;
+      const token = localStorage.getItem('jwt');
+      const response = await axiosInstance.get('/games', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      if (response.data.status === 'success') {
+        if (response.data.data.length === 0) {
+          return 'No Saved Games';
+        } else {
+          return response.data.data;
+        }
+      }
     } catch (error) {
-        console.error(error);
-        return [];
+      console.error(error);
+      return 'Error fetching saved games';
     }
-};
-
+  };
 // Delete a saved game for a user
 export const deleteGame = async (gameId: number) => {
     try {
-        const response = await axios.delete(`/api/v1/chess/games/${gameId}`, {
+        const response = await axiosInstance.delete(`/games/${gameId}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -84,7 +90,7 @@ export const deleteGame = async (gameId: number) => {
 // Sign up a new user
 export const signUp = async (username: string, password: string) => {
     try {
-        const response = await axios.post('/api/v1/chess/users/register', {
+        const response = await axiosInstance.post('/users/register', {
             username,
             password
         });

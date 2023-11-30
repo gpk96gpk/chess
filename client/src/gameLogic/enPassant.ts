@@ -2,6 +2,9 @@ import { GameState, Move, Position } from "../types/clientTypes";
 
 function enPassant(piece: { type: string; color: 'white' | 'black'; }, position: Position, gameState: GameState, playerNumber: number) {
     // Check if the piece is a pawn
+    if (!gameState || !gameState.history) {
+        return null;
+    }
     if (piece.type !== 'pawn') {
         return null;
     }

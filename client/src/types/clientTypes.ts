@@ -1,14 +1,14 @@
 //store types for client
 
 export type Piece = {
+    type: 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn' | 'empty';
+    color: 'black' | 'white';
     position: Position;
-    color: 'white' | 'black';
-    type: 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
     hasMoved: boolean;
     isHighlighted: boolean;
 } | null;
 
-export type Position = [number, number];
+export type Position = [number, number] | [];
 
 export interface GameState {
     board: Piece[][];

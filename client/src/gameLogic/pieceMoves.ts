@@ -1,6 +1,6 @@
-import { Position, Piece, GameState, Move } from "../types/clientTypes";
+import { Position, Piece as PieceType, GameState, Move } from "../types/clientTypes";
 
-function getMovesForPiece(piece: Piece, position: Position, gameState: GameState): Move[] {
+function getMovesForPiece(piece: PieceType, position: Position, gameState: GameState): Move[] {
     switch (piece?.type) {
         case 'pawn':
             return getPawnMoves(piece, position, gameState);
@@ -24,6 +24,9 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
 
     // Pawns can move forward one square, if it's not occupied
     const forward: Position = [position[0], piece.color === 'white' ? position[1] + 1 : position[1] - 1];
+    if (!gameState || !gameState.board) {
+        return [];
+    }
     if (!gameState.board[forward[1]][forward[0]]) {
         const move: Move = {
             piece,

@@ -38,13 +38,21 @@ declare global {
 import 'dotenv/config'
 import express from 'express';
 import cors from 'cors';
-import db from 'db';
 import morgan from 'morgan';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { createServer } from "http";
 import { Server, Socket } from 'socket.io';
-import { SocketTypes } from '../types/serverTypes.ts';
+import { SocketTypes } from '../types/serverTypes';
+import { Request, Response, NextFunction } from 'express';
+const db = require('./db')
+
+
+interface PlayerInfo {
+    roomCode: string;
+    playerNumber: number;
+}
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -53,44 +61,52 @@ const io = new Server<SocketTypes>(httpServer, {
     origin: "http://localhost:5173",
   }
 });
+app.use(cors())
 
-const authenticateJWT = (req, res, next) => {
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
   
     if (authHeader) {
       const token = authHeader.split(' ')[1];
   
-      jwt.verify(token, process.env.JWT_SECRET!, (err, user) => {
+      jwt.verify(token, process.env.JWT_SECRET!, (err, user: string | JwtPayload | undefined) => {
         if (err) {
           return res.sendStatus(403);
         }
-  
-        req.user = user;
-        next();
+      
+        if (typeof user === 'object' && user !== null && 'userId' in user) {
+          req.user = { userId: user.userId };
+          next();
+        } else {
+          res.sendStatus(401);
+        }
       });
     } else {
       res.sendStatus(401);
     }
 }
 
-app.use(authenticateJWT);
-app.use(cors())
-app.use(express.json())
+// app.use(authenticateJWT);
 
-let players = {};
-let rooms: string[] | {} = [];
+//app.use(express.json())
+
+let players: { [socketId: string]: PlayerInfo } = {};
+let rooms: { [key: string]: string[] } = {};
 
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket: Socket) => {
     //Create a room
-    socket.on('createRoom', (roomCode: string | number) => {
+    socket.on('createRoom', (roomCode:string) => {
         rooms[roomCode] = [socket.id];
         const playerNumber = 1;
         players[socket.id] = { roomCode, playerNumber };
         socket.emit('playerNumber', playerNumber);
     });
     //Join a room
-    socket.on('joinRoom', (roomCode) => {
+    socket.on('joinRoom', (roomCode:string) => {
         socket.join(roomCode);
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
@@ -101,7 +117,7 @@ io.on('connection', (socket: Socket) => {
         socket.emit('playerNumber', playerNumber);
     });
     //Leave a room
-    socket.on('leaveRoom', (roomCode) => {
+    socket.on('leaveRoom', (roomCode:string) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('leaveRoom');
         // const { roomCode } = players[socket.id];
@@ -115,12 +131,12 @@ io.on('connection', (socket: Socket) => {
         console.error('Socket.IO error:', error);
     });
     //Game state
-    socket.on('gameState', (gameState, roomCode) => {
+    socket.on('gameState', (gameState, roomCode:string) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('gameState', gameState);
     });
     //Game over
-    socket.on('gameOver', (isGameOver, roomCode) => {
+    socket.on('gameOver', (isGameOver, roomCode:string) => {
         io.to(roomCode).emit('gameOver', isGameOver);
       });
     //Reset
@@ -232,7 +248,7 @@ app.post("/api/v1/chess/games/save", authenticateJWT, async (req, res) => {
         const { user } = req;
 
         const savedGame = await db.query(
-            "INSERT INTO savedGames (user_id, game_state) VALUES ($1, $2) RETURNING *",
+            "INSERT INTO savedGames (userid, game_state) VALUES ($1, $2) RETURNING *",
             [user.userId, JSON.stringify(gameState)]
         );
 
@@ -259,7 +275,7 @@ app.put("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
         const { gameData } = req.body; // assuming the updated game data is sent in the request body
 
         const updatedGame = await db.query(
-            "UPDATE savedGames SET data = $1 WHERE user_id = $2 AND id = $3 RETURNING *",
+            "UPDATE savedGames SET data = $1 WHERE userid = $2 AND id = $3 RETURNING *",
             [gameData, user.userId, gameId]
         );
 
@@ -291,7 +307,7 @@ app.get("/api/v1/chess/games", authenticateJWT, async (req, res) => {
         const { user } = req;
 
         const savedGames = await db.query(
-            "SELECT * FROM savedGames WHERE user_id = $1",
+            "SELECT * FROM savedGames WHERE userid = $1",
             [user.userId]
         );
 
@@ -317,7 +333,7 @@ app.get("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
         const { gameId } = req.params;
 
         const savedGame = await db.query(
-            "SELECT * FROM savedGames WHERE user_id = $1 AND id = $2",
+            "SELECT * FROM savedGames WHERE userid = $1 AND id = $2",
             [user.userId, gameId]
         );
 
@@ -350,7 +366,7 @@ app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
         const { gameId } = req.params;
 
         const deletedGame = await db.query(
-            "DELETE FROM savedGames WHERE user_id = $1 AND id = $2 RETURNING *",
+            "DELETE FROM savedGames WHERE userid = $1 AND id = $2 RETURNING *",
             [user.userId, gameId]
         );
 
@@ -375,3 +391,23 @@ app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
         });
     }
 });
+
+// process.env.PORT is used to get the port from the .env file 
+// or 3001 if it doesn't exist
+const PORT = process.env.PORT || 3005
+// app.listen is used to start the server on the port from the .env file
+app.listen(PORT, () => {
+    console.log(`Authentication server running on PORT ${PORT}`)
+})
+
+httpServer.listen(3004, () => {
+    console.log('socket server running at http://localhost:3004');
+  });
+  
+  httpServer.on('error', (err) => {
+    process.exit(1);
+    console.error(`Server error: ${err}`);
+    httpServer.close(() => {
+      console.log('Socket Server stopped due to an error');
+    });
+  });

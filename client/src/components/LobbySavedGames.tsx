@@ -23,12 +23,18 @@ const LobbySavedGames = ({ username }: { username: string }) => {
 
   useEffect(() => {
     const fetchGames = async () => {
-      const savedGames = await getSavedGames();
-      setGames(savedGames);
+      if (games.length === 0) {
+        const savedGames = await getSavedGames();
+        if (Array.isArray(savedGames)) {
+          setGames(savedGames);
+        } else {
+          console.log(savedGames); // Log the message
+        }
+      }
     };
-
+  
     fetchGames();
-  }, [username]);
+  }, [username, games]);
 
   const handleDeleteGame = async (gameId: number) => {
     await deleteGame(gameId);

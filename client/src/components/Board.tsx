@@ -28,16 +28,23 @@ type BoardProps = {
 // div for container of board
 // render chess board as array or Square components mapped from gameState array
 // if the gameState array has a piece in the tile render the piece
-const Board: React.FC<BoardProps> = ({gameState, highlightedTiles, handleDragStart, handleDragOver, handleDrop}) => {
+const Board: React.FC<BoardProps> = ({ gameState, highlightedTiles, handleDragStart, handleDragOver, handleDrop, playerNumber }) => {
+    console.log(gameState);
+    console.log(gameState.board)
     return (
         <div className="board">
-            {gameState.board.map((row: PieceType[], i:number) => (
+            {gameState.board.map((row: (PieceType | string)[], i: number) => (
                 <div key={i} className="row">
-                    {row.map((piece: PieceType, j:number) => (
-                        <Square key={j} position={[i, j]} highlightedTiles={highlightedTiles} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop}>
-                            {piece && <Piece piece={piece} position={[i, j]} />}
-                        </Square>
-                    ))}
+                    {row.map((piece: PieceType | string, j: number) => {
+                        const isDark = (i + j) % 2 === 0;
+                        const squareStyle = isDark ? { backgroundColor: 'tan' } : { backgroundColor: 'white' };
+
+                        return (
+                            <Square key={j} position={[i, j]} style={squareStyle} highlightedTiles={highlightedTiles} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop}>
+                                {piece !== '' ? <Piece piece={piece as PieceType} gameState={gameState} playerNumber={playerNumber} /> : <div className="empty-square" />}
+                            </Square>
+                        );
+                    })}
                 </div>
             ))}
         </div>

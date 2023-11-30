@@ -27,25 +27,25 @@ import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, HighlightedTile } from './types/clientTypes';
 
-const socket = io('http://localhost:3002');
+const socket = io('http://localhost:3004');
 
-const createPiece = (type: string, color: string, position: Position) => ({ type, color, position, hasMoved: false, isHighlighted: false });
-const createPawn = (color: string, position: Position) => ({ type: 'pawn', color, position, hasMoved: false, isHighlighted: false });
+let index = 0;
+
+const createPiece = (type: string, color: string, position: Position, index: number) => ({ type, color, position, hasMoved: false, isHighlighted: false, index });
+const createPawn = (color: string, position: Position, index: number) => ({ type: 'pawn', color, position, hasMoved: false, isHighlighted: false, index });
 const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
-
 
 const initialBoard: GameStateType = {
     board: [
-        majorPieces.map((type, index) => createPiece(type, 'black', [0, index])),
-        Array(8).fill(null).map((_, index) => createPawn('black', [1, index])),
-        ...Array(4).fill(Array(8).fill(null)),
-        Array(8).fill(null).map((_, index) => createPawn('white', [6, index])),
-        majorPieces.map((type, index) => createPiece(type, 'white', [7, index])),
+        majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
+        Array(8).fill('').map((_, i) => createPawn('black', [1, i], index++)),
+        ...Array(4).fill(Array(8).fill('').map((_, i) => ({ type: 'empty', color: 'none', position: [2 + Math.floor(index / 8), i], hasMoved: false, isHighlighted: false, index: index++ }))),
+        Array(8).fill('').map((_, i) => createPawn('white', [6, i], index++)),
+        majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
     ],
     history: [],
-    turn: 'black'
+    turn: 'black',
 };
-
 
 function App() {
     const [playerNumber, setPlayerNumber] = useState<number>(0);
@@ -207,7 +207,7 @@ function App() {
         <SocketContext.Provider value={socket}>
             <Router>
                 <Routes>
-                    <Route path="/" element={<Lobby />} />
+                    <Route path="/lobby?/:username?" element={<Lobby />} />
                     <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
                 </Routes>
             </Router>

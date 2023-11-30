@@ -18,13 +18,13 @@
 import enPassant from '../gameLogic/enPassant'
 import castling from '../gameLogic/castling'
 import getMovesForPiece from './pieceMoves';
-import { GameState, Move, Piece, Position } from '../types/clientTypes';
+import { GameState, Move, Piece as PieceType, Position } from '../types/clientTypes';
 
 
 
-function validMoves(piece: Piece, position: Position, gameState: GameState, playerNumber: number) {
+function validMoves(piece: PieceType, position: Position, gameState: GameState, playerNumber: number) {
     let moves: Move[] = [];
-
+    console.log('validMoves', piece, position, gameState, playerNumber);
     const normalMoves = getMovesForPiece(piece, position, gameState);
     if (normalMoves) {
         moves = moves.concat(normalMoves);
