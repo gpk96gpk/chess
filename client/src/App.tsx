@@ -39,7 +39,16 @@ const initialBoard: GameStateType = {
     board: [
         majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
         Array(8).fill('').map((_, i) => createPawn('black', [1, i], index++)),
-        ...Array(4).fill(Array(8).fill('').map((_, i) => ({ type: 'empty', color: 'none', position: [2 + Math.floor(index / 8), i], hasMoved: false, isHighlighted: false, index: index++ }))),
+        ...Array(4).fill(null).map((_, rowIndex) =>
+            Array(8).fill('').map((_, colIndex) => ({
+                type: 'empty',
+                color: 'none',
+                position: [2 + rowIndex, colIndex],
+                hasMoved: false,
+                isHighlighted: false,
+                index: index++
+            }))
+        ),
         Array(8).fill('').map((_, i) => createPawn('white', [6, i], index++)),
         majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
     ],

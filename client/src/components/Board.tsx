@@ -30,7 +30,7 @@ type BoardProps = {
 // if the gameState array has a piece in the tile render the piece
 const Board: React.FC<BoardProps> = ({ gameState, highlightedTiles, handleDragStart, handleDragOver, handleDrop, playerNumber }) => {
     console.log(gameState);
-    console.log(gameState.board)
+    // console.log(gameState.board)
     return (
         <div className="board">
             {gameState.board.map((row: (PieceType | string)[], i: number) => (
@@ -41,7 +41,7 @@ const Board: React.FC<BoardProps> = ({ gameState, highlightedTiles, handleDragSt
 
                         return (
                             <Square key={j} position={[i, j]} style={squareStyle} highlightedTiles={highlightedTiles} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop}>
-                                {piece !== '' ? <Piece piece={piece as PieceType} gameState={gameState} playerNumber={playerNumber} /> : <div className="empty-square" />}
+                                {piece !== '' ? <Piece position={[i, j]} piece={piece as PieceType} handleDragStart={handleDragStart} gameState={gameState} playerNumber={playerNumber} /> : <div className="empty-square" />}
                             </Square>
                         );
                     })}

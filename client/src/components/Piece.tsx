@@ -11,15 +11,13 @@ import { getPieceIcon } from '../assets/icons'; // import your icon function
 import validMoves from '../gameLogic/validMoves';
 import { GameState, Move, Piece as PieceType, Position } from '../types/clientTypes';
 
-const Piece = ({ piece, gameState, playerNumber }: {piece: PieceType | string, position: Position, gameState: GameState, playerNumber: number}) => {
-    const handleDragStart = (event: React.DragEvent, piece: PieceType, position: Position) => {
-        event.dataTransfer.setData('piece', JSON.stringify(piece));
-        event.dataTransfer.setData('position', JSON.stringify(position));
-    };
+const Piece = ({ piece, position, gameState, playerNumber, handleDragStart }: {piece: PieceType | string, position: Position, gameState: GameState, playerNumber: number}) => {
+
 
     const onDragStart = (event: React.DragEvent) => {
         // Here we're calling handleDragStart with the correct arguments
-        handleDragStart(event, piece, piece.position);
+        const newPiece = { ...piece, position: [piece.position[0], piece.position[1]] as Position };
+        handleDragStart(event, newPiece, piece.position);
         console.log('Startposition', piece.position); 
     };
 

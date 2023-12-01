@@ -16,7 +16,7 @@ type PieceType = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 type PieceColor = 'white' | 'black';
 
 const icons: Record<PieceColor, Record<PieceType, string>> = {
-  white: {
+  black: {
     pawn: pawnBlack,
     rook: rookBlack,
     knight: knightBlack,
@@ -24,7 +24,7 @@ const icons: Record<PieceColor, Record<PieceType, string>> = {
     queen: queenBlack,
     king: kingBlack,
   },
-  black: {
+  white: {
     pawn: pawnWhite,
     rook: rookWhite,
     knight: knightWhite,

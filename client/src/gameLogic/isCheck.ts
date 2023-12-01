@@ -22,13 +22,13 @@ function isCheck(gameState: GameState, playerNumber: number): boolean {
     for (let j = 0; j < gameState.board[i].length; j++) {
       const piece: PieceType | null = gameState.board[i][j];
       if (piece && piece.color !== currentPlayerColor) {
-        const moves: Move[] = getMovesForPiece(piece, [j, i], gameState);
-        if (kingPosition !== null) {
-          const [kingX, kingY] = kingPosition;
-          if (moves.some(move => move.to[0] === kingX && move.to[1] === kingY)) {
-              return true;
-          }
-      }
+      //   const moves: Move[] = getMovesForPiece(piece, [j, i], gameState);
+      //   if (kingPosition !== null) {
+      //     const [kingX, kingY] = kingPosition;
+      //     if (moves.some(move => move.to[0] === kingX && move.to[1] === kingY)) {
+      //         return true;
+      //     }
+      // }
       }
     }
   }

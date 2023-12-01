@@ -6,7 +6,7 @@ import { HighlightedTile, Piece as PieceType, Position, Props } from "../types/c
 type SquareProps = {
     style: React.CSSProperties;
     position: Position | Position[];
-    highlightedTiles: HighlightedTile[];
+    highlightedTiles: Position[];
     handleDragStart: (
         event: React.DragEvent<HTMLDivElement>, 
         piece: PieceType, 
@@ -33,8 +33,7 @@ type SquareProps = {
 //onDragOver event prevents default behavior
 // render children
 const Square: React.FC<SquareProps> = ({ style, position, highlightedTiles, handleDragStart, handleDragOver, handleDrop, children }) => {
-    const isHighlighted = highlightedTiles.some(([x, y]) => x === position[0] && y === position[1]);
-
+    const isHighlighted = Array.isArray(highlightedTiles) && Array.isArray(position) && highlightedTiles.some(([x, y]) => x === position[0] && y === position[1]);
     const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
         const pieceData = event.currentTarget.getAttribute('data-piece');
         if (pieceData === null) {

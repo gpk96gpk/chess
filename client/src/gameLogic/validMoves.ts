@@ -24,26 +24,30 @@ import { GameState, Move, Piece as PieceType, Position } from '../types/clientTy
 
 function validMoves(piece: PieceType, position: Position, gameState: GameState, playerNumber: number) {
     let moves: Move[] = [];
-    console.log('validMoves', piece, position, gameState, playerNumber);
+    console.log('validMovesPropsCheck', piece, position, gameState, playerNumber);
     const normalMoves = getMovesForPiece(piece, position, gameState);
     if (normalMoves) {
         moves = moves.concat(normalMoves);
+        console.log('MovesConcat', moves);
     }
-
+    
     if (piece && piece.type === 'pawn') {
         const enPassantMove = enPassant(piece, position, gameState, playerNumber);
         if (enPassantMove) {
             moves.push(enPassantMove);
         }
+        console.log('enPassantMove', enPassantMove);
     }
-
+    
     if (piece && piece.type === 'king') {
         const castlingMove = castling(piece, position, gameState, playerNumber) || [];
         if (castlingMove) {
             moves = moves.concat(castlingMove);
         }
+        console.log('castlingMove', castlingMove);
     }
-
+    
+    console.log('validMoveMoves', moves)
     return moves;
 }
 
