@@ -32,11 +32,12 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
     }
     
     if (piece && piece.type === 'pawn') {
+        console.log('enPassantPropsCheck!!!', piece, position, gameState, playerNumber);
         const enPassantMove = enPassant(piece, position, gameState, playerNumber);
         if (enPassantMove) {
             moves.push(enPassantMove);
         }
-        console.log('enPassantMove', enPassantMove);
+        console.log('enPassantMove!!!', enPassantMove);
     }
     
     if (piece && piece.type === 'king') {

@@ -167,13 +167,14 @@ const Chess: React.FC<Props> = (props) => {
             if ( piece && piece.type !== 'empty') {
                 console.log('piece', piece);
                 console.log('newGameState.board!', newGameState.board);
-                console.log('newGameState.board[toX][toY]', newGameState.board[toX][toY]);
                 console.log('toX!!', toX);
                 newGameState.board[toX][toY].color = piece.color;
                 newGameState.board[toX][toY].type = piece.type;
+                newGameState.board[toX][toY].hasMoved = true;
+                console.log('newGameState.board[toX][toY]', newGameState.board[toX][toY]);
             }
             newGameState.history.push({ 
-                piece, 
+                piece: {...piece, hasMoved: true}, 
                 from: [fromX, fromY], 
                 to: [toX, toY], 
                 board: JSON.parse(JSON.stringify(newGameState.board)),
@@ -184,18 +185,18 @@ const Chess: React.FC<Props> = (props) => {
             setGameState(newGameState);
             const opponentKing = newGameState.board.flat().find(piece => piece && piece.type === 'king' && piece.color !== (props.playerNumber === 1 ? 'white' : 'black'));            
             setGameState(newGameState);
-            if (opponentKing && (opponentKing.position[0] === target[0] && opponentKing.position[1] === target[1]) || isCheck(newGameState, props.playerNumber)) {
-                props.setGameOver(true);
-                if (socket) {
-                    socket.emit('gameOver', true);
-                }
-            }
-            if (socket) {
-                socket.emit('gameState', newGameState);
-            }
-            if (socket) {
-                socket.emit('turn', props.turnState === 1 ? 2 : 1);
-            }
+            // if (opponentKing && (opponentKing.position[0] === lastDragOverPosition.current[0] && opponentKing.position[1] === lastDragOverPosition.current[1]) || isCheck(newGameState, props.playerNumber)) {
+            //     props.setGameOver(true);
+            //     if (socket) {
+            //         socket.emit('gameOver', true);
+            //     }
+            // }
+            // if (socket) {
+            //     socket.emit('gameState', newGameState);
+            // }
+            // if (socket) {
+            //     socket.emit('turn', props.turnState === 1 ? 2 : 1);
+            // }
         }
     };
     

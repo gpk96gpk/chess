@@ -38,9 +38,9 @@ const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'kni
 const initialBoard: GameStateType = {
     board: [
         majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
-        Array(8).fill('').map((_, i) => createPawn('black', [1, i], index++)),
+        Array(8).fill(null).map((_, i) => createPawn('black', [1, i], index++)),
         ...Array(4).fill(null).map((_, rowIndex) =>
-            Array(8).fill('').map((_, colIndex) => ({
+            Array(8).fill(null).map((_, colIndex) => ({
                 type: 'empty',
                 color: 'none',
                 position: [2 + rowIndex, colIndex],
@@ -49,7 +49,7 @@ const initialBoard: GameStateType = {
                 index: index++
             }))
         ),
-        Array(8).fill('').map((_, i) => createPawn('white', [6, i], index++)),
+        Array(8).fill(null).map((_, i) => createPawn('white', [6, i], index++)),
         majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
     ],
     history: [],

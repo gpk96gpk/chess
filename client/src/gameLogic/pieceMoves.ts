@@ -32,7 +32,7 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
     }
     if (forward[0] >= 0 && forward[0] < 8 && forward[1] >= 0 && forward[1] < 8) {
         const move: Move = {
-            piece,
+            piece: {...piece, hasMoved: true},
             from: position,
             to: forward,
             board: gameState.board,
@@ -43,10 +43,16 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
         console.log('PawnMovesCheckForward1', moves);
     }
     // If it's the pawn's first move, it can move forward two squares
-    const hasMoved = gameState.history.some(move => move.piece === piece);
-    console.log('PawnMovesHasMoved', hasMoved);
+    const hasMoved = gameState.history.some(move => {
+        console.log('move.piece', move.piece);
+        console.log('piece', piece);
+        return move.piece === {...piece};
+    });
+    console.log('hasMoved!!!', hasMoved);    
+    console.log('gameState.history!!!', gameState.history);
+    console.log('piece!!!', piece);
     console.log('PawnGameStateCheck', gameState);
-    if (!hasMoved) {
+    if (piece.hasMoved === false) {
         const forwardTwo: Position = [piece.color === 'black' ? position[0] + 2 : position[0] - 2, position[1]];
         console.log('PawnMovesForwards', forward, forward[0], forwardTwo[1]);
         console.log('PawnMovesForwards2', forwardTwo, forwardTwo[0], forwardTwo[1]);
@@ -56,7 +62,7 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
         }
         if (gameState.board[forwardTwo[0]][forwardTwo[1]].type === 'empty') {
             const move: Move = {
-                piece,
+                piece: {...piece, hasMoved: true},
                 from: position,
                 to: forwardTwo,
                 board: gameState.board,
@@ -71,10 +77,13 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
     // Pawns capture diagonally
     const leftCapture: Position = [piece.color === 'white' ? position[0] - 1 : position[0] + 1, piece.color === 'white' ? position[1] - 1 : position[1] + 1];
     const rightCapture: Position = [piece.color === 'white' ? position[0] - 1 : position[0] + 1, piece.color === 'white' ? position[1] + 1 : position[1] - 1];
+    console.log('gameState.board[leftCapture[0]][leftCapture[1]].color!!', gameState.board[leftCapture[0]][leftCapture[1]], leftCapture[0], leftCapture[1]);
+    console.log('piece.color!!', piece.color);
+    const oppositeColor = piece.color === 'white' ? 'black' : 'white';
 
-    if (gameState.board[leftCapture[1]] && gameState.board[leftCapture[0],leftCapture[1]] && gameState.board[leftCapture[0],leftCapture[1]]?.color !== piece.color) {
+    if (gameState.board[leftCapture[1]] && gameState.board[leftCapture[0],leftCapture[1]] && gameState.board[leftCapture[0]][leftCapture[1]].color === oppositeColor) {
         const move: Move = {
-            piece,
+            piece: {...piece, hasMoved: true},
             from: position,
             to: leftCapture,
             board: gameState.board,
@@ -86,9 +95,9 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
 
     }
 
-    if (gameState.board[rightCapture[1]] && gameState.board[rightCapture[0]][rightCapture[1]] && gameState.board[rightCapture[0]][rightCapture[1]]?.color !== piece.color) {
+    if (gameState.board[rightCapture[1]] && gameState.board[rightCapture[0]][rightCapture[1]] && gameState.board[rightCapture[0]][rightCapture[1]]?.color === oppositeColor) {
         const move: Move = {
-            piece,
+            piece: {...piece, hasMoved: true},
             from: position,
             to: rightCapture,
             board: gameState.board,
