@@ -41,6 +41,7 @@ interface HandleDropProps {
 
 const Chess: React.FC<Props> = (props) => {
     const { roomCode } = useParams();
+    console.log('roomCode', roomCode);
     const socket = useContext(SocketContext);
 
     //handle drag event needs to take in player number
@@ -54,36 +55,6 @@ const Chess: React.FC<Props> = (props) => {
     // handleDragOver prevent draggable default behavior
     // handleDrop store targeted tile, update gameState
     //and emit to server
-
-    //handleDragStart
-    // when a piece has been selected to be dragged it need to pull the 
-    //color and piece from the tile
-    //with color x coordinate and y coordinate value of board square
-    //in the gameState array
-    // based off the color it determines move direction
-    // based off piece it determines valid moves
-    //those valid moves are pulled from a list of valid moves based on each piece
-    // based off the piece a switch statement will be used to determine the valid coordinates
-    //the selected piece can move to
-    // const handleDragStart = (
-    //     event: React.DragEvent, 
-    //     piece: PieceType, 
-    //     position: Position, 
-    //     setHighlightedTiles: (tiles: Position[]) => void, 
-    //     props: Props
-    //   ) => {
-    //     event.dataTransfer.setData('piece', JSON.stringify({ piece, position }));
-    //     event.dataTransfer.setData('source', JSON.stringify(position));
-    //     const pieceValidMoves: Move[] = validMoves(piece, position, props.gameState, props.playerNumber);
-    //     console.log('pieceValidMoves', pieceValidMoves);
-    //     console.log('piece', piece);
-    //     console.log('position', position);
-    //     console.log('props.gameState', props.gameState);
-    //     console.log('props.playerNumber', props.playerNumber);
-    //     const positions: Position[] = pieceValidMoves.map(move => move.to);
-    //     setHighlightedTiles(positions);
-    // };
-    //const [highlightedTiles, setHighlightedTiles] = useState<Position[]>([]);
 
     const lastDragOverPosition = useRef<Position | null>(null);
     const startPosition = useRef<Position | null>(null);
@@ -148,10 +119,11 @@ const Chess: React.FC<Props> = (props) => {
         console.log('isPieceValidMove', isPieceValidMove);
         console.log('move.to', lastDragOverPosition.current)
         console.log('move.from', startPosition.current)
+        console.log('turnState', turnState, 'playerNumber', playerNumber)
         if (isPieceValidMove && turnState === playerNumber) {
-            // console.log('valid move for the piece!!');
-            // console.log('piece', piece);
-            // console.log('gameState', gameState);
+            console.log('valid move for the piece!!');
+            console.log('piece', piece);
+            console.log('gameState', gameState);
             const newGameState = { ...gameState };
             const [fromX, fromY] = piece.position;
             const [toX, toY] = lastDragOverPosition.current;
@@ -183,20 +155,21 @@ const Chess: React.FC<Props> = (props) => {
             });
             //setHighlightedTiles([]);
             setGameState(newGameState);
-            const opponentKing = newGameState.board.flat().find(piece => piece && piece.type === 'king' && piece.color !== (props.playerNumber === 1 ? 'white' : 'black'));            
+            const opponentKing = newGameState.board.flat().find(piece => piece && piece.type === 'king' && piece.color !== (playerNumber === 1 ? 'black' : 'white'));            
             setGameState(newGameState);
-            // if (opponentKing && (opponentKing.position[0] === lastDragOverPosition.current[0] && opponentKing.position[1] === lastDragOverPosition.current[1]) || isCheck(newGameState, props.playerNumber)) {
-            //     props.setGameOver(true);
-            //     if (socket) {
-            //         socket.emit('gameOver', true);
-            //     }
-            // }
-            // if (socket) {
-            //     socket.emit('gameState', newGameState);
-            // }
-            // if (socket) {
-            //     socket.emit('turn', props.turnState === 1 ? 2 : 1);
-            // }
+            if (opponentKing && (opponentKing.position[0] === lastDragOverPosition.current[0] && opponentKing.position[1] === lastDragOverPosition.current[1]) || isCheck(newGameState, props.playerNumber)) {
+                console.log('King captured')
+                setGameOver(true);
+                if (socket) {
+                    socket.emit('gameOver', true);
+                }
+            }
+            if (socket) {
+                socket.emit('gameState', newGameState, roomCode);
+            }
+            if (socket) {
+                socket.emit('turn', turnState === 1 ? 2 : 1);
+            }
         }
     };
     
@@ -212,8 +185,10 @@ const Chess: React.FC<Props> = (props) => {
 
     useEffect(() => {
         // Check for game over and winner
+        console.log('isCheckmate(gameState, playerNumber)', isCheckmate(gameState, playerNumber));
+        console.log('gameOver', gameOver);
         if (gameOver || isCheckmate(gameState, playerNumber)) {
-            setTurnState(0);
+            //setTurnState(0);
             setWinner(turnState === 1 ? 'Black' : 'White')
         }
     }, [gameState, gameOver, playerNumber, turnState, setTurnState, setWinner]);
@@ -228,12 +203,13 @@ const Chess: React.FC<Props> = (props) => {
 
     // Check for stalemate and draw
     useEffect(() => {
-        if (isDraw(gameState, playerNumber)) {
+        if (isDraw(gameState, playerNumber) && turnState !== 0) {
+            console.log('Draw');
             setGameOver(true);
             setWinner('Draw');
-            setTurnState(0);
+            setTurnState(3);
         }
-    }, [gameState, playerNumber, setGameOver, setWinner, setTurnState]);
+    }, [gameState, playerNumber, setGameOver, setWinner, setTurnState, turnState]);
     //render
     return (
         <div>

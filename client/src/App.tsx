@@ -67,7 +67,7 @@ function App() {
 
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
-            console.log(`Created room ${roomId}`);
+            console.log(`Socket Created room ${roomId}`);
         });
 
         return () => {
@@ -77,7 +77,7 @@ function App() {
 
     useEffect(() => {
         socket.on('joinRoom', (roomId) => {
-            console.log(`Joined room ${roomId}`);
+            console.log(`Socket Joined room ${roomId}`);
         });
 
         return () => {
@@ -87,9 +87,9 @@ function App() {
 
     useEffect(() => {
         socket.on('leaveRoom', (roomId) => {
-            setGameOver(true);
+            //setGameOver(true);
             setWinner(null);
-            console.log(`Left room ${roomId}`);
+            console.log(`Socket Left room ${roomId}`);
         });
 
         return () => {
@@ -99,7 +99,7 @@ function App() {
 
     useEffect(() => {
         socket.on('connect', () => {
-            console.log('Connected to the server');
+            console.log('Socket Connected to the server');
         });
 
         socket.on('connect_error', (error: Error) => {
@@ -113,7 +113,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        socket.on('disconnect', (reason) => {
+        socket.on('Socket disconnect', (reason) => {
             console.log('Disconnected:', reason);
         });
 
@@ -124,6 +124,7 @@ function App() {
 
     useEffect(() => {
         socket.on('playerNumber', (number: number) => {
+            console.log(`Socket Player number: ${number}`);
             setPlayerNumber(number);
         });
 

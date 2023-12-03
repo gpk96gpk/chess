@@ -21,6 +21,7 @@ function getMovesForPiece(piece: PieceType, position: Position, gameState: GameS
 }
 
 function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position: Position, gameState: GameState){
+    console.log('PawnPropsCheck', piece, position, gameState);
     const moves: Move[] = [];
     // Pawns can move forward one square, if it's not occupied
     const forward: Position = [piece.color === 'black' ? position[0] + 1 : position[0] - 1, position[1] ];
@@ -37,25 +38,25 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
-        // console.log('PawnMovesCheckForward1', moves);
+        console.log('PawnMovesCheckForward1', moves);
     }
-    // If it's the pawn's first move, it can move forward two squares
+    //If it's the pawn's first move, it can move forward two squares
     const hasMoved = gameState.history.some(move => {
-        // console.log('move.piece', move.piece);
-        // console.log('piece', piece);
+        console.log('move.piece', move.piece);
+        console.log('piece', piece);
         return move.piece === {...piece};
     });
-    // console.log('hasMoved!!!', hasMoved);    
-    // console.log('gameState.history!!!', gameState.history);
-    // console.log('piece!!!', piece);
-    // console.log('PawnGameStateCheck', gameState);
+    console.log('hasMoved!!!', hasMoved);    
+    console.log('gameState.history!!!', gameState.history);
+    console.log('piece!!!', piece);
+    console.log('PawnGameStateCheck', gameState);
     if (piece.hasMoved === false && gameState.board[forward[0]][forward[1]].type === 'empty') {
         const forwardTwo: Position = [piece.color === 'black' ? position[0] + 2 : position[0] - 2, position[1]];
-        // console.log('PawnMovesForwards', forward, forward[0], forwardTwo[1]);
-        // console.log('PawnMovesForwards2', forwardTwo, forwardTwo[0], forwardTwo[1]);
+        console.log('PawnMovesForwards', forward, forward[0], forwardTwo[1]);
+        console.log('PawnMovesForwards2', forwardTwo, forwardTwo[0], forwardTwo[1]);
         if (forwardTwo[0] && forwardTwo[1] && forward[0] && forward[1] && gameState.board[forwardTwo[0]]) {
-            // console.log('gameState.board[forwardTwo[0]][forwardTwo[1]]', gameState.board[forwardTwo[0]][forwardTwo[1]], forwardTwo[0], forwardTwo[1]);
-            // console.log('gameState.board[forward[0]]', gameState.board[forward[0]][forward[1]], forward[0], forward[1]);
+            console.log('gameState.board[forwardTwo[0]][forwardTwo[1]]', gameState.board[forwardTwo[0]][forwardTwo[1]], forwardTwo[0], forwardTwo[1]);
+            console.log('gameState.board[forward[0]]', gameState.board[forward[0]][forward[1]], forward[0], forward[1]);
         }
         if (gameState.board[forwardTwo[0]][forwardTwo[1]].type === 'empty') {
             const move: Move = {
@@ -67,7 +68,7 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
                 turnNumber: gameState.history.length
             };
             moves.push(move.to);
-            // console.log('PawnMovesCheckForwardTwo', moves);
+            console.log('PawnMovesCheckForwardTwo', moves);
         }
     }
 

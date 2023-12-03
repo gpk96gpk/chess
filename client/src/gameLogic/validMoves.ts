@@ -16,7 +16,7 @@
 //check if piece is moving to a tile that is occupied by a King piece of the opposite color
 //
 import enPassant from '../gameLogic/enPassant'
-import castling from '../gameLogic/castling'
+//import castling from '../gameLogic/castling'
 import getMovesForPiece from './pieceMoves';
 import { GameState, Move, Piece as PieceType, Position } from '../types/clientTypes';
 
