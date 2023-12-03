@@ -55,3 +55,8 @@ export default Piece;
 //use the type as well as position to determine if the take is valid i think the valid move and take are different functions so no need to over complicate it
 //
 //fix error where the piece is not being moved to the new position on the first turn after the room is created
+
+//fix any error with the backend server for saves eck that all the requests are being sent correctly
+
+//check is adjacent variable in en passant is working correctly when the turn are linked it needs to be true as along as pieces are parallel but it 
+//only returns true if the pieces are diagonal

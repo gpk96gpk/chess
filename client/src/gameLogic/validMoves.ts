@@ -40,13 +40,13 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
         console.log('enPassantMove!!!', enPassantMove);
     }
     
-    if (piece && piece.type === 'king') {
-        const castlingMove = castling(piece, position, gameState, playerNumber) || [];
-        if (castlingMove) {
-            moves = moves.concat(castlingMove);
-        }
-        console.log('castlingMove', castlingMove);
-    }
+    // if (piece && piece.type === 'king') {
+    //     const castlingMove = castling(piece, position, gameState, playerNumber) || [];
+    //     if (castlingMove) {
+    //         moves = moves.concat(castlingMove);
+    //     }
+    //     console.log('castlingMove', castlingMove);
+    // }
     
     console.log('validMoveMoves', moves)
     return moves;

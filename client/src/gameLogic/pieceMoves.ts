@@ -22,15 +22,12 @@ function getMovesForPiece(piece: PieceType, position: Position, gameState: GameS
 
 function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position: Position, gameState: GameState){
     const moves: Move[] = [];
-    console.log('getPawnMovesPropsCheck', piece, position, gameState);
     // Pawns can move forward one square, if it's not occupied
-    console.log('MovesFileposition', position)
-    console.log('MovesFilepiece', piece)
     const forward: Position = [piece.color === 'black' ? position[0] + 1 : position[0] - 1, position[1] ];
     if (!forward) {
         return;
     }
-    if (forward[0] >= 0 && forward[0] < 8 && forward[1] >= 0 && forward[1] < 8) {
+    if (forward[0] >= 0 && forward[0] < 8 && forward[1] >= 0 && forward[1] < 8 && gameState.board[forward[0]][forward[1]].type === 'empty') {
         const move: Move = {
             piece: {...piece, hasMoved: true},
             from: position,
@@ -40,29 +37,29 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
-        console.log('PawnMovesCheckForward1', moves);
+        // console.log('PawnMovesCheckForward1', moves);
     }
     // If it's the pawn's first move, it can move forward two squares
     const hasMoved = gameState.history.some(move => {
-        console.log('move.piece', move.piece);
-        console.log('piece', piece);
+        // console.log('move.piece', move.piece);
+        // console.log('piece', piece);
         return move.piece === {...piece};
     });
-    console.log('hasMoved!!!', hasMoved);    
-    console.log('gameState.history!!!', gameState.history);
-    console.log('piece!!!', piece);
-    console.log('PawnGameStateCheck', gameState);
-    if (piece.hasMoved === false) {
+    // console.log('hasMoved!!!', hasMoved);    
+    // console.log('gameState.history!!!', gameState.history);
+    // console.log('piece!!!', piece);
+    // console.log('PawnGameStateCheck', gameState);
+    if (piece.hasMoved === false && gameState.board[forward[0]][forward[1]].type === 'empty') {
         const forwardTwo: Position = [piece.color === 'black' ? position[0] + 2 : position[0] - 2, position[1]];
-        console.log('PawnMovesForwards', forward, forward[0], forwardTwo[1]);
-        console.log('PawnMovesForwards2', forwardTwo, forwardTwo[0], forwardTwo[1]);
+        // console.log('PawnMovesForwards', forward, forward[0], forwardTwo[1]);
+        // console.log('PawnMovesForwards2', forwardTwo, forwardTwo[0], forwardTwo[1]);
         if (forwardTwo[0] && forwardTwo[1] && forward[0] && forward[1] && gameState.board[forwardTwo[0]]) {
-            console.log('gameState.board[forwardTwo[0]][forwardTwo[1]]',  gameState.board[forwardTwo[0]][forwardTwo[1]], forwardTwo[0], forwardTwo[1]);
-            console.log('gameState.board[forward[0]]',  gameState.board[forward[0]][forward[1]], forward[0], forward[1]);
+            // console.log('gameState.board[forwardTwo[0]][forwardTwo[1]]', gameState.board[forwardTwo[0]][forwardTwo[1]], forwardTwo[0], forwardTwo[1]);
+            // console.log('gameState.board[forward[0]]', gameState.board[forward[0]][forward[1]], forward[0], forward[1]);
         }
         if (gameState.board[forwardTwo[0]][forwardTwo[1]].type === 'empty') {
             const move: Move = {
-                piece: {...piece, hasMoved: true},
+                piece: { ...piece, hasMoved: true },
                 from: position,
                 to: forwardTwo,
                 board: gameState.board,
@@ -70,15 +67,15 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
                 turnNumber: gameState.history.length
             };
             moves.push(move.to);
-            console.log('PawnMovesCheckForwardTwo', moves);
+            // console.log('PawnMovesCheckForwardTwo', moves);
         }
     }
 
     // Pawns capture diagonally
     const leftCapture: Position = [piece.color === 'white' ? position[0] - 1 : position[0] + 1, piece.color === 'white' ? position[1] - 1 : position[1] + 1];
     const rightCapture: Position = [piece.color === 'white' ? position[0] - 1 : position[0] + 1, piece.color === 'white' ? position[1] + 1 : position[1] - 1];
-    console.log('gameState.board[leftCapture[0]][leftCapture[1]].color!!', gameState.board[leftCapture[0]][leftCapture[1]], leftCapture[0], leftCapture[1]);
-    console.log('piece.color!!', piece.color);
+    // console.log('gameState.board[leftCapture[0]][leftCapture[1]].color!!', gameState.board[leftCapture[0]][leftCapture[1]], leftCapture[0], leftCapture[1]);
+    // console.log('piece.color!!', piece.color);
     const oppositeColor = piece.color === 'white' ? 'black' : 'white';
 
     if (gameState.board[leftCapture[1]] && gameState.board[leftCapture[0],leftCapture[1]] && gameState.board[leftCapture[0]][leftCapture[1]].color === oppositeColor) {
@@ -91,7 +88,7 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
-        console.log('PawnMovesCheckLeft', moves);
+        // console.log('PawnMovesCheckLeft', moves);
 
     }
 
@@ -105,10 +102,10 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
-        console.log('PawnMovesCheckRight', moves);
+        // console.log('PawnMovesCheckRight', moves);
 
     }
-    console.log('PawnMovesSent', moves);
+    // console.log('PawnMovesSent', moves);
     return moves;
 }
 
@@ -118,46 +115,58 @@ function getRookMoves(piece: { type: string, color: 'white' | 'black' }, positio
     // Directions: up, down, left, right
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-    for (const [dx, dy] of directions) {
+    for (const [dy, dx] of directions) {
+
+        let lastSquare;
         for (let i = 1; i < 8; i++) {
-            const x = position[0] + i * dx;
-            const y = position[1] + i * dy;
+            const y = position[0] + i * dy;
+            const x = position[1] + i * dx;
+            console.log('Checking position:', [y, x]);
 
             // Stop if off board
-            if (x < 0 || x > 7 || y < 0 || y > 7) {
+            if (y < 0 || y > 7 || x < 0 || x > 7) {
                 break;
             }
 
-            if (gameState.board[y][x]) {
-                // If occupied by opponent's piece, it's a valid move
-                if (gameState.board[y][x]?.color !== piece.color) {
-                    const move: Move = {
-                        piece,
-                        from: position,
-                        to: [x, y],
-                        board: gameState.board,
-                        turn: piece.color,
-                        turnNumber: gameState.history.length
-                    };
-                    moves.push(move);
-                }
-                // Stop looking in this direction (can't jump over pieces)
+            lastSquare = [y, x];
+
+            // If square is occupied by any piece, stop looking in this direction
+            if (gameState.board[y][x].type !== 'empty') {
                 break;
             }
 
             // If square is not occupied, it's a valid move
             const move: Move = {
-                piece,
+                piece: {...piece, hasMoved: true},
                 from: position,
-                to: [x, y],
+                to: [y, x],
                 board: gameState.board,
                 turn: piece.color,
                 turnNumber: gameState.history.length
             };
-            moves.push(move);
+            moves.push(move.to);
+        }
+
+        // Check if the last checked square is occupied by an opponent's piece
+        if (lastSquare) {
+            const [y, x] = lastSquare;
+            console.log('Checking last square:', [y, x]);
+            if (gameState.board[y][x].color !== piece.color) {
+
+                const move: Move = {
+                    piece: {...piece, hasMoved: true},
+                    from: position,
+                    to: [y, x],
+                    board: gameState.board,
+                    turn: piece.color,
+                    turnNumber: gameState.history.length
+                };
+                moves.push(move.to);
+            }
         }
     }
 
+    console.log('Returning moves:', moves);
     return moves;
 }
 
@@ -167,12 +176,12 @@ function getKnightMoves(piece: { type: string, color: 'white' | 'black' }, posit
     // Knight move directions
     const directions = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
 
-    for (const [dx, dy] of directions) {
-        const x = position[0] + dx;
-        const y = position[1] + dy;
+    for (const [dy, dx] of directions) {
+        const y = position[0] + dy;
+        const x = position[1] + dx;
 
         // Continue if off board
-        if (x < 0 || x > 7 || y < 0 || y > 7) {
+        if (y < 0 || y > 7 || x < 0 || x > 7) {
             continue;
         }
 
@@ -183,63 +192,72 @@ function getKnightMoves(piece: { type: string, color: 'white' | 'black' }, posit
 
         // If square is not occupied or occupied by opponent's piece, it's a valid move
         const move: Move = {
-            piece,
+            piece: { ...piece, hasMoved: true },
             from: position,
-            to: [x, y],
+            to: [y, x],
             board: gameState.board,
             turn: piece.color,
             turnNumber: gameState.history.length
         };
-        moves.push(move);
+        moves.push(move.to);
     }
 
     return moves;
 }
 
 function getBishopMoves(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState): Move[] {
+
     const moves: Move[] = [];
 
     // Directions: up-left, up-right, down-left, down-right
     const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 
-    for (const [dx, dy] of directions) {
+    for (const [dy, dx] of directions) {
+
+        let lastSquare;
         for (let i = 1; i < 8; i++) {
-            const x = position[0] + i * dx;
-            const y = position[1] + i * dy;
+            const y = position[0] + i * dy;
+            const x = position[1] + i * dx;
 
             // Stop if off board
-            if (x < 0 || x > 7 || y < 0 || y > 7) {
+            if (y < 0 || y > 7 || x < 0 || x > 7) {
                 break;
             }
 
-            // If square is occupied
-            if (gameState.board[y][x]) {
-                // If occupied by opponent's piece, it's a valid move
-                if (gameState.board[y][x]?.color !== piece.color) {
-                    const move: Move = {
-                        piece,
-                        from: position,
-                        to: [x, y],
-                        board: gameState.board,
-                        turn: piece.color,
-                        turnNumber: gameState.history.length
-                    };
-                    moves.push(move);
-                }
-                // Stop looking in this direction (can't jump over pieces)
+            lastSquare = [y, x];
+
+            // If square is occupied by any piece, stop looking in this direction
+            if (gameState.board[y][x].type !== 'empty') {
                 break;
             }
 
             // If square is not occupied, it's a valid move
             const move: Move = {
-                piece,
+                piece: {...piece, hasMoved: true},
                 from: position,
-                to: [x, y],
+                to: [y, x],
                 board: gameState.board,
                 turn: piece.color,
                 turnNumber: gameState.history.length
             };
-            moves.push(move);
+            moves.push(move.to);
+        }
+
+        // Check if the last checked square is occupied by an opponent's piece
+        if (lastSquare) {
+            const [y, x] = lastSquare;
+            if (gameState.board[y][x].color !== piece.color) {
+
+                const move: Move = {
+                    piece: {...piece, hasMoved: true},
+                    from: position,
+                    to: [y, x],
+                    board: gameState.board,
+                    turn: piece.color,
+                    turnNumber: gameState.history.length
+                };
+                moves.push(move.to);
+            }
         }
     }
 
@@ -247,49 +265,58 @@ function getBishopMoves(piece: { type: string, color: 'white' | 'black' }, posit
 }
 
 function getQueenMoves(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState): Move[] {
+
     const moves: Move[] = [];
 
     // Directions: up, down, left, right, up-left, up-right, down-left, down-right
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
 
-    for (const [dx, dy] of directions) {
+    for (const [dy, dx] of directions) {
+
+        let lastSquare;
         for (let i = 1; i < 8; i++) {
-            const x = position[0] + i * dx;
-            const y = position[1] + i * dy;
+            const y = position[0] + i * dy;
+            const x = position[1] + i * dx;
 
             // Stop if off board
-            if (x < 0 || x > 7 || y < 0 || y > 7) {
+            if (y < 0 || y > 7 || x < 0 || x > 7) {
                 break;
             }
 
-            // If square is occupied
-            if (gameState.board[y][x]) {
-                // If occupied by opponent's piece, it's a valid move
-                if (gameState.board[y][x]?.color !== piece.color) {
-                    const move: Move = {
-                        piece,
-                        from: position,
-                        to: [x, y],
-                        board: gameState.board,
-                        turn: piece.color,
-                        turnNumber: gameState.history.length
-                    };
-                    moves.push(move);
-                }
-                // Stop looking in this direction (can't jump over pieces)
+            lastSquare = [y, x];
+
+            // If square is occupied by any piece, stop looking in this direction
+            if (gameState.board[y][x].type !== 'empty') {
                 break;
             }
 
             // If square is not occupied, it's a valid move
             const move: Move = {
-                piece,
+                piece: {...piece, hasMoved: true},
                 from: position,
-                to: [x, y],
+                to: [y, x],
                 board: gameState.board,
                 turn: piece.color,
                 turnNumber: gameState.history.length
             };
-            moves.push(move);
+            moves.push(move.to);
+        }
+
+        // Check if the last checked square is occupied by an opponent's piece
+        if (lastSquare) {
+            const [y, x] = lastSquare;
+            if (gameState.board[y][x].color !== piece.color) {
+
+                const move: Move = {
+                    piece: {...piece, hasMoved: true},
+                    from: position,
+                    to: [y, x],
+                    board: gameState.board,
+                    turn: piece.color,
+                    turnNumber: gameState.history.length
+                };
+                moves.push(move.to);
+            }
         }
     }
 
@@ -297,37 +324,49 @@ function getQueenMoves(piece: { type: string, color: 'white' | 'black' }, positi
 }
 
 function getKingMoves(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState): Move[] {
+    console.log('!!Getting king moves for piece:', piece, 'at position:', position);
+
     const moves: Move[] = [];
 
-    // King move directions
+    // Directions: up, down, left, right, up-left, up-right, down-left, down-right
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+    console.log('!!Directions:', directions);
 
-    for (const [dx, dy] of directions) {
-        const x = position[0] + dx;
-        const y = position[1] + dy;
+    for (const [dy, dx] of directions) {
+        console.log('!!Checking direction:', [dy, dx]);
+
+        const y = position[0] + dy;
+        const x = position[1] + dx;
+        console.log('!!Checking position:', [y, x]);
 
         // Continue if off board
-        if (x < 0 || x > 7 || y < 0 || y > 7) {
+        if (y < 0 || y > 7 || x < 0 || x > 7) {
+            console.log('!!Position is off board, continuing to next direction');
             continue;
         }
 
         // If square is occupied by own piece, continue
-        if (gameState.board[y][x] && gameState.board[y][x]?.color === piece.color) {
+        console.log('!!Checking if square is occupied by own piece', gameState.board[y][x]);
+        if (gameState.board[y][x] && gameState.board[y][x]?.type !== 'empty' && gameState.board[y][x]?.color === piece.color) {
+            console.log('!!Square is occupied by own piece, continuing to next direction');
             continue;
         }
 
         // If square is not occupied or occupied by opponent's piece, it's a valid move
+        console.log('!!Square is not occupied or occupied by opponent, adding move');
         const move: Move = {
-            piece,
+            piece: {...piece, hasMoved: true},
             from: position,
-            to: [x, y],
+            to: [y, x],
             board: gameState.board,
             turn: piece.color,
             turnNumber: gameState.history.length
         };
-        moves.push(move);
+        moves.push(move.to);
+        console.log('!!Current moves:', moves);
     }
 
+    console.log('!!Returning moves:', moves);
     return moves;
 }
 
