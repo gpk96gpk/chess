@@ -162,7 +162,8 @@ function App() {
     useEffect(() => {
         const turnStateChange = (arg:React.SetStateAction< 0| 1 | 2 >) => {
             setTurnState(arg);
-          }
+            console.log(`Socket Turn state: ${arg}`);
+        }
 
         socket.on('turn', turnStateChange);
 

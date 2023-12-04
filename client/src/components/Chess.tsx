@@ -61,6 +61,13 @@ const Chess: React.FC<Props> = (props) => {
     //let dragOverPiece;
     const handleDragStart = (event: React.DragEvent, piece, position: Position) => {
         console.log('handleDragStart');
+        console.log('turnState', turnState, 'playerNumber', playerNumber)
+        if (piece.color !== (playerNumber === 1 ? 'black' : 'white')) {
+            return;
+        }
+        if (turnState !== playerNumber) {
+            return;
+        }
         event.dataTransfer.setData('piece', JSON.stringify(piece));
         event.dataTransfer.setData('position', JSON.stringify(position));
         startPosition.current = position;
@@ -168,8 +175,10 @@ const Chess: React.FC<Props> = (props) => {
                 socket.emit('gameState', newGameState, roomCode);
             }
             if (socket) {
-                socket.emit('turn', turnState === 1 ? 2 : 1);
+                socket.emit('turn', turnState === 1 ? 2 : 1, roomCode);
+                setTurnState(turnState === 1 ? 2 : 1);
             }
+            console.log('turnStateUpdate', turnState, 'playerNumber', playerNumber)
         }
     };
     

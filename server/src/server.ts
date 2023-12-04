@@ -116,6 +116,12 @@ io.on('connection', (socket: Socket) => {
         players[socket.id] = { roomCode, playerNumber };
         socket.emit('playerNumber', playerNumber);
     });
+    //Turn 
+    socket.on('turn', (playerTurn, roomCode:string) => {
+        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+        console.log('playerTurn', playerTurn);
+        io.to(otherPlayerSocketId).emit('turn', playerTurn);
+    });
     //Leave a room
     socket.on('leaveRoom', (roomCode:string) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
@@ -132,9 +138,6 @@ io.on('connection', (socket: Socket) => {
     });
     //Game state
     socket.on('gameState', (gameState, roomCode:string) => {
-        console.log('SERVERgameState', gameState);
-        console.log('SERVERroomCode', roomCode);
-        console.log('SERVERrooms', rooms);
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('gameState', gameState);
     });
@@ -151,7 +154,7 @@ io.on('connection', (socket: Socket) => {
           io.to(otherPlayerSocketId).to(socket.id).emit('reset');
         }
     });
-
+    //Disconnect
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
