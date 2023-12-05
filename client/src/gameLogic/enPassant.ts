@@ -28,8 +28,9 @@ function enPassant(piece: { type: string; color: 'white' | 'black'; }, position:
         lastMoveFrom0 = lastMoveFrom[0];
         lastMoveTo1 = lastMoveTo[1];
         lastMoveFrom1 = lastMoveFrom[1];
-        console.log('lastMoveCheckDistance!!!', lastMoveTo0, lastMoveFrom0, lastMoveTo1, lastMoveFrom1);
+        console.log('lastMoveCheck!!!', lastMoveTo0, lastMoveFrom0, lastMoveTo1, lastMoveFrom1);
         lastMoveDistance = Math.abs(lastMoveTo0 - lastMoveFrom0);
+        console.log('lastMoveCheckDistance!!!', lastMoveDistance);
     }
 
     const didPawnMoveTwoSquares = lastMoveDistance === 2;
@@ -42,16 +43,16 @@ function enPassant(piece: { type: string; color: 'white' | 'black'; }, position:
     }
 
     // Check if the current piece is a pawn on its fifth rank
-    const rank = playerNumber === 1 ? 3 : 4;
-    console.log('rankCheck!!!', rank);
+    const rank = playerNumber === 1 ? 4 : 3;
+    console.log('rankCheck!!!', lastMoveTo0, rank);
     if (lastMoveTo0 !== rank) {
-        console.log('rankCheck!!!', lastMoveTo0, rank);
         return null;
     }
 
     const file = lastMoveTo1;
     console.log('fileCheck!!!', lastMoveTo1, file - 1, file + 1);
-    if (lastMoveTo1 !== file - 1 && lastMoveTo1 !== file + 1) {
+    console.log('positionCheck!!!', position[0], lastMoveTo, lastMoveFrom)
+    if (position[0] !== file - 1 && position[0] !== file + 1) {
         return null;
     }
 
@@ -67,9 +68,9 @@ function enPassant(piece: { type: string; color: 'white' | 'black'; }, position:
         turnNumber: gameState.history[gameState.history.length - 1]?.turnNumber + 1
     };
     console.log('moveCheck!!!', move);
-    // Add any additional modifications to gameState here
 
-    return move;
+
+    return move.to;
 }
 
 export default enPassant;

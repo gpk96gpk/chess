@@ -37,6 +37,7 @@ export type Props = {
 };
 
 export type Move = {
+    every(arg0: (value: any, index: any) => boolean): unknown;
     piece: { type: string; color: string; };
     from: Position;
     to: Position;

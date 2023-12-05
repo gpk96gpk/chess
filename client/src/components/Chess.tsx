@@ -134,7 +134,9 @@ const Chess: React.FC<Props> = (props) => {
             const newGameState = { ...gameState };
             const [fromX, fromY] = piece.position;
             const [toX, toY] = lastDragOverPosition.current;
+            const didMoveDiagonally = Math.abs(toX - fromX) === 1 && Math.abs(toY - fromY) === 1;
             newGameState.board[fromX][fromY].type = 'empty';
+            newGameState.board[fromX][fromY].color = 'empty';
             console.log('toX!!!', toX);
             console.log('toY!!!', toY);
             const isUpdatedSquare = newGameState.board[toX][toY].position.every((value, index) => value === lastDragOverPosition.current[index]) ;
@@ -143,6 +145,7 @@ const Chess: React.FC<Props> = (props) => {
             console.log('newGameState.board[toX][toY].position!', newGameState.board[toX][toY].position);
             console.log('newGameState.board[toX]!', newGameState.board[toX]);
             console.log('newGameState.board[toX][toY]!', newGameState.board[toX][toY]);
+            
             if ( piece && piece.type !== 'empty') {
                 console.log('piece', piece);
                 console.log('newGameState.board!', newGameState.board);
@@ -151,6 +154,18 @@ const Chess: React.FC<Props> = (props) => {
                 newGameState.board[toX][toY].type = piece.type;
                 newGameState.board[toX][toY].hasMoved = true;
                 console.log('newGameState.board[toX][toY]', newGameState.board[toX][toY]);
+            }
+            console.log('newGameState.board[toX][toY].position', newGameState.board[toX][toY].position);
+            if ( piece && piece.type === 'pawn' && newGameState.board[toX][toY].type === 'empty' && !isUpdatedSquare && didMoveDiagonally) {
+                console.log('enPassant0');
+                console.log('lastDragOverPosition.current[1]!', lastDragOverPosition.current[1]);
+                console.log('startPosition.current[1]!', startPosition.current[1]);
+                console.log('lastDragOverPosition.current[0]!', lastDragOverPosition.current[0]);
+                console.log('startPosition.current[0]!', startPosition.current[0]);
+                console.log('newGameState.board[lastDragOverPosition.current[0]][lastDragOverPosition.current[1]]!', newGameState.board[lastDragOverPosition.current[0]][lastDragOverPosition.current[1]]);
+                newGameState.board[toX + (playerNumber === 1 ? -1 : 1)][toY].position = 'empty';
+                newGameState.board[toX + (playerNumber === 1 ? -1 : 1)][toY].color = 'empty';
+                newGameState.board[toX + (playerNumber === 1 ? -1 : 1)][toY].type = 'empty';   
             }
             newGameState.history.push({ 
                 piece: {...piece, hasMoved: true}, 

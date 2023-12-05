@@ -119,7 +119,6 @@ io.on('connection', (socket: Socket) => {
     //Turn 
     socket.on('turn', (playerTurn, roomCode:string) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        console.log('playerTurn', playerTurn);
         io.to(otherPlayerSocketId).emit('turn', playerTurn);
     });
     //Leave a room
