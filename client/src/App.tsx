@@ -64,6 +64,7 @@ function App() {
     const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
+    const [checkmateResult, setCheckmateResult] = useState<{ isInCheckmate: boolean, loser: string | null }>({ isInCheckmate: false, loser: null });
 
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
@@ -147,13 +148,13 @@ function App() {
     }, []);
 
     useEffect(() => {
-        const handleGameOver = (arg: React.SetStateAction<boolean>) => {
-            setGameOver(arg);
+        const handleGameOver = (arg: { gameOver: boolean, winner: string | null }) => {
+            setGameOver(arg.gameOver);
+            setWinner(arg.winner);
         }
-
+        console.log('winner', winner)
         socket.on("gameOver", handleGameOver);
-
-
+    
         return () => {
             socket.off("gameOver", handleGameOver)
         }
@@ -204,6 +205,8 @@ function App() {
         highlightedTiles,
         winner,
         isPlayerInCheck,
+        checkmateResult,
+        setCheckmateResult,
         setPlayerNumber,
         setGameState,
         setGameOver,

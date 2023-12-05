@@ -5,10 +5,11 @@
 import { useNavigate } from 'react-router-dom';
 import { saveGame } from '../apis/ChessGame';
 import { useState } from 'react';
-import { GameState } from '../types/clientTypes';
+//import { GameState } from '../types/clientTypes';
 
 
-function GameOver({ gameState, winner }: { gameState: GameState, winner: string | null }) {
+function GameOver( {gameState, winner}) {
+    console.log('winner',winner)
     const [saveStatus, setSaveStatus] = useState<null | string>(null);
     const navigate = useNavigate();
     let headerText = '';

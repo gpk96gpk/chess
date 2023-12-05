@@ -73,10 +73,13 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
     }
 
     // Pawns capture diagonally
+    if (!position[0]) {
+        return;
+    }
     const leftCapture: Position = [piece.color === 'white' ? position[0] - 1 : position[0] + 1, piece.color === 'white' ? position[1] - 1 : position[1] + 1];
     const rightCapture: Position = [piece.color === 'white' ? position[0] - 1 : position[0] + 1, piece.color === 'white' ? position[1] + 1 : position[1] - 1];
-    // console.log('gameState.board[leftCapture[0]][leftCapture[1]].color!!', gameState.board[leftCapture[0]][leftCapture[1]], leftCapture[0], leftCapture[1]);
-    // console.log('piece.color!!', piece.color);
+    console.log('gameState.board[leftCapture[0]][leftCapture[1]].color!!', gameState.board[leftCapture[0]][leftCapture[1]], leftCapture[0], leftCapture[1]);
+    console.log('piece.color!!', piece.color);
     const oppositeColor = piece.color === 'white' ? 'black' : 'white';
 
     if (gameState.board[leftCapture[1]] && gameState.board[leftCapture[0],leftCapture[1]] && gameState.board[leftCapture[0]][leftCapture[1]].color === oppositeColor) {
@@ -89,7 +92,7 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
-        // console.log('PawnMovesCheckLeft', moves);
+        console.log('PawnMovesCheckLeft', moves);
 
     }
 
@@ -103,10 +106,10 @@ function getPawnMoves(piece: {type: string, color: 'white' | 'black'}, position:
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
-        // console.log('PawnMovesCheckRight', moves);
+        console.log('PawnMovesCheckRight', moves);
 
     }
-    // console.log('PawnMovesSent', moves);
+    console.log('PawnMovesSent', moves);
     return moves;
 }
 

@@ -3,14 +3,15 @@ import getMovesForPiece from './pieceMoves';
 
 function isCheck(gameState: GameState, playerNumber: number): boolean {
   let kingPosition: Position | null = null;
-  const currentPlayerColor = playerNumber === 1 ? 'white' : 'black';
+  const currentPlayerColor = playerNumber === 1 ? 'black' : 'white';
 
   // Find the king's position
-  for (let i = 0; i < gameState.board.length; i++) {
-    for (let j = 0; j < gameState.board[i].length; j++) {
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
       const piece: PieceType | null = gameState.board[i][j];
+      console.log('ischeckKingPiece', piece)
       if (piece && piece.type === 'king' && piece.color === currentPlayerColor) {
-        kingPosition = [j, i];
+        kingPosition = [i, j];
         break;
       }
     }
@@ -18,17 +19,23 @@ function isCheck(gameState: GameState, playerNumber: number): boolean {
   }
 
   // Check if any opponent's piece can attack the king
-  for (let i = 0; i < gameState.board.length; i++) {
-    for (let j = 0; j < gameState.board[i].length; j++) {
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
       const piece: PieceType | null = gameState.board[i][j];
-      if (piece && piece.color !== currentPlayerColor) {
-      //   const moves: Move[] = getMovesForPiece(piece, [j, i], gameState);
-      //   if (kingPosition !== null) {
-      //     const [kingX, kingY] = kingPosition;
-      //     if (moves.some(move => move.to[0] === kingX && move.to[1] === kingY)) {
-      //         return true;
-      //     }
-      // }
+      console.log('ischeckOpponentPiece', piece)
+      if (piece && piece.type !== 'empty' && piece.color !== currentPlayerColor) {
+        const moves: Move[] = getMovesForPiece(piece, [i, j], gameState);
+        console.log('ischeckMoves', moves)
+        if (kingPosition !== null) {
+          const [kingX, kingY] = kingPosition;
+          console.log('ischeckkingX', kingX)
+          console.log('ischeckkingY', kingY)
+          console.log('ischeckkingPosition', kingPosition)
+          if (moves && moves.some(move => move && move[0] === kingX && move[1] === kingY)) {
+            console.log('ischeckTrue99')
+            return true;
+          }
+        }
       }
     }
   }

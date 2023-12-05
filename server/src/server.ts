@@ -141,8 +141,10 @@ io.on('connection', (socket: Socket) => {
         io.to(otherPlayerSocketId).emit('gameState', gameState);
     });
     //Game over
-    socket.on('gameOver', (isGameOver, roomCode:string) => {
-        io.to(roomCode).emit('gameOver', isGameOver);
+    socket.on('gameOver', (isGameOver, winner, roomCode:string) => {
+        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+        io.to(otherPlayerSocketId).emit('gameOver', {winner, isGameOver});
+        console.log('gameOver', roomCode, winner, isGameOver)
       });
     //Reset
     socket.on('reset', () => {

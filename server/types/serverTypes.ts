@@ -1,7 +1,7 @@
 //store the server types
 
 interface ServerToClientEvents {
-    gameOver: (isGameOver: boolean) => void;
+    gameOver: (isGameOver: {winner: string, isGameOver: boolean}) => void;
     playerNumber: (playerNumber: number) => void;
     reset: () => void;
     turn: (xTurn: boolean) => void;

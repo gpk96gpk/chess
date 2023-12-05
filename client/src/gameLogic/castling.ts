@@ -39,6 +39,9 @@ function castling(piece: { type: string; color: 'white' | 'black'; hasMoved: boo
         }
     }
     console.log('castlingMove!!!', castlingMove)
+    if( castlingMove === null) {
+        return null;
+    }
     return castlingMove.to;
 }
 

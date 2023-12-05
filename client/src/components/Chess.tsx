@@ -88,7 +88,7 @@ const Chess: React.FC<Props> = (props) => {
     const handleDrop = (event: React.DragEvent, props: HandleDropProps) => {
         event.preventDefault();
         console.log('handleDrop');
-    
+
         const pieceData = event.dataTransfer.getData('piece');
         if (!pieceData) {
             console.error('No piece data');
@@ -148,6 +148,7 @@ const Chess: React.FC<Props> = (props) => {
             console.log('newGameState.board[toX]!', newGameState.board[toX]);
             console.log('newGameState.board[toX][toY]!', newGameState.board[toX][toY]);
             console.log('enpassantCheck0', piece.type, newGameState.board[toX][toY].type , !isUpdatedSquare , didMoveDiagonally);
+            
             if ( piece.type === 'pawn' && newGameState.board[toX][toY].type === 'empty' && didMoveDiagonally) {
                 console.log('enPassant0');
                 console.log('lastDragOverPosition.current[1]!', lastDragOverPosition.current[1]);
@@ -193,12 +194,16 @@ const Chess: React.FC<Props> = (props) => {
             //setHighlightedTiles([]);
             setGameState(newGameState);
             const opponentKing = newGameState.board.flat().find(piece => piece && piece.type === 'king' && piece.color !== (playerNumber === 1 ? 'black' : 'white'));            
+
             setGameState(newGameState);
-            if (opponentKing && (opponentKing.position[0] === lastDragOverPosition.current[0] && opponentKing.position[1] === lastDragOverPosition.current[1]) || isCheck(newGameState, props.playerNumber)) {
+            const checkMate = isCheckmate(newGameState, playerNumber)
+            console.log('checkMate0', checkMate.loser);
+            if (opponentKing && (opponentKing.position[0] === toX && opponentKing.position[1] === toY) || checkMate.isInCheckmate) {
                 console.log('King captured')
+                setWinner(loser);
                 setGameOver(true);
                 if (socket) {
-                    socket.emit('gameOver', true);
+                    socket.emit('gameOver', true, checkMate.loser , roomCode);
                 }
             }
             if (socket) {
@@ -215,8 +220,15 @@ const Chess: React.FC<Props> = (props) => {
     //useEffect hooks to update the gameState/board, gameOver/winner, check, 
     //checkmate, stalemate, draw, and playerTurn
     //the useEffects are loops for check and checkmate
-    const { gameState, gameOver, playerNumber, turnState, setGameState, setTurnState, setWinner, setGameOver, setIsPlayerInCheck } = props;
-
+    const { gameState, gameOver, playerNumber, turnState, winner, checkmateResult, setCheckmateResult, setGameState, setTurnState, setWinner, setGameOver, setIsPlayerInCheck } = props;
+    const { isInCheckmate, loser } = isCheckmate(gameState, playerNumber);
+    console.log('gameState0', gameState);
+    console.log('gameOver0', gameOver);
+    console.log('playerNumber0', playerNumber);
+    console.log('loser0', loser)
+    console.log('winner', winner);
+    console.log('isInCheckmate0', isInCheckmate);
+    console.log('loser0', loser);
     useEffect(() => {
         const newGameState = { ...gameState };
         setGameState(newGameState);
@@ -224,13 +236,15 @@ const Chess: React.FC<Props> = (props) => {
 
     useEffect(() => {
         // Check for game over and winner
-        console.log('isCheckmate(gameState, playerNumber)', isCheckmate(gameState, playerNumber));
         console.log('gameOver', gameOver);
-        if (gameOver || isCheckmate(gameState, playerNumber)) {
-            //setTurnState(0);
-            setWinner(turnState === 1 ? 'Black' : 'White')
+        
+        if (gameOver || isInCheckmate) {
+            console.log('gameOver', gameOver);
+            console.log('loser1', loser);
+            setGameOver(true);
+            setWinner(loser);
         }
-    }, [gameState, gameOver, playerNumber, turnState, setTurnState, setWinner]);
+    }, [gameState, gameOver, playerNumber, turnState, setTurnState, setWinner, isInCheckmate, loser, setGameOver]);
 
     // Check for check and checkmate
     useEffect(() => {
@@ -250,13 +264,14 @@ const Chess: React.FC<Props> = (props) => {
         }
     }, [gameState, playerNumber, setGameOver, setWinner, setTurnState, turnState]);
     //render
+    console.log('loser', loser)
     return (
         <div>
             <h1>Chess Game</h1>
             <h2>Room Code: {roomCode}</h2>
             <h2>{playerNumber === turnState ? "Your Turn" : "Opponent's Turn"}</h2>
             
-            {gameOver && <GameOver gameState={gameState} winner={props.winner} />}
+            {gameOver && <GameOver gameState={gameState} winner={loser} />}
             
             <Board gameState={gameState} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
             {/* <BoardTimer playerNumber={props.playerNumber} playerTurn={props.playerTurn} initialTime={props.initialTime}/> */}
