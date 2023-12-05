@@ -135,6 +135,8 @@ const Chess: React.FC<Props> = (props) => {
             const [fromX, fromY] = piece.position;
             const [toX, toY] = lastDragOverPosition.current;
             const didMoveDiagonally = Math.abs(toX - fromX) === 1 && Math.abs(toY - fromY) === 1;
+            const didKingCastle = piece.type === 'king' && Math.abs(toY - fromY) === 2;
+            const castlingDirection = piece.type === 'king' && toY - fromY === 2 ? 1 : -1;
             newGameState.board[fromX][fromY].type = 'empty';
             newGameState.board[fromX][fromY].color = 'empty';
             console.log('toX!!!', toX);
@@ -156,7 +158,20 @@ const Chess: React.FC<Props> = (props) => {
                 newGameState.board[toX - 1][toY].color = 'none';
                 newGameState.board[toX - 1][toY].type = 'empty';   
             }
-            
+            if (piece.type === 'king' && didKingCastle) {
+                console.log('castle0');
+                newGameState.board[toX][toY - castlingDirection].color = piece.color;
+                newGameState.board[toX][toY - castlingDirection].type = 'rook';
+                newGameState.board[toX][toY - castlingDirection].hasMoved = true;
+                newGameState.board[toX][toY - castlingDirection].position = [toX, toY - castlingDirection];
+                if (castlingDirection === 1) { // King-side castling
+                    newGameState.board[toX][toY + castlingDirection].color = 'none';
+                    newGameState.board[toX][toY + castlingDirection].type = 'empty';
+                } else { // Queen-side castling
+                    newGameState.board[toX][toY + 2*castlingDirection].color = 'none';
+                    newGameState.board[toX][toY + 2*castlingDirection].type = 'empty';
+                }
+            }
             if ( piece && piece.type !== 'empty') {
                 console.log('piece', piece);
                 console.log('newGameState.board!', newGameState.board);

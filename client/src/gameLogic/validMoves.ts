@@ -16,7 +16,7 @@
 //check if piece is moving to a tile that is occupied by a King piece of the opposite color
 //
 import enPassant from '../gameLogic/enPassant'
-//import castling from '../gameLogic/castling'
+import castling from '../gameLogic/castling'
 import getMovesForPiece from './pieceMoves';
 import { GameState, Move, Piece as PieceType, Position } from '../types/clientTypes';
 
@@ -35,18 +35,18 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
         console.log('enPassantPropsCheck!!!', piece, position, gameState, playerNumber);
         const enPassantMove = enPassant(piece, position, gameState, playerNumber);
         if (enPassantMove) {
-            moves.push(enPassantMove);
+            moves.concat([enPassantMove]);
         }
         console.log('enPassantMove!!!', enPassantMove);
     }
     
-    // if (piece && piece.type === 'king') {
-    //     const castlingMove = castling(piece, position, gameState, playerNumber) || [];
-    //     if (castlingMove) {
-    //         moves = moves.concat(castlingMove);
-    //     }
-    //     console.log('castlingMove', castlingMove);
-    // }
+    if (piece && piece.type === 'king') {
+        const castlingMove = castling(piece, position, gameState, playerNumber) || [];
+        if (castlingMove) {
+            moves = moves.concat([castlingMove]);
+        }
+        console.log('castlingMove', castlingMove);
+    }
     
     console.log('validMoveMoves', moves)
     return moves;
