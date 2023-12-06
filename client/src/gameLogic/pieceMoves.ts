@@ -385,8 +385,8 @@ function getKingMoves(piece: { type: string, color: 'white' | 'black' }, positio
 
     // Filter out moves that would put the king in check
     moves = moves.filter(newPosition => {
-        const tempGameState = JSON.parse(JSON.stringify(gameState)); // Create a copy of the game state
-        tempGameState.board[piece.position[0]][piece.position[1]] = null; // Remove the king from its current position
+        const tempBoard = [...gameState.board]; // Create a copy of the board
+        tempBoard[piece.position[0]][piece.position[1]] = null; // Remove the king from its current position
         tempGameState.board[newPosition[0]][newPosition[1]] = piece; // Place the king at the new position
 
         return !isCheck(tempGameState, piece.color); // If the new position is in check, the move is not valid
