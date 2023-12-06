@@ -38,14 +38,13 @@ const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'kni
 
 const initialBoard: GameStateType = {
     board: [
-        Array(8).fill(null),
-        Array(8).fill(null),
-        Array(8).fill(null),
-        Array(8).fill(null),
-        Array(8).fill(null),
-        Array(8).fill(null),
-        Array(8).fill(null).map((_, i) => i === 5 ? createPiece('king', 'white', [6, i], index++) : null),
-        Array(8).fill(null).map((_, i) => i === 0 || i === 7 ? createPiece('rook', 'black', [7, i], index++) : null),
+        majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
+        Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [1, i], hasMoved: false, isHighlighted: false, index: index++ })),
+        ...Array(4).fill(null).map((_, rowIndex) =>
+            Array(8).fill(null).map((_, colIndex) => ({ type: 'empty', color: 'none', position: [2 + rowIndex, colIndex], hasMoved: false, isHighlighted: false, index: index++ }))
+        ),
+        Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [6, i], hasMoved: false, isHighlighted: false, index: index++ })),
+        majorPieces.map((type, i) => i === 4 ? createPiece('king', 'white', [7, 4], index++) : { type: 'empty', color: 'none', position: [7, i], hasMoved: false, isHighlighted: false, index: index++ }),
     ],
     history: [],
     turn: 'black',
