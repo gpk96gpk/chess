@@ -104,7 +104,8 @@ function isAdjacent(pos1: Position, pos2: Position) {
   return Math.abs(x1 - x2) <= 1 && Math.abs(y1 - y2) <= 1;
 }
 
-function isCheckmate(gameState: GameState, currentPlayerColor: number) {
+function isCheckmate(gameState: GameState, turnState) {
+  const currentPlayerColor = turnState === 1 ? 'black' : 'white';
   console.log('isCheck99', isCheck(gameState, currentPlayerColor))
   // console.log('playerNumber99:', playerNumber);
   console.log('currentPlayerColor99:', currentPlayerColor);
