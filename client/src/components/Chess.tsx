@@ -200,7 +200,7 @@ const Chess: React.FC<Props> = (props) => {
             console.log('checkMate0', checkMate);
             setWinner(checkMate.loser);
             console.log('77opponentKing.position[0] === toX && opponentKing.position[1] === toY', opponentKing.position[0] === toX && opponentKing.position[1] === toY)
-            if (opponentKing && (opponentKing.position[0] === toX && opponentKing.position[1] === toY) && checkMate) {
+            if (opponentKing && (opponentKing.position[0] === toX && opponentKing.position[1] === toY) || checkMate) {
                 console.log('King captured')
                 setGameOver(true);
                 if (socket) {
