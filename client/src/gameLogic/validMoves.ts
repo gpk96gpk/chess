@@ -19,6 +19,7 @@ import enPassant from '../gameLogic/enPassant'
 import castling from '../gameLogic/castling'
 import getMovesForPiece from './pieceMoves';
 import { GameState, Move, Piece as PieceType, Position } from '../types/clientTypes';
+import isCheck from './isCheck';
 
 
 
@@ -40,13 +41,32 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
         console.log('enPassantMove!!!', enPassantMove);
     }
     
-    if (piece && piece.type === 'king') {
-        const castlingMove = castling(piece, position, gameState, playerNumber) || [];
-        if (castlingMove) {
+    if (moves && piece && piece.type === 'king') {
+        // If the piece has not moved, check for castling
+        if (!piece.hasMoved) {
+          const castlingMove = castling(piece, position, gameState, playerNumber) || [];
+          if (castlingMove) {
             moves = moves.concat([castlingMove]);
+          }
+          console.log('castlingMove', castlingMove);
         }
-        console.log('castlingMove', castlingMove);
-    }
+      
+        // Filter out moves that would put the king in check
+        moves = moves.filter(newPosition => {
+          const tempGameState = JSON.parse(JSON.stringify(gameState)); // Create a copy of the game state
+          tempGameState.board[piece.position[0]][piece.position[1]] = null; // Remove the king from its current position
+      
+          // Check if newPosition is within the bounds of the board
+          if (newPosition[0] >= 0 && newPosition[0] < tempGameState.board.length &&
+              newPosition[1] >= 0 && newPosition[1] < tempGameState.board[0].length) {
+            tempGameState.board[newPosition[0]][newPosition[1]] = piece; // Place the king at the new position
+      
+            return !isCheck(tempGameState, piece.color); // If the new position is in check, the move is not valid
+          }
+      
+          return false;
+        });
+      }
     
     console.log('validMoveMoves', moves)
     return moves;

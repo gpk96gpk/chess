@@ -197,13 +197,14 @@ const Chess: React.FC<Props> = (props) => {
 
             setGameState(newGameState);
             const checkMate = isCheckmate(newGameState, playerNumber)
-            console.log('checkMate0', checkMate.loser);
-            if (opponentKing && (opponentKing.position[0] === toX && opponentKing.position[1] === toY) || checkMate.isInCheckmate) {
+            console.log('checkMate0', checkMate);
+            setWinner(checkMate.loser);
+            console.log('77opponentKing.position[0] === toX && opponentKing.position[1] === toY', opponentKing.position[0] === toX && opponentKing.position[1] === toY)
+            if (opponentKing && (opponentKing.position[0] === toX && opponentKing.position[1] === toY) && checkMate) {
                 console.log('King captured')
-                setWinner(loser);
                 setGameOver(true);
                 if (socket) {
-                    socket.emit('gameOver', true, checkMate.loser , roomCode);
+                  socket.emit('gameOver', true, checkMate ? checkMate.loser : null, roomCode);
                 }
             }
             if (socket) {
@@ -221,7 +222,7 @@ const Chess: React.FC<Props> = (props) => {
     //checkmate, stalemate, draw, and playerTurn
     //the useEffects are loops for check and checkmate
     const { gameState, gameOver, playerNumber, turnState, winner, checkmateResult, setCheckmateResult, setGameState, setTurnState, setWinner, setGameOver, setIsPlayerInCheck } = props;
-    const { isInCheckmate, loser } = isCheckmate(gameState, playerNumber);
+    const { isInCheckmate, loser } = isCheckmate(gameState, turnState);
     console.log('gameState0', gameState);
     console.log('gameOver0', gameOver);
     console.log('playerNumber0', playerNumber);
@@ -241,28 +242,39 @@ const Chess: React.FC<Props> = (props) => {
         if (gameOver || isInCheckmate) {
             console.log('gameOver', gameOver);
             console.log('loser1', loser);
-            setGameOver(true);
             setWinner(loser);
+            setGameOver(true);
         }
     }, [gameState, gameOver, playerNumber, turnState, setTurnState, setWinner, isInCheckmate, loser, setGameOver]);
 
     // Check for check and checkmate
     useEffect(() => {
+        const { isInCheckmate, loser } = isCheckmate(gameState, turnState);
+        console.log('isInCheckmate', isInCheckmate);
+        console.log('loser', loser);
+      
+        if (isInCheckmate) {
+          setGameOver(true);
+          setWinner(loser);
+        }
+      }, [gameState, turnState, setGameOver, setWinner]);
+    useEffect(() => {
         // Code to check if the current player is in check or checkmate
-        if (isCheck(gameState, playerNumber)) {
+        if (isCheck(gameState, playerNumber) && isInCheckmate) {
             setIsPlayerInCheck(true);
         }
-    }, [gameState, playerNumber, setIsPlayerInCheck]);
+    }, [gameState, isInCheckmate, playerNumber, setGameOver, setIsPlayerInCheck, setWinner]);
+
 
     // Check for stalemate and draw
     useEffect(() => {
-        if (isDraw(gameState, playerNumber) && turnState !== 0) {
+        if (isDraw(gameState, playerNumber) && turnState !== 0 && !isInCheckmate) {
             console.log('Draw');
             setGameOver(true);
             setWinner('Draw');
             setTurnState(3);
         }
-    }, [gameState, playerNumber, setGameOver, setWinner, setTurnState, turnState]);
+    }, [gameState, playerNumber, setGameOver, setWinner, setTurnState, turnState, isInCheckmate]);
     //render
     console.log('loser', loser)
     return (
@@ -271,7 +283,7 @@ const Chess: React.FC<Props> = (props) => {
             <h2>Room Code: {roomCode}</h2>
             <h2>{playerNumber === turnState ? "Your Turn" : "Opponent's Turn"}</h2>
             
-            {gameOver && <GameOver gameState={gameState} winner={loser} />}
+            {gameOver && <GameOver gameState={gameState} winner={winner} />}
             
             <Board gameState={gameState} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
             {/* <BoardTimer playerNumber={props.playerNumber} playerTurn={props.playerTurn} initialTime={props.initialTime}/> */}

@@ -1,9 +1,14 @@
 import { GameState, Position, Piece as PieceType, Move } from '../types/clientTypes';
 import getMovesForPiece from './pieceMoves';
 
-function isCheck(gameState: GameState, playerNumber: number): boolean {
+function isCheck(gameState: GameState): boolean {
+  if (!gameState || !gameState.turn) {
+    console.log('Game state or turn state is null or undefined');
+    return false;
+  }
+
   let kingPosition: Position | null = null;
-  const currentPlayerColor = playerNumber === 1 ? 'black' : 'white';
+  const currentPlayerColor = gameState.turn;
 
   // Find the king's position
   for (let i = 0; i < 8; i++) {
@@ -24,16 +29,20 @@ function isCheck(gameState: GameState, playerNumber: number): boolean {
       const piece: PieceType | null = gameState.board[i][j];
       console.log('ischeckOpponentPiece', piece)
       if (piece && piece.type !== 'empty' && piece.color !== currentPlayerColor) {
-        const moves: Move[] = getMovesForPiece(piece, [i, j], gameState);
-        console.log('ischeckMoves', moves)
-        if (kingPosition !== null) {
-          const [kingX, kingY] = kingPosition;
-          console.log('ischeckkingX', kingX)
-          console.log('ischeckkingY', kingY)
-          console.log('ischeckkingPosition', kingPosition)
-          if (moves && moves.some(move => move && move[0] === kingX && move[1] === kingY)) {
-            console.log('ischeckTrue99')
-            return true;
+        if (piece === null) {
+          console.log('Piece is null');
+        } else {
+          const moves: Move[] = getMovesForPiece(piece, [i, j], gameState);
+          console.log('ischeckMoves', moves)
+          if (kingPosition !== null) {
+            const [kingX, kingY] = kingPosition;
+            console.log('ischeckkingX', kingX)
+            console.log('ischeckkingY', kingY)
+            console.log('ischeckkingPosition', kingPosition)
+            if (moves && moves.some(move => move && move[0] === kingX && move[1] === kingY)) {
+              console.log('ischeckTrue99')
+              return true;
+            }
           }
         }
       }

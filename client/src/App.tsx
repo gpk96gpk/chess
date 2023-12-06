@@ -49,12 +49,14 @@ const initialBoard: GameStateType = {
                 index: index++
             }))
         ),
-        Array(8).fill(null).map((_, i) => createPawn('white', [6, i], index++)),
-        majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
+        Array(8).fill(null).map((_, i) => i === 4 ? createPiece('queen', 'black', [6, i], index++) : { type: 'empty', color: 'none', position: [6, i], hasMoved: false, isHighlighted: false, index: index++ }),
+        majorPieces.map((type, i) => i === 4 ? createPiece('king', 'white', [7, i], index++) : { type: 'empty', color: 'none', position: [7, i], hasMoved: false, isHighlighted: false, index: index++ }),
     ],
     history: [],
     turn: 'black',
 };
+
+
 
 function App() {
     const [playerNumber, setPlayerNumber] = useState<number>(0);
@@ -148,8 +150,9 @@ function App() {
     }, []);
 
     useEffect(() => {
-        const handleGameOver = (arg: { gameOver: boolean, winner: string | null }) => {
-            setGameOver(arg.gameOver);
+        const handleGameOver = (arg: { isGameOver: boolean, winner: string | null }) => {
+            console.log('gameOver00', arg)
+            setGameOver(arg.isGameOver);
             setWinner(arg.winner);
         }
         console.log('winner', winner)
