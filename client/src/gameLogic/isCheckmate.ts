@@ -74,22 +74,14 @@ function canCapture(gameState, threateningPiece, currentPlayerColor) {
       if (piece && piece.color === currentPlayerColor) {
         const moves = getMovesForPiece(piece, [x, y], gameState);
         if (moves.some(move => move[0] === threateningPiece.position[0] && move[1] === threateningPiece.position[1])) {
-          // If the piece is a king, check if it would be in check after the capture
-          if (piece.type === 'king') {
-            const hypotheticalGameState = JSON.parse(JSON.stringify(gameState));
-            hypotheticalGameState.board[threateningPiece.position[0]][threateningPiece.position[1]] = piece;
-            hypotheticalGameState.board[x][y] = null;
-            if (!isCheck(hypotheticalGameState, currentPlayerColor)) {
-              return true;
-            }
-          } else {
-            // If the piece is not a king, only allow it to capture the threatening piece if the square is not threatened
-            const hypotheticalGameState = JSON.parse(JSON.stringify(gameState));
-            hypotheticalGameState.board[threateningPiece.position[0]][threateningPiece.position[1]] = piece;
-            hypotheticalGameState.board[x][y] = null;
-            if (!isCheck(hypotheticalGameState, currentPlayerColor)) {
-              return true;
-            }
+          // Create a hypothetical game state where the piece captures the threatening piece
+          const hypotheticalGameState = JSON.parse(JSON.stringify(gameState));
+          hypotheticalGameState.board[threateningPiece.position[0]][threateningPiece.position[1]] = piece;
+          hypotheticalGameState.board[x][y] = null;
+
+          // Check if the hypothetical game state would be in check
+          if (!isCheck(hypotheticalGameState, currentPlayerColor)) {
+            return true;
           }
         }
       }
@@ -104,30 +96,10 @@ function isAdjacent(pos1: Position, pos2: Position) {
   return Math.abs(x1 - x2) <= 1 && Math.abs(y1 - y2) <= 1;
 }
 
-function isCheckmate(gameState: GameState, turnState) {
-  const currentPlayerColor = turnState === 1 ? 'black' : 'white';
-  console.log('isCheck99', isCheck(gameState, currentPlayerColor))
-  // console.log('playerNumber99:', playerNumber);
-  console.log('currentPlayerColor99:', currentPlayerColor);
-  if (!isCheck(gameState, currentPlayerColor)) {
-    console.log('isCheckmateFalse99')
-    return false; // Not in check, can't be checkmate
-  }
-
-  // Find the king's position
-  let kingPosition: Position | null = null;
-  //console.log('playerNumberCheckMate', playerNumber)
-  for (let i = 0; i < gameState.board.length; i++) {
-    for (let j = 0; j < gameState.board[i].length; j++) {
-      const piece: PieceType | null = gameState.board[i][j];
-      if (piece && piece.type === 'king' && piece.color === currentPlayerColor) {
-        kingPosition = [i, j];
-        break;
-      }
-    }
-    if (kingPosition) break;
-  }
-
+function isCheckmate(gameState: GameState, kingPosition: [number, number], currentPlayerColor: string ) {
+  console.log("77Checking if", currentPlayerColor, "is in checkmate");
+  console.log("77King position is", kingPosition);
+  console.log("77Current player is", currentPlayerColor);
   // Find the positions of all pieces that are threatening the king
   const threateningPieces = findThreateningPieces(gameState, kingPosition, currentPlayerColor);
 
@@ -167,7 +139,7 @@ function isCheckmate(gameState: GameState, turnState) {
       const tempGameState = JSON.parse(JSON.stringify(gameState)); // Create a copy of the game state
       tempGameState.board[kingPosition[0]][kingPosition[1]] = null; // Remove the king from its current position
       tempGameState.board[move[0]][move[1]] = king; // Place the king at the new position
-      return !isCheck(tempGameState, currentPlayerColor); // If the new position is not in check, the king can capture
+      return !isCheck(tempGameState); // If the new position is not in check, the king can capture
     });
     console.log("77Can the king capture?", canCapture);
     if (!canCapture && kingValidMoves.length > 0) {

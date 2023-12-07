@@ -1,55 +1,62 @@
 import { GameState, Position, Piece as PieceType, Move } from '../types/clientTypes';
+import isCheckmate from './isCheckmate';
 import getMovesForPiece from './pieceMoves';
 
-function isCheck(gameState: GameState): boolean {
+interface CheckResult {
+  isKingInCheck: boolean;
+  isKingInCheckmate: boolean;
+  loser: string;
+}
+
+function isCheck(gameState: GameState): CheckResult {
   if (!gameState || !gameState.turn) {
     console.log('Game state or turn state is null or undefined');
     return false;
   }
 
   let kingPosition: Position | null = null;
-  const currentPlayerColor = gameState.turn;
+  const currentPlayerColor = gameState.turn === 'black' ? 'white' : 'black';  
+  let isKingInCheck, isKingInCheckMate = false;
+  console.log('isInCheckPropsCheck', gameState, currentPlayerColor);
 
-  // Find the king's position
+  // Iterate over the board
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       const piece: PieceType | null = gameState.board[i][j];
-      console.log('ischeckKingPiece', piece)
+
+      // Find the king's position
       if (piece && piece.type === 'king' && piece.color === currentPlayerColor) {
         kingPosition = [i, j];
-        break;
+        console.log('isInCheckKingPosition', kingPosition);
       }
-    }
-    if (kingPosition) break;
-  }
 
-  // Check if any opponent's piece can attack the king
-  for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-      const piece: PieceType | null = gameState.board[i][j];
-      console.log('ischeckOpponentPiece', piece)
+      // Check if any opponent's piece can attack the king
       if (piece && piece.type !== 'empty' && piece.color !== currentPlayerColor) {
-        if (piece === null) {
-          console.log('Piece is null');
-        } else {
-          const moves: Move[] = getMovesForPiece(piece, [i, j], gameState);
-          console.log('ischeckMoves', moves)
-          if (kingPosition !== null) {
-            const [kingX, kingY] = kingPosition;
-            console.log('ischeckkingX', kingX)
-            console.log('ischeckkingY', kingY)
-            console.log('ischeckkingPosition', kingPosition)
-            if (moves && moves.some(move => move && move[0] === kingX && move[1] === kingY)) {
-              console.log('ischeckTrue99')
-              return true;
-            }
+        const moves: Move[] = getMovesForPiece(piece, [i, j], gameState);
+        console.log('isInCheckMoves', moves);
+        if (kingPosition !== null) {
+          const [kingX, kingY] = kingPosition;
+          if (moves && moves.some(move => move && move[0] === kingX && move[1] === kingY)) {
+            isKingInCheck = true;
+            break;
           }
         }
       }
     }
-  }
-
-  return false;
+    
+    if (isKingInCheck) {
+      console.log('King is in check. Checking for checkmate...');
+      console.log('isInCheckKingPosition', kingPosition);
+      const isCheckmateResult = isCheckmate(gameState, kingPosition, currentPlayerColor);
+      isKingInCheckMate = isCheckmateResult.isInCheckmate;
+      if (isCheckmateResult.isInCheckmate) {
+        console.log('King is in checkmate.');
+      } else {
+        console.log('King is in check but not in checkmate.');
+      }
+    }  }
+  console.log('isInCheckKing or checkmate', isKingInCheck, isKingInCheckMate);
+  return {isKingInCheck, isKingInCheckMate, loser : currentPlayerColor};
 }
 
 export default isCheck;
