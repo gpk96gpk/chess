@@ -1,48 +1,40 @@
 import { GameState, Piece as PieceType, Position, Move } from "../types/clientTypes";
 
-function castling(piece: { type: string; color: 'white' | 'black'; hasMoved: boolean}, position: Position, gameState: GameState, playerNumber: number): Move | null {
-    if (piece.type !== 'king' || piece.hasMoved) {
-        return null;
-    }
-
-    const rookPositions = playerNumber === 1 ? [[0, 0], [0, 7]] : [[7, 0], [7, 7]];
+function getCastlingMove(gameState: GameState, piece: PieceType, position: Position): Move | null {
+    const kingRow = position[0];
+    const kingColumn = position[1];
     let castlingMove: Move | null = null;
 
-    for (const [y, x] of rookPositions) {
-        const rook = gameState.board[y][x] as PieceType;
-        if (rook && rook.type === 'rook' && !rook.hasMoved) {
-            const direction = x < position[1] ? -1 : 1;
-            let canCastle = true;
-            for (let i = position[1] + direction; i !== x - direction; i += direction) {
-                console.log('canCastleCheck!!!', gameState.board[position[0]][i].type);
-                console.log('xCheck!!!', x, i)
-                console.log('positionCheck!!!', position, i)
-                console.log('gameStateCheck!!!', gameState.board)
-                if ( gameState.board[position[0]][i].type !== 'empty') {
-                    console.log('canCastleCheckFalse!!!', gameState.board[position[0]][i].type)
-                    canCastle = false;
-                    break;
-                }
-            }
-            console.log('canCastleCheckTrue!!!', canCastle)
-            if (canCastle) {
-                castlingMove = {
-                    piece,
-                    from: position,
-                    to: [position[0] , position[1] + 2 * direction],
-                    board: gameState.board,
-                    turn: piece.color,
-                    turnNumber: gameState.history.length
-                };
-                break;
-            }
-        }
-    }
-    console.log('castlingMove!!!', castlingMove)
-    if( castlingMove === null) {
+    // Check the squares between the king and the rooks
+    if (!gameState.board) {
         return null;
     }
-    return castlingMove.to;
-}
 
-export default castling;
+    const leftRook = gameState.board[kingRow][0] as PieceType;
+    const rightRook = gameState.board[kingRow][7] as PieceType;
+
+    if (leftRook && leftRook.type === 'rook' && !leftRook.hasMoved && 
+        !gameState.board[kingRow][1] && !gameState.board[kingRow][2] && !gameState.board[kingRow][3]) {
+        castlingMove = {
+            piece,
+            from: position,
+            to: [kingRow, kingColumn - 2],
+            board: gameState.board,
+            turn: piece.color,
+            turnNumber: gameState.history.length
+        };
+    } else if (rightRook && rightRook.type === 'rook' && !rightRook.hasMoved && 
+               !gameState.board[kingRow][5] && !gameState.board[kingRow][6]) {
+        castlingMove = {
+            piece,
+            from: position,
+            to: [kingRow, kingColumn + 2],
+            board: gameState.board,
+            turn: piece.color,
+            turnNumber: gameState.history.length
+        };
+    }
+
+    return castlingMove ? castlingMove.to : null;
+}
+export default getCastlingMove;

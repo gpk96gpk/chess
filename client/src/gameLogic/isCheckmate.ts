@@ -3,21 +3,36 @@ import isCheck from './isCheck';
 import getMovesForPiece from './pieceMoves';
 import validMoves from './validMoves';
 
-function findThreateningPieces(gameState: GameState, kingPosition: Position, currentPlayerColor: string) {
-  const threateningPieces = [];
+function getAttackPositions(position: Position): Position[] {
+  const [x, y] = position;
+  const directions = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+  const knightMoves = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
 
-  for (let i = 0; i < gameState.board.length; i++) {
-    for (let j = 0; j < gameState.board[i].length; j++) {
-      const piece: PieceType | null = gameState.board[i][j];
-      if (piece && piece.color !== currentPlayerColor) {
-        const piecePosition: Position = [i, j];
-        const pieceMoves = getMovesForPiece(piece, piecePosition, gameState);
-        if (pieceMoves.some(move => move[0] === kingPosition[0] && move[1] === kingPosition[1])) {
-          threateningPieces.push({ ...piece, position: piecePosition });
-        }
-      }
-    }
-  }
+  const positions = directions.flatMap(([dx, dy]) =>
+      Array.from({ length: 7 }, (_, i) => [x + dx * (i + 1), y + dy * (i + 1)])
+  ).concat(
+      knightMoves.map(([dx, dy]) => [x + dx, y + dy])
+  );
+
+  return positions.filter(([i, j]) => i >= 0 && i < 8 && j >= 0 && j < 8);
+}
+
+function findThreateningPieces(gameState: GameState, kingPosition: Position, currentPlayerColor: string) {
+  const attackPositions = getAttackPositions(kingPosition);
+
+  const threateningPieces = attackPositions
+      .map(([i, j]) => ({ piece: gameState.board[i][j] as PieceType, position: [i, j] as Position }))
+      .filter(({ piece }) => piece && piece.color !== currentPlayerColor)
+      .filter(({ piece, position }) => {
+          const pieceMoves = getMovesForPiece(piece, position, gameState);
+          return pieceMoves.some(move => {
+            if (!move || !kingPosition) {
+                return false;
+            }
+            return move[0] === kingPosition[0] && move[1] === kingPosition[1];
+          });
+      })
+      .map(({ piece, position }) => ({ ...piece, position }));
 
   return threateningPieces;
 }
@@ -26,70 +41,60 @@ function getPositionsBetween(pos1: Position, pos2: Position) {
   const [x1, y1] = pos1;
   const [x2, y2] = pos2;
 
-  const positions = [];
-
   const xStep = x1 < x2 ? 1 : x1 > x2 ? -1 : 0;
   const yStep = y1 < y2 ? 1 : y1 > y2 ? -1 : 0;
 
-  let x = x1 + xStep;
-  let y = y1 + yStep;
+  const xLength = Math.abs(x2 - x1);
+  const yLength = Math.abs(y2 - y1);
+  const length = Math.max(xLength, yLength);
 
-  while (x !== x2 || y !== y2) {
-    positions.push([x, y]);
-    x += xStep;
-    y += yStep;
-  }
-
-  return positions;
+  return Array.from({ length }, (_, i) => [x1 + xStep * (i + 1), y1 + yStep * (i + 1)] as Position)
+      .filter(([x, y]) => x !== x2 || y !== y2);
 }
 
 function canBlock(gameState: GameState, kingPosition: Position, threateningPiecePosition: Position, currentPlayerColor: string) {
   const positionsBetween = getPositionsBetween(kingPosition, threateningPiecePosition);
-  console.log("88Positions between king and threatening piece:", positionsBetween);
 
-  for (let i = 0; i < gameState.board.length; i++) {
-    for (let j = 0; j < gameState.board[i].length; j++) {
-      const piece: PieceType | null = gameState.board[i][j];
-      if (piece && piece.color === currentPlayerColor && piece.type !== 'king' && !positionsBetween.some(pos => pos[0] === i && pos[1] === j)) {
-        console.log("88Checking piece at position", [i, j], "which is a", piece.type);
-        const piecePosition: Position = [i, j];
-        const pieceMoves = getMovesForPiece(piece, piecePosition, gameState);
-        console.log("88Possible moves for this piece are", pieceMoves);
-        if (pieceMoves.some(move => positionsBetween.some(pos => pos[0] === move[0] && pos[1] === move[1]))) {
-          console.log("88This piece can block the threatening piece");
-          return true;
-        }
-      }
-    }
+  const pieces = gameState.board.flat().map((piece, index) => ({ piece, position: [Math.floor(index / 8), index % 8] as Position }));
+  const currentPlayerPieces = pieces.filter(({ piece }) => piece && piece.color === currentPlayerColor && piece.type !== 'king');
+
+  const canBlock = currentPlayerPieces.some(({ piece, position }) => {
+      const pieceMoves = getMovesForPiece(piece, position, gameState);
+      return pieceMoves.some(move => positionsBetween.some(pos => pos[0] === move[0] && pos[1] === move[1]));
+  });
+
+  if (canBlock) {
+      return true;
+  } else {
+      return false;
   }
-
-  console.log("88No piece can block the threatening piece");
-  return false;
 }
 
-function canCapture(gameState, threateningPiece, currentPlayerColor) {
-  for (let x = 0; x < 8; x++) {
-    for (let y = 0; y < 8; y++) {
-      const piece = gameState.board[x][y];
-      if (piece && piece.color === currentPlayerColor) {
-        const moves = getMovesForPiece(piece, [x, y], gameState);
-        if (moves.some(move => move[0] === threateningPiece.position[0] && move[1] === threateningPiece.position[1])) {
-          // Create a hypothetical game state where the piece captures the threatening piece
-          const hypotheticalGameState = JSON.parse(JSON.stringify(gameState));
-          hypotheticalGameState.board[threateningPiece.position[0]][threateningPiece.position[1]] = piece;
-          hypotheticalGameState.board[x][y] = null;
+function canCapture(gameState: GameState, threateningPiece, currentPlayerColor) {
+  const pieces = gameState.board.flat().map((piece, index) => ({ piece, position: [Math.floor(index / 8), index % 8] as Position }));
+  const currentPlayerPieces = pieces.filter(({ piece }) => piece && piece.color === currentPlayerColor);
 
-          // Check if the hypothetical game state would be in check
-          if (!isCheck(hypotheticalGameState, currentPlayerColor)) {
-            return true;
+  return currentPlayerPieces.some(({ piece, position }) => {
+      const moves = getMovesForPiece(piece, position, gameState);
+      return moves.some(move => {
+          if (!move) {
+              return false;
           }
-        }
-      }
-    }
-  }
-  return false;
+          if (move[0] === threateningPiece.position[0] && move[1] === threateningPiece.position[1]) {
+              // Create a hypothetical game state where the piece captures the threatening piece
+              const hypotheticalGameState = JSON.parse(JSON.stringify(gameState));
+              hypotheticalGameState.board[threateningPiece.position[0]][threateningPiece.position[1]] = piece;
+              hypotheticalGameState.board[position[0]][position[1]] = null;
+
+              // Check if the hypothetical game state would be in check
+              return !isCheck(hypotheticalGameState, currentPlayerColor);
+          }
+          return false;
+      });
+  });
 }
-function isAdjacent(pos1: Position, pos2: Position) {
+
+function isAdjacent(pos1: Position, pos2: Position): boolean {
   const [x1, y1] = pos1;
   const [x2, y2] = pos2;
 
@@ -97,67 +102,56 @@ function isAdjacent(pos1: Position, pos2: Position) {
 }
 
 function isCheckmate(gameState: GameState, kingPosition: [number, number], currentPlayerColor: string ) {
-  console.log("77Checking if", currentPlayerColor, "is in checkmate");
-  console.log("77King position is", kingPosition);
-  console.log("77Current player is", currentPlayerColor);
-  // Find the positions of all pieces that are threatening the king
   const threateningPieces = findThreateningPieces(gameState, kingPosition, currentPlayerColor);
 
-  for (const threateningPiece of threateningPieces) {
-    console.log("77Checking if", currentPlayerColor, "can capture", threateningPiece.type);
+  // Store the valid moves for each piece in a map
+  const validMovesMap = new Map();
 
-    // Check if any of the current player's pieces can capture the threatening piece
-    const canCurrentPlayerCapture = canCapture(gameState, threateningPiece, currentPlayerColor);
-    console.log("77Can current player capture?", canCurrentPlayerCapture);
+  const canCurrentPlayerCapture = threateningPieces.some(threateningPiece => {
+      const moves = validMovesMap.get(threateningPiece) || getMovesForPiece(threateningPiece, threateningPiece.position, gameState);
+      validMovesMap.set(threateningPiece, moves);
+      return canCapture(gameState, threateningPiece, currentPlayerColor, moves);
+  });
 
-
-    if (canCurrentPlayerCapture) {
-      console.log("77Current player can capture, not checkmate");
+  if (canCurrentPlayerCapture) {
       return { isCheckmate: false, loser: null };
-    }
-
-    // If the threatening piece is not a knight and is not adjacent to the king,
-    // check if any of the current player's pieces can move between the king and the threatening piece
-    if ((threateningPiece.type !== 'knight' && threateningPiece.type !== 'king') && !isAdjacent(kingPosition, threateningPiece.position)) {
-      const canCurrentPlayerBlock = canBlock(gameState, kingPosition, threateningPiece.position, currentPlayerColor);
-      console.log("77Can current player block?", canCurrentPlayerBlock);
-
-      if (canCurrentPlayerBlock) {
-        console.log("77Current player can block, not checkmate");
-        return { isCheckmate: false, loser: null };
-      }
-    }
-    console.log("77Current player can't capture or block, continuing to next piece");
   }
 
-  // Check if the king can move to any safe square
+  const canCurrentPlayerBlock = threateningPieces.some(threateningPiece => {
+      if ((threateningPiece.type !== 'knight' && threateningPiece.type !== 'king') && !isAdjacent(kingPosition, threateningPiece.position)) {
+          const moves = validMovesMap.get(threateningPiece) || getMovesForPiece(threateningPiece, threateningPiece.position, gameState);
+          validMovesMap.set(threateningPiece, moves);
+          return canBlock(gameState, kingPosition, threateningPiece.position, currentPlayerColor, moves);
+      }
+      return false;
+  });
+
+  if (canCurrentPlayerBlock) {
+      return { isCheckmate: false, loser: null };
+  }
+
   if (kingPosition) {
-    console.log("77Checking if the king can move to a safe square");
     const king: PieceType = gameState.board[kingPosition[0]][kingPosition[1]];
     const kingValidMoves = validMoves(king, kingPosition, gameState, currentPlayerColor);
-    const canCapture = kingValidMoves.some(move => {
-      const tempGameState = JSON.parse(JSON.stringify(gameState)); // Create a copy of the game state
-      tempGameState.board[kingPosition[0]][kingPosition[1]] = null; // Remove the king from its current position
-      tempGameState.board[move[0]][move[1]] = king; // Place the king at the new position
-      return !isCheck(tempGameState); // If the new position is not in check, the king can capture
+    const canKingCapture = kingValidMoves.some(move => {
+        const tempGameState = JSON.parse(JSON.stringify(gameState));
+        tempGameState.board[kingPosition[0]][kingPosition[1]] = null;
+        tempGameState.board[move[0]][move[1]] = king;
+        const attackPositions = getAttackPositions(tempGameState, move, currentPlayerColor);
+        // If there are no opponent pieces that can threaten the king, no need to call isCheck
+        if (attackPositions.length === 0) {
+            return true;
+        }
+        return !isCheck(tempGameState);
     });
-    console.log("77Can the king capture?", canCapture);
-    if (!canCapture && kingValidMoves.length > 0) {
-      // If the king cannot capture a piece without being in check, it's checkmate
-      console.log("77No safe moves for the king. It's checkmate.");
-      return { isInCheckmate: true, loser: currentPlayerColor };
+    if (!canKingCapture && kingValidMoves.length > 0) {
+        return { isInCheckmate: true, loser: currentPlayerColor };
     } else {
-      console.log("77King can move to a safe square. Not checkmate.");
-      return { isInCheckmate: false, loser: null };
+        return { isInCheckmate: false, loser: null };
     }
-  } else {
-    console.log("77King position not found");
-  }
+}
 
-  // If none of the above conditions are met, it's checkmate
-  console.log("77No safe moves for the king. It's checkmate.");
-
-  return { isInCheckmate: true, loser: currentPlayerColor };
+return { isInCheckmate: true, loser: currentPlayerColor };
 }
 
 export default isCheckmate;

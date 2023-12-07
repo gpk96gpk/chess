@@ -16,60 +16,59 @@
 //check if piece is moving to a tile that is occupied by a King piece of the opposite color
 //
 import enPassant from '../gameLogic/enPassant'
-import castling from '../gameLogic/castling'
 import getMovesForPiece from './pieceMoves';
 import { GameState, Move, Piece as PieceType, Position } from '../types/clientTypes';
 import isCheck from './isCheck';
+import getCastlingMove from '../gameLogic/castling';
 
 
 
 function validMoves(piece: PieceType, position: Position, gameState: GameState, playerNumber: number) {
-    let moves: Move[] = [];
-    console.log('validMovesPropsCheck', piece, position, gameState, playerNumber);
-    const normalMoves = getMovesForPiece(piece, position, gameState);
-    if (normalMoves) {
-        moves = moves.concat(normalMoves);
-        console.log('MovesConcat', moves);
-    }
-    
-    if (piece && piece.type === 'pawn') {
-        console.log('enPassantPropsCheck!!!', piece, position, gameState, playerNumber);
-        const enPassantMove = enPassant(piece, position, gameState, playerNumber);
-        if (enPassantMove) {
-            moves.concat([enPassantMove]);
-        }
-        console.log('enPassantMove!!!', enPassantMove);
-    }
-    
-    if (moves && piece && piece.type === 'king') {
-        // If the piece has not moved, check for castling
-        if (!piece.hasMoved) {
-          const castlingMove = castling(piece, position, gameState, playerNumber) || [];
-          if (castlingMove) {
-            moves = moves.concat([castlingMove]);
-          }
-          console.log('castlingMove', castlingMove);
-        }
-      
-        // Filter out moves that would put the king in check
-        moves = moves.filter(newPosition => {
-          const tempGameState = JSON.parse(JSON.stringify(gameState)); // Create a copy of the game state
-          tempGameState.board[piece.position[0]][piece.position[1]] = null; // Remove the king from its current position
-      
-          // Check if newPosition is within the bounds of the board
-          if (newPosition[0] >= 0 && newPosition[0] < tempGameState.board.length &&
-              newPosition[1] >= 0 && newPosition[1] < tempGameState.board[0].length) {
-            tempGameState.board[newPosition[0]][newPosition[1]] = piece; // Place the king at the new position
-      
-            return !isCheck(tempGameState, piece.color); // If the new position is in check, the move is not valid
-          }
-      
-          return false;
-        });
+  console.log('validMoves', piece, position, gameState, playerNumber);
+  let moves: Move[] = [];
+  const normalMoves = getMovesForPiece(piece, position, gameState);
+  if (normalMoves) {
+      moves = moves.concat(normalMoves);
+      console.log('moves', moves);
+  }
+  
+  if (piece && piece.type === 'pawn') {
+      const enPassantMove = enPassant(piece, position, gameState, playerNumber);
+      if (enPassantMove) {
+          moves = moves.concat([enPassantMove]);
       }
-    
-    console.log('validMoveMoves', moves)
-    return moves;
+  }
+  
+  if (moves && piece && piece.type === 'king') {
+    if (!piece.hasMoved && 
+      ((gameState.board[0][0].type === 'rook' && !gameState.board[0][0].hasMoved && gameState.board[7][0].type === 'rook' && !gameState.board[7][0].hasMoved) ||
+      (gameState.board[0][7].type === 'rook' && !gameState.board[0][7].hasMoved && gameState.board[7][7].type === 'rook' && !gameState.board[7][7].hasMoved)) ) {
+        
+        const castlingMove = getCastlingMove(piece, position, gameState, playerNumber) || [];
+        if (castlingMove) {
+          moves = moves.concat([castlingMove]);
+        }
+    }
+      
+    moves = moves.filter(newPosition => {
+        if (!newPosition) {
+            return false;
+        }
+        const tempGameState = JSON.parse(JSON.stringify(gameState));
+        tempGameState.board[piece.position[0]][piece.position[1]] = null;
+        console.log('tempGameState', tempGameState.board[piece.position[0]][piece.position[1]]);
+        if (newPosition[0] >= 0 && newPosition[0] < tempGameState.board.length &&
+            newPosition[1] >= 0 && newPosition[1] < tempGameState.board[0].length) {
+          tempGameState.board[newPosition[0]][newPosition[1]] = piece;
+
+          return !isCheck(tempGameState, playerNumber);
+        }
+
+        return false;
+    });
+  }
+  
+  return moves;
 }
 
 export default validMoves

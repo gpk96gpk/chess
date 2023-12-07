@@ -36,15 +36,30 @@ const createPiece = (type: string, color: string, position: Position, index: num
 const createPawn = (color: string, position: Position, index: number) => ({ type: 'pawn', color, position, hasMoved: false, isHighlighted: false, index });
 const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
 
+// const initialBoard: GameStateType = {
+//     board: [
+//         majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
+//         Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [1, i], hasMoved: false, isHighlighted: false, index: index++ })),
+//         ...Array(4).fill(null).map((_, rowIndex) =>
+//             Array(8).fill(null).map((_, colIndex) => ({ type: 'empty', color: 'none', position: [2 + rowIndex, colIndex], hasMoved: false, isHighlighted: false, index: index++ }))
+//         ),
+//         Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [6, i], hasMoved: false, isHighlighted: false, index: index++ })),
+//         majorPieces.map((type, i) => i === 4 ? createPiece('king', 'white', [7, 4], index++) : { type: 'empty', color: 'none', position: [7, i], hasMoved: false, isHighlighted: false, index: index++ }),
+//     ],
+//     history: [],
+//     turn: 'black',
+// };
+
+
 const initialBoard: GameStateType = {
     board: [
         majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
-        Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [1, i], hasMoved: false, isHighlighted: false, index: index++ })),
-        ...Array(4).fill(null).map((_, rowIndex) =>
-            Array(8).fill(null).map((_, colIndex) => ({ type: 'empty', color: 'none', position: [2 + rowIndex, colIndex], hasMoved: false, isHighlighted: false, index: index++ }))
+        Array(8).fill(null).map((_, i) => createPiece('pawn', 'black', [1, i], index++)),
+        ...Array(4).fill(null).map(() =>
+            Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: index++ }))
         ),
-        Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [6, i], hasMoved: false, isHighlighted: false, index: index++ })),
-        majorPieces.map((type, i) => i === 4 ? createPiece('king', 'white', [7, 4], index++) : { type: 'empty', color: 'none', position: [7, i], hasMoved: false, isHighlighted: false, index: index++ }),
+        Array(8).fill(null).map((_, i) => createPiece('pawn', 'white', [6, i], index++)),
+        majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
     ],
     history: [],
     turn: 'black',

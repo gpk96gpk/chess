@@ -6,13 +6,8 @@ function isThreefoldRepetition(history: Move[]) {
         turn: move.turn
     }));
     const uniquePositions = [...new Set(positions)];
-    for (const position of uniquePositions) {
-        const occurrences = positions.filter(p => p === position).length;
-        if (occurrences >= 3) {
-            return true;
-        }
-    }
-    return false;
+
+    return uniquePositions.some(position => positions.filter(p => p === position).length >= 3);
 }
 
 export default isThreefoldRepetition;

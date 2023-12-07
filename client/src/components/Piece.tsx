@@ -15,10 +15,15 @@ const Piece = ({ piece, position, gameState, playerNumber, handleDragStart }: {p
 
 
     const onDragStart = (event: React.DragEvent) => {
-        // Here we're calling handleDragStart with the correct arguments
-        const newPiece = { ...piece, position: [piece.position[0], piece.position[1]] as Position };
-        handleDragStart(event, newPiece, piece.position);
-        console.log('Startposition', piece.position); 
+        console.log('Piece:', piece);
+        console.log('Position:', position);
+        if (piece && position) {
+            const newPiece = { ...piece, position: [position[0], position[1]] as Position };
+            handleDragStart(event, newPiece, position);
+            console.log('Startposition', position); 
+        } else {
+            console.error('Piece or piece position is undefined');
+        }
     };
 
 
