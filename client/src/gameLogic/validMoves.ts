@@ -1,74 +1,73 @@
-//isValidMove
-//check if piece is in the way of another piece
-//check if piece is moving in valid direction
-//check if piece is moving to a valid tile
-//check if piece is moving to a tile that is not occupied by a piece of the same color
-//check if piece is moving to a tile that is occupied by a piece of the opposite color
-// check if piece is moving to a tile that is occupied by a piece of the opposite color 
-//and if so remove that piece from the board
-//check for check and checkmate**
-//check for en passant**
-//if check is true then checkmate needs to be checked
-//check if pawn is at the end of the board and if so promote to queen
-//check for victory condition
-//check for stalemate
-//check for draw
-//check if piece is moving to a tile that is occupied by a King piece of the opposite color
-//
-import enPassant from '../gameLogic/enPassant'
-import getMovesForPiece from './pieceMoves';
-import { GameState, Move, Piece as PieceType, Position } from '../types/clientTypes';
+import { PieceType, Position, Move } from '../types/clientTypes';
+import calculateThreateningSquares from './calculateThreateningSquares';
+import getCastlingMove from './castling';
+import enPassant from './enPassant';
 import isCheck from './isCheck';
-import getCastlingMove from '../gameLogic/castling';
+import getMovesForPiece from './pieceMoves';
 
-
-
-function validMoves(piece: PieceType, position: Position, gameState: GameState, playerNumber: number) {
-  console.log('validMoves', piece, position, gameState, playerNumber);
+function validMoves(piece: PieceType, position: Position, gameState: GameState, playerNumber: number, lastPosition) {
+  console.log('302validMoves piece', piece, 'position', position, 'gameState', gameState, 'playerNumber', playerNumber);
   let moves: Move[] = [];
-  const normalMoves = getMovesForPiece(piece, position, gameState);
-  if (normalMoves) {
-      moves = moves.concat(normalMoves);
-      console.log('moves', moves);
-  }
-  
-  if (piece && piece.type === 'pawn') {
-      const enPassantMove = enPassant(piece, position, gameState, playerNumber);
-      if (enPassantMove) {
-          moves = moves.concat([enPassantMove]);
-      }
-  }
-  
-  if (moves && piece && piece.type === 'king') {
-    if (!piece.hasMoved && 
-      ((gameState.board[0][0].type === 'rook' && !gameState.board[0][0].hasMoved && gameState.board[7][0].type === 'rook' && !gameState.board[7][0].hasMoved) ||
-      (gameState.board[0][7].type === 'rook' && !gameState.board[0][7].hasMoved && gameState.board[7][7].type === 'rook' && !gameState.board[7][7].hasMoved)) ) {
-        
-        const castlingMove = getCastlingMove(piece, position, gameState, playerNumber) || [];
-        if (castlingMove) {
-          moves = moves.concat([castlingMove]);
-        }
+  let threateningSquares;
+
+  const addMoveIfValid = (newPosition: Position) => {
+    if (!newPosition) {
+      return;
     }
-      
-    moves = moves.filter(newPosition => {
-        if (!newPosition) {
-            return false;
-        }
-        const tempGameState = JSON.parse(JSON.stringify(gameState));
-        tempGameState.board[piece.position[0]][piece.position[1]] = null;
-        console.log('tempGameState', tempGameState.board[piece.position[0]][piece.position[1]]);
-        if (newPosition[0] >= 0 && newPosition[0] < tempGameState.board.length &&
-            newPosition[1] >= 0 && newPosition[1] < tempGameState.board[0].length) {
-          tempGameState.board[newPosition[0]][newPosition[1]] = piece;
+    
+    const tempGameState = JSON.parse(JSON.stringify(gameState));
+    tempGameState.board[position[0]][position[1]] = null;
+    if (newPosition[0] >= 0 && newPosition[0] < tempGameState.board.length &&
+      newPosition[1] >= 0 && newPosition[1] < tempGameState.board[0].length) {
+      tempGameState.board[newPosition[0]][newPosition[1]] = piece;
+      console.log('tempGameState', tempGameState, '843tempGameState.turn', tempGameState.turn);
+      console.log('843piece.type', piece.type, '843piece.position', piece.position);
+      if (piece.type !== 'king') {
+        threateningSquares = calculateThreateningSquares(tempGameState.kingPositions[tempGameState.turn], tempGameState, position);
+      } else {
+        threateningSquares = calculateThreateningSquares(lastPosition, tempGameState, position);
+      }
+      console.log('843threateningSquares', threateningSquares);
+      if (playerNumber === 2 && piece.color === 'white' || playerNumber === 1 && piece.color === 'black' ) {
+        tempGameState.threateningPiecesPositions[piece.color] = threateningSquares;
+      }
+      console.log('766tempGameState.threateningPiecesPositions', tempGameState);
+      const checkPosition = piece.type === 'king' ? lastPosition : position;
+      if (!isCheck(tempGameState, threateningSquares, playerNumber, checkPosition).isKingInCheck) {
+          moves.push(newPosition);
+      }
+    }
+  };
 
-          return !isCheck(tempGameState, playerNumber);
-        }
-
-        return false;
-    });
+  const normalMoves = getMovesForPiece(piece, position, gameState);
+  console.log('normalMoves', normalMoves);
+  if (normalMoves) {
+    normalMoves.forEach(addMoveIfValid);
   }
-  
-  return moves;
+
+  if (piece && piece.type === 'pawn') {
+    const enPassantMove = enPassant(piece, position, gameState, playerNumber);
+    if (enPassantMove) {
+      addMoveIfValid(enPassantMove);
+    }
+  }
+
+  if (piece && piece.type === 'king') {
+    if (!piece.hasMoved &&
+      ((gameState.board[0][0].type === 'rook' && !gameState.board[0][0].hasMoved && gameState.board[7][0].type === 'rook' && !gameState.board[7][0].hasMoved) ||
+        (gameState.board[0][7].type === 'rook' && !gameState.board[0][7].hasMoved && gameState.board[7][7].type === 'rook' && !gameState.board[7][7].hasMoved))) {
+
+      const castlingMove = getCastlingMove(piece, position, gameState, playerNumber) || [];
+      if (castlingMove && Array.isArray(castlingMove[0])) {
+        addMoveIfValid(castlingMove);
+      }
+    }
+  }
+
+  return {
+    moves,
+    threateningSquares
+  };
 }
 
-export default validMoves
+export default validMoves;

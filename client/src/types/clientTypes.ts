@@ -1,59 +1,52 @@
-//store types for client
-
-export type Piece = {
+export type PieceType = {
     type: 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn' | 'empty';
-    color: 'black' | 'white';
+    color: 'black' | 'white' | 'none';
     position: Position;
     hasMoved: boolean;
     isHighlighted: boolean;
-} | null;
+    index: number;
+};
 
-export type Position = [number, number] | [];
+export type Position = [number, number];
 
-export interface GameState {
-    board: Piece[][];
+export interface GameStateType {
+    board: PieceType[][];
     history: Move[];
     turn: 'white' | 'black';
-}
-
-export type HighlightedTile = Position[];
-
-export type Props = {
-    gameState: GameState;
-    setGameState(newGameState: { board: Piece[][]; turn: "white" | "black"; history: Move[]; }): unknown;
-    gameOver: boolean;
-    setGameOver(arg0: boolean): unknown;
-    playerNumber: number;
-    setPlayerNumber: (arg0: number) => unknown;
-    turnState: 0 | 1 | 2;
-    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2>>;
-    winner: string | null;
-    setWinner: (winner: string | null) => void;
-    highlightedTiles: HighlightedTile[];
-    setHighlightedTiles(arg0: never[]): unknown;
-    isPlayerInCheck: boolean;
-    setIsPlayerInCheck: (arg0: boolean) => unknown;
-    handleReset: () => void;
+    kingPositions: { black: Position; white: Position };
+    threateningPiecesPositions: {
+        black: Position[];
+        white: Position[];
+    };
 };
 
 export type Move = {
-    every(arg0: (value: any, index: any) => boolean): unknown;
-    piece: { type: string; color: string; };
+    piece: PieceType;
     from: Position;
     to: Position;
-    board: Piece[][];
+    board: PieceType[][];
     turn: "white" | "black";
     turnNumber: number;
 };
 
-export type Board = (Piece | null)[][];
+export type Props = {
+    gameState: GameStateType;
+    setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
+    gameOver: boolean;
+    setGameOver: (arg0: boolean) => void;
+    playerNumber: number;
+    setPlayerNumber: (arg0: number) => void;
+    turnState: 0 | 1 | 2;
+    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2>>;
+    winner: string | null;
+    setWinner: (winner: string | null) => void;
+    highlightedTiles: Position[];
+    setHighlightedTiles: (arg0: Position[]) => void;
+    isPlayerInCheck: boolean;
+    setIsPlayerInCheck: (arg0: boolean) => void;
+    handleReset: () => void;
+};
 
 export interface BoardButtonsProps {
-    gameState: GameState; 
-  }
-
-export type GameStateType = {
-    board: Board;
-    history: Move[];
-    turn: "white" | "black";
-  };
+    gameState: GameStateType; 
+}

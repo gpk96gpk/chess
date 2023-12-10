@@ -27,6 +27,7 @@ import { useEffect, useState } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, HighlightedTile } from './types/clientTypes';
+import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
 const socket = io('http://localhost:3004');
 
@@ -34,43 +35,81 @@ let index = 0;
 
 const createPiece = (type: string, color: string, position: Position, index: number) => ({ type, color, position, hasMoved: false, isHighlighted: false, index });
 const createPawn = (color: string, position: Position, index: number) => ({ type: 'pawn', color, position, hasMoved: false, isHighlighted: false, index });
+
 const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+
+
+
+const testBoard: GameStateType = {
+    board: [
+        majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
+        Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [1, i], hasMoved: false, isHighlighted: false, index: index++ })),
+        ...Array(4).fill(null).map((_, rowIndex) =>
+            Array(8).fill(null).map((_, colIndex) => ({ type: 'empty', color: 'none', position: [2 + rowIndex, colIndex], hasMoved: false, isHighlighted: false, index: index++ }))
+        ),
+        Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [6, i], hasMoved: false, isHighlighted: false, index: index++ })),
+        majorPieces.map((type, i) => i === 4 ? createPiece('king', 'white', [7, 4], index++) : { type: 'empty', color: 'none', position: [7, i], hasMoved: false, isHighlighted: false, index: index++ }),
+    ],
+    history: [],
+    turn: 'black',
+    kingPositions: {black: [0, 4], white: [7, 4]}, 
+    threateningPiecesPositions: {
+         black: [],
+         white: [],
+     },
+};
+
 
 // const initialBoard: GameStateType = {
 //     board: [
 //         majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
-//         Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [1, i], hasMoved: false, isHighlighted: false, index: index++ })),
-//         ...Array(4).fill(null).map((_, rowIndex) =>
-//             Array(8).fill(null).map((_, colIndex) => ({ type: 'empty', color: 'none', position: [2 + rowIndex, colIndex], hasMoved: false, isHighlighted: false, index: index++ }))
+//         Array(8).fill(null).map((_, i) => createPiece('pawn', 'black', [1, i], index++)),
+//         ...Array(4).fill(null).map(() =>
+//             Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: index++ }))
 //         ),
-//         Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [6, i], hasMoved: false, isHighlighted: false, index: index++ })),
-//         majorPieces.map((type, i) => i === 4 ? createPiece('king', 'white', [7, 4], index++) : { type: 'empty', color: 'none', position: [7, i], hasMoved: false, isHighlighted: false, index: index++ }),
+//         Array(8).fill(null).map((_, i) => createPiece('pawn', 'white', [6, i], index++)),
+//         majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
 //     ],
 //     history: [],
 //     turn: 'black',
+//     kingPositions: { black: [0, 4], white: [7, 4] },
+//     threateningPiecesPositions: {
+//         black: [[0, 1], [0, 6], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7]],
+//         white: [[7, 1], [7, 6], [6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 7]],
+//     },
 // };
 
 
-const initialBoard: GameStateType = {
-    board: [
-        majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
-        Array(8).fill(null).map((_, i) => createPiece('pawn', 'black', [1, i], index++)),
-        ...Array(4).fill(null).map(() =>
-            Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: index++ }))
-        ),
-        Array(8).fill(null).map((_, i) => createPiece('pawn', 'white', [6, i], index++)),
-        majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
-    ],
-    history: [],
-    turn: 'black',
-};
+
+
+
+
+// const initialBoard: GameStateType = {
+//     board: [
+//         majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
+//         Array(8).fill(null).map((_, i) => createPiece('pawn', 'black', [1, i], index++)),
+//         ...Array(4).fill(null).map(() =>
+//             Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: index++ }))
+//         ),
+//         Array(8).fill(null).map((_, i) => createPiece('pawn', 'white', [6, i], index++)),
+//         majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
+//     ],
+//     history: [],
+//     turn: 'black',
+//     kingPositions: {black: [0, 4], white: [7, 4]}, 
+//     threateningPiecesPositions: {
+//          black: [[0, 1], [0, 6], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7]],
+//          white: [[7, 1], [7, 6], [6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 7]],
+//      },
+
+// };
 
 
 function App() {
     const [playerNumber, setPlayerNumber] = useState<number>(0);
     const [gameOver, setGameOver] = useState(false);
-    const [gameState, setGameState] = useState<GameStateType>(initialBoard);
     const [turnState, setTurnState] = useState<0 | 1 | 2>(1);
+    const [gameState, setGameState] = useState<GameStateType>(testBoard);
     const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
@@ -146,6 +185,8 @@ function App() {
 
     useEffect(() => {
         const handleGameState = (arg:React.SetStateAction<GameStateType>) => {
+            //arg.turn === 1 ? arg.turn = 'black' : arg.turn = 'white'; 
+            console.log('gameState', arg)
             setGameState(arg);
         }
 
@@ -174,6 +215,7 @@ function App() {
     useEffect(() => {
         const turnStateChange = (arg:React.SetStateAction< 0| 1 | 2 >) => {
             setTurnState(arg);
+            console.log('turnState', turnState)
             console.log(`Socket Turn state: ${arg}`);
         }
 

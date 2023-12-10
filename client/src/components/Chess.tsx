@@ -32,8 +32,12 @@ const Chess: React.FC<Props> = (props) => {
     const socket = useContext(SocketContext);
     const lastDragOverPosition = useRef<Position | null>(null);
     const startPosition = useRef<Position | null>(null);
-    const { isKingInCheck, isKingInCheckMate, loser } = isCheck(props.gameState, props.playerNumber);
-
+    let isKingInCheck = false;
+    let isKingInCheckMate = false;
+    let loser: string | null = null;
+    if (props.gameState.history.length > 2) {
+        ({ isKingInCheck, isKingInCheckMate, loser } = isCheck(props.gameState, props.playerNumber));
+    }    
     //let dragOverPiece;
     const handleDragStart = (event: React.DragEvent, piece, position: Position) => {
         console.log('handleDragStart');
@@ -63,7 +67,7 @@ const Chess: React.FC<Props> = (props) => {
     
     const handleDrop = (event: React.DragEvent, props: HandleDropProps) => {
         event.preventDefault();
-    
+        console.log('handleDrop');
         const pieceData = event.dataTransfer.getData('piece');
         if (!pieceData) {
             console.error('No piece data');
@@ -107,8 +111,8 @@ const Chess: React.FC<Props> = (props) => {
             console.error('No piece');
             return;
         }
-        
-        const pieceValidMoves = validMoves(piece, startPosition.current, gameState, playerNumber);
+        console.log('lastDragOverPosition', lastDragOverPosition.current)
+        const { moves: pieceValidMoves, threateningSquares } = validMoves(piece, startPosition.current, gameState, playerNumber, lastDragOverPosition.current);
         const isPieceValidMove = pieceValidMoves && pieceValidMoves.some(move => { 
             const isStartPosEqual = move.every((value, index) => value === startPosition.current[index]);
             const isLastDragPosEqual = move.every((value, index) => value === lastDragOverPosition.current[index]);
@@ -118,13 +122,15 @@ const Chess: React.FC<Props> = (props) => {
         if (!isPieceValidMove || turnState !== playerNumber) {
             return;
         }
-        
+        const opponentColor = piece.color === 'white' ? 'black' : 'white';
         const newGameState = { ...gameState };
-        const [fromX, fromY] = piece.position;
+        newGameState.threateningPiecesPositions[opponentColor] = threateningSquares;
         const [toX, toY] = lastDragOverPosition.current;
+        const [fromX, fromY] = piece.position;
         const didMoveDiagonally = Math.abs(toX - fromX) === 1 && Math.abs(toY - fromY) === 1;
         const didKingCastle = piece.type === 'king' && Math.abs(toY - fromY) === 2;
         const castlingDirection = piece.type === 'king' && toY - fromY === 2 ? 1 : -1;
+        const currentPlayerColor = newGameState.turn
         
         updateBoard(newGameState, fromX, fromY, {type: 'empty', color: 'empty'});
         
@@ -138,26 +144,32 @@ const Chess: React.FC<Props> = (props) => {
         
         updateBoard(newGameState, toX, toY, piece);
         
+        if (piece.type === 'king') {
+            console.log('556Moving king:', piece.color, toX, toY);
+            newGameState.kingPositions[piece.color] = [toX, toY];
+            newGameState.turn = newGameState.history.length % 2 === 0 ? 'black' : 'white';
+            console.log('556newGameState', newGameState);
+        }
+
+
         newGameState.history.push({ 
             piece: {...piece, hasMoved: true}, 
             from: [fromX, fromY], 
             to: [toX, toY], 
             board: JSON.parse(JSON.stringify(newGameState.board)),
             turnNumber: newGameState.history.length,
-            turn: turnState === 2 ? 'white' : 'black'
+            turn: piece.color,
         });
-        
-        setGameState(newGameState);
-        
-        const opponentKing = newGameState.board.flat().find(piece => piece && piece.type === 'king' && piece.color !== (playerNumber === 1 ? 'black' : 'white'));            
-        
-        if (opponentKing && (opponentKing.position[0] === toX && opponentKing.position[1] === toY) || isKingInCheckMate) {
+
+        if (currentPlayerColor && (currentPlayerColor[0] === toX && currentPlayerColor[1] === toY) || isKingInCheckMate) {
             setGameOver(true);
             if (socket) {
               socket.emit('gameOver', true, isKingInCheckMate ? loser : null, roomCode);
             }
         }
-        
+
+
+
         if (socket) {
             socket.emit('gameState', newGameState, roomCode);
             socket.emit('turn', turnState === 1 ? 2 : 1, roomCode);
@@ -165,13 +177,12 @@ const Chess: React.FC<Props> = (props) => {
         }
     }
     
-
     const { gameState, gameOver, playerNumber, turnState, winner, checkmateResult, setCheckmateResult, setGameState, setTurnState, setWinner, setGameOver, setIsPlayerInCheck } = props;
-    
     useEffect(() => {
-        const newGameState = { ...gameState };
-        setGameState(newGameState);
-    }, [setGameState]);
+        if (gameState.turn !== (turnState === 1 ? 'white' : 'black')) {
+            setGameState(prevState => ({ ...prevState, turn: turnState === 1 ? 'white' : 'black' }));
+        }
+    }, [turnState, setGameState]);
 
     useEffect(() => {
         // Check for game over and winner
@@ -194,7 +205,6 @@ const Chess: React.FC<Props> = (props) => {
             setIsPlayerInCheck(false);
         }
     }, [gameState, isKingInCheck, setIsPlayerInCheck]);
-
     // Check for stalemate and draw
     useEffect(() => {
         if (isDraw(gameState, playerNumber) && turnState !== 0 && !isKingInCheck) {
@@ -206,6 +216,8 @@ const Chess: React.FC<Props> = (props) => {
     }, [gameState, playerNumber, setGameOver, setWinner, setTurnState, turnState, isKingInCheck]);
     //render
     console.log('loser', loser)
+    console.log('turnState2', turnState)
+    gameState.turn = turnState === 1 ? 'white' : 'black';
     return (
         <div>
             <h1>Chess Game</h1>

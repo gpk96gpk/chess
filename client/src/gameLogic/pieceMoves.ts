@@ -16,7 +16,16 @@ const kingDirections = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1,
 
 function getMovesForPiece(piece: PieceType, position: Position, gameState: GameState): Move[] {
     if (piece?.type && piece.type in pieceMoveFunctions) {
-        return pieceMoveFunctions[piece.type](piece, position, gameState);
+        const moves = pieceMoveFunctions[piece.type](piece, position, gameState);
+        if (piece.type === 'king') {
+            const currentPlayerColor = piece.color;
+            const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
+            const threatenedSquares = gameState.threateningPiecesPositions && gameState.threateningPiecesPositions[opponentColor];
+            console.log('threatenedSquares', threatenedSquares);
+            return moves.filter(move => !threatenedSquares || !threatenedSquares.some(([ty, tx]) => ty === move[0] && tx === move[1]));
+        }
+        console.log('Returning moves:', moves);
+        return moves;
     }
     return [];
 }
@@ -82,9 +91,22 @@ function getPawnMoves(piece: { type: string, color: 'white' | 'black', hasMoved:
     return moves;
 }
 
-function getLinearMoves(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState) {
+function getLinearMoves(piece: { type: string, color: 'white' | 'black' }, position: [number, number], gameState: GameState) {
     const directions = piece.type === 'rook' ? linearDirections.slice(0, 4) : linearDirections;
-    return directions.flatMap(([dy, dx]) => getMovesInDirection(piece, position, gameState, dy, dx, 1));
+    
+    const linearMoves = directions.flatMap(([dy, dx]) => {
+        return Array.from({length: 7}, (_, i) => {
+            const newPosition = [position[0] + dx * (i + 1), position[1] + dy * (i + 1)];
+            if (newPosition[0] < 0 || newPosition[0] > 7 || newPosition[1] < 0 || newPosition[1] > 7) return []; // guard clause to stop further iteration in this direction
+            if (gameState.board[newPosition[1]][newPosition[0]].type !== 'empty') return [newPosition]; // return as an array to stop further iteration in this direction
+            return [newPosition];
+        }).filter(move => move.length > 0); // filter out empty arrays
+    });
+    
+    // Only flatten the array if it's a 2D array
+    const flattenedMoves = Array.isArray(linearMoves[0]) ? linearMoves.flat() : linearMoves;
+    
+    return flattenedMoves;
 }
 
 function getFixedMoves(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState) {
@@ -103,47 +125,42 @@ function getFixedMoves(piece: { type: string, color: 'white' | 'black' }, positi
         }
         return null;
     });
-
+    console.log('getFixedMoves', piece, position, gameState, directions, moves);
     return moves.filter(move => move !== null);
 }
 
-function getMovesInDirection(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState, dy: number, dx: number, i: number): Move[] {
+function getMovesInDirection(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState, dy: number, dx: number, i: number): Position[] {
+    console.log('getMovesInDirection', piece, position, gameState, dy, dx, i);
     const y = position[0] + i * dy;
     const x = position[1] + i * dx;
 
+    console.log(`Checking square at (${y}, ${x})`);
+
     // Stop if off board
     if (y < 0 || y > 7 || x < 0 || x > 7) {
+        console.log(`Square at (${y}, ${x}) is off board`);
         return [];
     }
 
-    // If square is occupied by any piece, stop looking in this direction
-    if (gameState.board && gameState.board[y][x]) {
-        // Check if the last checked square is occupied by an opponent's piece
-        if (gameState.board[y][x]?.color !== piece.color) {
-            const move: Move = {
-                piece: { ...piece, hasMoved: true },
-                from: position,
-                to: [y, x],
-                board: gameState.board,
-                turn: piece.color,
-                turnNumber: gameState.history.length
-            };
-            return [move.to];
-        }
+    console.log(`Square at (${y}, ${x}) contains:`, gameState.board[y][x]);
+
+    // If square is occupied by a piece of the same color, stop looking in this direction
+    if (gameState.board[y][x]?.color === piece.color) {
+        console.log(`Square at (${y}, ${x}) is occupied by a piece of the same color`);
         return [];
     }
 
-    // If square is not occupied, it's a valid move
-    const move: Move = {
-        piece: { ...piece, hasMoved: true },
-        from: position,
-        to: [y, x],
-        board: gameState.board,
-        turn: piece.color,
-        turnNumber: gameState.history.length
-    };
+    const move: Position = [y, x];
 
-    return [move.to, ...getMovesInDirection(piece, position, gameState, dy, dx, i + 1)];
+    // If square is occupied by a piece of the opposite color, return this move and stop looking in this direction
+    if (gameState.board[y][x]?.color !== null && gameState.board[y][x]?.color !== piece.color) {
+        console.log(`Square at (${y}, ${x}) is occupied by a piece of the opposite color`);
+        return [move];
+    }
+
+    // If square is not occupied, it's a valid move. Continue looking in the same direction.
+    console.log(`Square at (${y}, ${x}) is not occupied`);
+    return [move, ...getMovesInDirection(piece, position, gameState, dy, dx, i + 1)];
 }
 export default getMovesForPiece;
 
