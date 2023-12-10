@@ -12,6 +12,7 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
 
   const addMoveIfValid = (newPosition: Position) => {
     if (!newPosition) {
+      console.log('newPosition', newPosition);
       return;
     }
     
@@ -32,8 +33,9 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
         tempGameState.threateningPiecesPositions[piece.color] = threateningSquares;
       }
       console.log('766tempGameState.threateningPiecesPositions', tempGameState);
+      const opponentPlayerNumber = playerNumber === 1 ? 2 : 1;
       const checkPosition = piece.type === 'king' ? lastPosition : position;
-      if (!isCheck(tempGameState, threateningSquares, playerNumber, checkPosition).isKingInCheck) {
+      if (!isCheck(tempGameState, threateningSquares, opponentPlayerNumber, checkPosition, piece, position, playerNumber, lastPosition).isKingInCheck) {
           moves.push(newPosition);
       }
     }

@@ -25,7 +25,9 @@ function canCapture(gameState: GameState, threateningPieces, currentPlayerColor)
     const currentPlayerPieces = gameState.board.flat().filter(piece => piece && piece.color === currentPlayerColor);
 
     return currentPlayerPieces.some(piece => {
-        const moves = calculateThreateningSquares(piece, gameState);
+        const kingPosition = gameState.kingPositions[currentPlayerColor];
+        console.log('kingPosition', kingPosition);
+        const moves = calculateThreateningSquares(kingPosition, gameState, piece.position);
         return moves.some(move => {
             return threateningPieces.some(threateningPiece => move[0] === threateningPiece[0] && move[1] === threateningPiece[1]);
         });
@@ -43,7 +45,7 @@ function canBlock(gameState: GameState, kingPosition: Position, threateningPiece
     });
 }
 
-function isCheckmate(gameState: GameState, currentPlayerColor: string) {
+function isCheckmate(gameState, threateningSquares, currentPlayerColor, checkPosition, piece, position, playerNumber, lastPosition) {
     const kingPosition = gameState.kingPositions[currentPlayerColor];
     const threateningPieces = gameState.threateningPiecesPositions[currentPlayerColor === 'white' ? 'black' : 'white'];
 
@@ -59,13 +61,14 @@ function isCheckmate(gameState: GameState, currentPlayerColor: string) {
         return { isCheckmate: false, loser: null };
     }
     
-    const king = gameState.board[kingPosition[0]][kingPosition[1]];    const kingValidMoves = validMoves(king, kingPosition, gameState, currentPlayerColor);
+    const king = gameState.board[kingPosition[0]][kingPosition[1]];    
+    const kingValidMoves = validMoves(piece, position, gameState, playerNumber, lastPosition);
 
     const canKingEscape = kingValidMoves.some(move => {
         const tempGameState = JSON.parse(JSON.stringify(gameState));
         tempGameState.board[kingPosition[0]][kingPosition[1]] = null;
         tempGameState.board[move[0]][move[1]] = king;
-        return !isCheck(tempGameState, currentPlayerColor);
+        return !isCheck(gameState, threateningSquares, currentPlayerColor, checkPosition, piece, position, playerNumber, lastPosition);
     });
     console.log('canKingEscape', canKingEscape);
     if (canKingEscape) {
