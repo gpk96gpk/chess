@@ -123,13 +123,13 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
     
       // Check if the current player is in check
       console.log('843gameState.checkStatus[currentColor]', gameState.checkStatus[currentColor]);
-      if (gameState.checkStatus[currentColor] ) {
-        // Call moveOutOfCheck with the necessary parameters
-        console.log('843gameState.checkStatus[currentColor]', gameState.checkStatus[currentColor]);
-        isValidMove = moveOutOfCheck(piece, position, tempGameState, position);
-        console.log('843isValidMove', isValidMove);
-        console.log('843Player is in check, cannot make moves');
-      }
+      // if (gameState.checkStatus[currentColor] ) {
+      //   // Call moveOutOfCheck with the necessary parameters
+      //   console.log('843gameState.checkStatus[currentColor]', gameState.checkStatus[currentColor]);
+      //   isValidMove = moveOutOfCheck(piece, position, tempGameState, position);
+      //   console.log('843isValidMove', isValidMove);
+      //   console.log('843Player is in check, cannot make moves');
+      // }
       
       // If moveOutOfCheck returns true, push the move
       if (isValidMove) {
@@ -539,6 +539,7 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
         // Perform the move if it's valid
         const canPerformValidMove = performValidMove(gameState, piece, currentColor, opponentPlayerNumber, playerNumber, move);
         console.log('3333Can perform valid move:', canPerformValidMove);
+  
         if (canPerformValidMove) {
           // If the move is valid, update the gameState
           tempGameState = JSON.parse(JSON.stringify(hypotheticalGameState));
@@ -547,20 +548,21 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
           tempGameState.board[piece.position[0]][piece.position[1]] = { type: 'empty', color: 'none', hasMoved: false, isHighlighted: false };
           console.log('3333Updated game state:', hypotheticalGameState, move, opponentColor, tempGameState);
           // Check if the move would result in the player being able to move out of check
+  
+          let threateningPiecesPositions;
           if (piece.type === 'king') {
-            tempGameState.threateningPiecesPositions[opponentColor] = calculateThreateningSquares(gameState, opponentColor, piece, move);
-            const {isOpponentKingInCheck} = isCheckOpponent(tempGameState, tempGameState.threateningPiecesPositions[opponentColor], opponentPlayerNumber, checkPosition, piece, position, playerNumber, move, matchFoundInDirection, currentColor)
-            if (!isOpponentKingInCheck) { // replace with actual function
-              console.log('3333Move out of check found, not a checkmate', move, piece, gameState);
-              return false;
-            }
-            console.log('3333Is king in check:', isOpponentKingInCheck);
+            // Recalculate threatening squares if the piece is a king
+            threateningPiecesPositions = calculateThreateningSquares(tempGameState, opponentColor, piece, move); // replace with actual function
+          } else {
+            threateningPiecesPositions = gameState.threateningPiecesPositions[opponentColor];
           }
-          //const {isOpponentKingInCheck} = isCheckOpponent(tempGameState, gameState.threateningPiecesPositions[opponentColor], opponentPlayerNumber, checkPosition, piece, position, playerNumber, move, matchFoundInDirection, currentColor)
-          // if (!isOpponentKingInCheck) { // replace with actual function
-          //   console.log('3333Move out of check found, not a checkmate', move, piece, gameState);
-          //   return false;
-          // }
+  
+          const {isOpponentKingInCheck} = isCheckOpponent(hypotheticalGameState, threateningPiecesPositions, opponentPlayerNumber, checkPosition, piece, position, playerNumber, move, matchFoundInDirection, currentColor)
+          console.log('3333Is king in check:', isOpponentKingInCheck);
+          if (!isOpponentKingInCheck) { // replace with actual function
+            console.log('3333Move out of check found, not a checkmate', move, piece, gameState);
+            return false;
+          }
         }
       }
     }
