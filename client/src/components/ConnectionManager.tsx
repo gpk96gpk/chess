@@ -14,9 +14,9 @@ const ConnectionManager = () => {
         if (socket) {
             socket.emit('createRoom', newRoomId);
         }
-  
         // Copy the text inside the text field
         navigator.clipboard.writeText(newRoomId.toString());
+
 
         navigate(`/game/${newRoomId}`);
     }

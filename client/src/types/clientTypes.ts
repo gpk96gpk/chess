@@ -19,6 +19,7 @@ export interface GameStateType {
         black: Position[];
         white: Position[];
     };
+
     checkStatus: {
         black: boolean;
         white: boolean;
@@ -28,6 +29,7 @@ export interface GameStateType {
         black: boolean;
         white: boolean;
     };
+
 };
 
 export type Move = {
