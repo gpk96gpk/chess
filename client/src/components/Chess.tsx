@@ -20,6 +20,7 @@ import calculateThreateningSquares from '../gameLogic/calculateThreateningSquare
 import getMovesForPiece from '../gameLogic/pieceMoves';
 import moveOutOfCheck from '../gameLogic/validMoves';
 import isCheckOpponent from '../gameLogic/isCheckOpponent';
+import BoardButtons from './BoardButtons';
 
 interface HandleDropProps {
     gameState: GameState;
@@ -415,7 +416,7 @@ const Chess: React.FC<Props> = (props) => {
             <h2>{playerNumber === turnState ? "Your Turn" : "Opponent's Turn"}</h2>
 
             {gameOver && <GameOver gameState={gameState} winner={winner} />}
-
+            <BoardButtons gameState={gameState} />
             <Board gameState={props.gameState} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
         </div>
     );

@@ -256,7 +256,7 @@ app.post("/api/v1/chess/games/save", authenticateJWT, async (req, res) => {
         const { user } = req;
 
         const savedGame = await db.query(
-            "INSERT INTO savedGames (userid, game_state) VALUES ($1, $2) RETURNING *",
+            "INSERT INTO savedGames (userid, gameState) VALUES ($1, $2) RETURNING *",
             [user.userId, JSON.stringify(gameState)]
         );
 
