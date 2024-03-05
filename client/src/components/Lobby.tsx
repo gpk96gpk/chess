@@ -11,7 +11,7 @@ import LobbyGameButtons from './LobbyGameButtons';
 import LobbySignUpButton from './LobbySignUpButton';
 import { useState } from 'react';
 
-const Lobby = () => {
+const Lobby = ({ setGameState }) => {
   const [username, setUsername] = useState<string>('');
 
   return (
@@ -22,7 +22,7 @@ const Lobby = () => {
         <LobbySignInButton username={username} setUsername={setUsername}/>
         <LobbySignUpButton />
       </div>
-      <LobbyGameButtons username={username} />
+      <LobbyGameButtons setGameState={setGameState} username={username} />
     </div>
   );
 };

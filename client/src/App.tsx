@@ -427,7 +427,7 @@ function App() {
         <SocketContext.Provider value={socket}>
             <Router>
                 <Routes>
-                    <Route path="/lobby?/:username?" element={<Lobby />} />
+                    <Route path="/lobby?/:username?" element={<Lobby setGameState={ setGameState } />} />
                     <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
                 </Routes>
             </Router>

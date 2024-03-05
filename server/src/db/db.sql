@@ -76,3 +76,30 @@ DELETE FROM
 WHERE
     user_id = $ 1
     AND id = $ 2 RETURNING *
+
+
+
+
+-- Insert gameState into gameState table and retrieve the id
+INSERT INTO gameState (state)
+VALUES ($1)
+RETURNING id;
+
+-- Use the id from the previous operation to insert a new row into savedGames
+INSERT INTO savedGames (userId, gameStateId, savedAt)
+VALUES ($2, <id from previous operation>, CURRENT_TIMESTAMP)
+RETURNING *;
+
+
+-- select the gameState from the savedGames table and return the corresponding gameState from the gameState table
+SELECT gs.state
+FROM savedGames sg
+JOIN gameState gs ON sg.gameStateId = gs.id
+WHERE sg.id = $1;
+
+
+
+SELECT u.username, sg.gameState
+FROM users u
+JOIN savedGames sg ON u.id = sg.userId
+WHERE u.username = $1;

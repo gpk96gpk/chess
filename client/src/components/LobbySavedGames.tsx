@@ -17,7 +17,7 @@ interface Game {
   date: string;
 }
 
-const LobbySavedGames = ({ username }: { username: string }) => {
+const LobbySavedGames = ({ username, setGameState }: { username: string }) => {
   const [games, setGames] = useState<Game[]>([]);
   const [showGames, setShowGames] = useState(false);
 
@@ -25,7 +25,7 @@ const LobbySavedGames = ({ username }: { username: string }) => {
     const fetchGames = async () => {
       if (games.length === 0) {
         const savedGames = await getSavedGames();
-        if (Array.isArray(savedGames)) {
+        if (Array.isArray(savedGames.games)) {
           setGames(savedGames);
         } else {
           console.log(savedGames); // Log the message
@@ -35,11 +35,15 @@ const LobbySavedGames = ({ username }: { username: string }) => {
   
     fetchGames();
   }, [username, games]);
-
+  const loadGame = (gameState) => {
+    console.log('gameState', gameState);
+    setGameState(gameState);
+  };
   const handleDeleteGame = async (gameId: number) => {
     await deleteGame(gameId);
     setGames(games.filter(game => game.id !== gameId));
   };
+  console.log('games', games);
 
   return (
     <div>
@@ -55,11 +59,11 @@ const LobbySavedGames = ({ username }: { username: string }) => {
             </tr>
           </thead>
           <tbody>
-            {games.map(game => (
+            {games.games.map(game => (
               <tr key={game.id}>
                 <td>{game.username1} and {game.username2}'s game</td>
                 <td>{game.date}</td>
-                <td><Link to={`/game/${game.id}`} className="btn btn-warning">Load</Link></td>
+                <td> <Link to={`/game/${game.id}`} className="btn btn-warning" onClick={() => setGameState(JSON.parse(game.gamestate))}>Load</Link></td>               
                 <td><button onClick={() => handleDeleteGame(game.id)} className="btn btn-danger">Delete</button></td>
               </tr>
             ))}

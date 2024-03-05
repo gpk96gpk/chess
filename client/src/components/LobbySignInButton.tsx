@@ -30,6 +30,7 @@ const LobbySignInButton = ({ username, setUsername }: LobbySignInButtonProps) =>
       localStorage.setItem('jwt', token);
       setShowSignIn(false);
       navigate(`/lobby/${username}`);
+      console.log('username', username); 
     } else {
       setErrorMessage('Incorrect username or password');
     }

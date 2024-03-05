@@ -124,12 +124,17 @@ io.on('connection', (socket: Socket) => {
     });
     //Leave a room
     socket.on('leaveRoom', (roomCode:string) => {
-        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit('leaveRoom');
-        // const { roomCode } = players[socket.id];
+        if (rooms[roomCode] && Array.isArray(rooms[roomCode])) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('leaveRoom');
+        }
         socket.leave(roomCode);
-        const index = rooms[roomCode].indexOf(socket.id);
-        rooms[roomCode].splice(index, 1);
+        if (rooms[roomCode]) {
+            const index = rooms[roomCode].indexOf(socket.id);
+            if (index !== -1) {
+                rooms[roomCode].splice(index, 1);
+            }
+        }
         delete players[socket.id];
     });
     //Error handling

@@ -34,13 +34,13 @@ interface HandleDropProps {
 const Chess: React.FC<Props> = (props) => {
     const gameState = props.gameState;
     const { roomCode } = useParams();
-    console.log('roomCode', roomCode);
+    console.log('roomCode', roomCode, 'props', typeof props.gameState);
     const socket = useContext(SocketContext);
     const lastDragOverPosition = useRef<Position | null>(null);
     const startPosition = useRef<Position | null>(null);
     const currentPlayerColor = props.playerNumber === 1 ? 'black' : 'white';
     const opponentPlayerNumber = props.playerNumber === 1 ? 2 : 1;
-    console.log('761currentPlayerColor', currentPlayerColor);
+    console.log('761currentPlayerColor', currentPlayerColor, props.gameState);
     const currentPlayerInCheck = props.gameState.checkStatus[currentPlayerColor];
     const isKingInCheck = props.gameState.checkStatus[currentPlayerColor];
     console.log('761isKingInCheck', isKingInCheck, currentPlayerInCheck);
