@@ -16,7 +16,7 @@ const Lobby = ({ setGameState }) => {
 
   return (
     <div>
-      <h1>Welcome to Chess Game</h1>
+      <h1>Welcome {username} to Chess Game</h1>
       <span>Would you like to sign in and create an account?</span>
       <div>
         <LobbySignInButton username={username} setUsername={setUsername}/>

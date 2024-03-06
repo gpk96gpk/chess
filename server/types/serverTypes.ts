@@ -7,6 +7,8 @@ interface ServerToClientEvents {
     turn: (xTurn: boolean) => void;
     gameState: (gameState: any) => void;
     leaveRoom: () => void;
+    joinRoom: () => void;
+    loadSaveGame: (roomCode: string | number, gameState: any) => void;
 }
 
 interface ClientToServerEvents {

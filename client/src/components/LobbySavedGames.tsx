@@ -6,9 +6,10 @@
 //load button will trigger db query from the database and render the game page with the 
 //saved game state using react router link gameState from server passed to game page
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { getSavedGames, deleteGame } from '../apis/ChessGame';
+import { SocketContext } from "../context/SocketContext";
 
 interface Game {
   id: number;
@@ -20,7 +21,8 @@ interface Game {
 const LobbySavedGames = ({ username, setGameState }: { username: string }) => {
   const [games, setGames] = useState<Game[]>([]);
   const [showGames, setShowGames] = useState(false);
-
+  const socket = useContext(SocketContext);
+  
   useEffect(() => {
     const fetchGames = async () => {
       if (games.length === 0) {
@@ -35,10 +37,7 @@ const LobbySavedGames = ({ username, setGameState }: { username: string }) => {
   
     fetchGames();
   }, [username, games]);
-  const loadGame = (gameState) => {
-    console.log('gameState', gameState);
-    setGameState(gameState);
-  };
+
   const handleDeleteGame = async (gameId: number) => {
     await deleteGame(gameId);
     setGames(games.filter(game => game.id !== gameId));
@@ -61,9 +60,24 @@ const LobbySavedGames = ({ username, setGameState }: { username: string }) => {
           <tbody>
             {games.games.map(game => (
               <tr key={game.id}>
-                <td>{game.username1} and {game.username2}'s game</td>
+                <td>{username} and {game.username2 || 'guest'}'s game</td>
                 <td>{game.date}</td>
-                <td> <Link to={`/game/${game.id}`} className="btn btn-warning" onClick={() => setGameState(JSON.parse(game.gamestate))}>Load</Link></td>               
+                <td>
+                  <Link
+                    to={`/game/${game.id}`}
+                    className="btn btn-warning"
+                    onClick={() => {
+                      setGameState(JSON.parse(game.gamestate));
+                      console.log('loading game0', JSON.parse(game.gamestate), game.id)
+                      if (socket) {
+                        // Emit an event to the server to create a new room
+                        socket.emit('createRoom', game.id, JSON.parse(game.gamestate));
+                      }
+                    }}
+                  >
+                    Load
+                  </Link>
+                </td>          
                 <td><button onClick={() => handleDeleteGame(game.id)} className="btn btn-danger">Delete</button></td>
               </tr>
             ))}

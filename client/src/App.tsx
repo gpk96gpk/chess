@@ -21,7 +21,7 @@
 
 
 import { io } from 'socket.io-client';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import { SocketContext } from './context/SocketContext';
 import { useEffect, useState } from 'react';
 import Chess from './components/Chess';
@@ -267,6 +267,7 @@ function App() {
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
     const [checkmateResult, setCheckmateResult] = useState<{ isInCheckmate: boolean, loser: string | null }>({ isInCheckmate: false, loser: null });
+    const { roomCode } = useParams()
 
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
@@ -344,7 +345,6 @@ function App() {
         }
 
         socket.on('gameState', handleGameState);
-
         return () => {
             socket.off('gameState', handleGameState)
         }
@@ -362,6 +362,24 @@ function App() {
     
         return () => {
             socket.off("gameOver", handleGameOver)
+        }
+    }, []);
+
+    useEffect(() => {
+        socket.on('loadSaveGame', (roomId, gameState) => {
+            console.log('roomCode', roomCode, roomId)
+            socket.emit('gameState', gameState, roomId );
+            console.log('emitting to guest client', gameState)
+
+        });
+        // const handleLoadSaveGame = () => {
+        //     // Emit the current game state
+        // }
+    
+    
+        // Clean up the effect
+        return () => {
+            socket.off('loadSaveGame');
         }
     }, []);
 

@@ -95,18 +95,22 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
 
 let players: { [socketId: string]: PlayerInfo } = {};
 let rooms: { [key: string]: string[] } = {};
+let roomStates: { [roomCode: string]: string} = {};
 
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket: Socket) => {
     //Create a room
-    socket.on('createRoom', (roomCode:string) => {
+    socket.on('createRoom', (roomCode:string, gameState?) => {
         rooms[roomCode] = [socket.id];
         const playerNumber = 1;
         players[socket.id] = { roomCode, playerNumber };
         socket.emit('playerNumber', playerNumber);
+        socket.emit('gameState', gameState)
+        roomStates[roomCode] = gameState;
     });
     //Join a room
     socket.on('joinRoom', (roomCode:string) => {
+        //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         socket.join(roomCode);
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
@@ -115,6 +119,14 @@ io.on('connection', (socket: Socket) => {
         const playerNumber = 2;
         players[socket.id] = { roomCode, playerNumber };
         socket.emit('playerNumber', playerNumber);
+        socket.emit('gameState', roomStates[roomCode]);
+    });
+    //Load save game
+    socket.on('loadSaveGame', (roomCode:string) => {
+        console.log(rooms[roomCode], roomCode, roomStates[roomCode])
+        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+        io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
+        console.log('emitted load game to host')
     });
     //Turn 
     socket.on('turn', (playerTurn, roomCode:string) => {
@@ -145,6 +157,9 @@ io.on('connection', (socket: Socket) => {
     socket.on('gameState', (gameState, roomCode:string) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('gameState', gameState);
+
+        console.log(roomStates);
+
     });
     //Game over
     socket.on('gameOver', (isGameOver, winner, roomCode:string) => {
