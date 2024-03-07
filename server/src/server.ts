@@ -123,10 +123,10 @@ io.on('connection', (socket: Socket) => {
     });
     //Load save game
     socket.on('loadSaveGame', (roomCode:string) => {
-        console.log(rooms[roomCode], roomCode, roomStates[roomCode])
+        //console.log(rooms[roomCode], roomCode, roomStates[roomCode])
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
-        console.log('emitted load game to host')
+        //console.log('emitted load game to host')
     });
     //Turn 
     socket.on('turn', (playerTurn, roomCode:string) => {
@@ -158,7 +158,7 @@ io.on('connection', (socket: Socket) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('gameState', gameState);
 
-        console.log(roomStates);
+        //console.log(roomStates);
 
     });
     //Game over

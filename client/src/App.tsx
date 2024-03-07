@@ -367,9 +367,14 @@ function App() {
 
     useEffect(() => {
         socket.on('loadSaveGame', (roomId, gameState) => {
+            const turnNumber = gameState.turn === 'black' ? 1 : 2
+            
             console.log('roomCode', roomCode, roomId)
             socket.emit('gameState', gameState, roomId );
             console.log('emitting to guest client', gameState)
+            console.log('loadSave turn state management', turnNumber)
+            setTurnState(turnNumber)
+            socket.emit('turn', turnNumber, roomId)
 
         });
         // const handleLoadSaveGame = () => {
@@ -384,7 +389,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        const turnStateChange = (arg:React.SetStateAction< 0| 1 | 2 >) => {
+        const turnStateChange = (arg:React.SetStateAction< 0 | 1 | 2 >) => {
             setTurnState(arg);
             console.log('turnState', turnState)
             console.log(`Socket Turn state: ${arg}`);
