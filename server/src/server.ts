@@ -106,6 +106,7 @@ io.on('connection', (socket: Socket) => {
         players[socket.id] = { roomCode, playerNumber };
         socket.emit('playerNumber', playerNumber);
         socket.emit('gameState', gameState)
+        socket.emit('createRoom', roomCode)
         roomStates[roomCode] = gameState;
     });
     //Join a room
@@ -139,6 +140,7 @@ io.on('connection', (socket: Socket) => {
         if (rooms[roomCode] && Array.isArray(rooms[roomCode])) {
             const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
             io.to(otherPlayerSocketId).emit('leaveRoom');
+            console.log(`Player with socket ID ${otherPlayerSocketId} has left room with room code ${roomCode}`)
         }
         socket.leave(roomCode);
         if (rooms[roomCode]) {

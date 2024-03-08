@@ -60,5 +60,8 @@ export type Props = {
 };
 
 export interface BoardButtonsProps {
-    gameState: GameStateType; 
+    gameState: GameStateType;
+    setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
+    setWinner: (winner: string | null) => void;
+    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2>>; 
 }

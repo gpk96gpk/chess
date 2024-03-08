@@ -16,8 +16,9 @@ import { useNavigate } from 'react-router-dom';
 import { SocketContext } from "../context/SocketContext";
 import BoardSaveGameButton from './BoardSaveGameButton';
 import { BoardButtonsProps } from '../types/clientTypes';
+import resetGameState from '../gameLogic/resetGameState';
 
-const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState }) => {
+const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, setWinner, setTurnState }) => {
   const socket = useContext(SocketContext);
   const [showExitOverlay, setShowExitOverlay] = useState(false);
   const navigate = useNavigate();
@@ -27,6 +28,10 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState }) => {
   };
 
   const handleConfirmExit = () => {
+    const { initialBoard } = resetGameState();
+    setGameState(initialBoard);
+    setWinner(null);
+    setTurnState(1);
     navigate('/');
     if (socket) {
       socket.emit('leaveRoom')

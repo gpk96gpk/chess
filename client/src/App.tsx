@@ -1,25 +1,3 @@
-//TODO:
-//Create Socket event listeners for the following events:
-//connect
-//disconnect
-//join room
-//create room
-//leave room connected to exit button on BoardButtons.tsx
-//connection error
-//player number
-//turn state
-//game state
-//game over
-//reset and emitter so both players can reset the game
-//Render ro
-
-
-//Render routes
-//wrap routes in socket provider
-//route for lobby
-//route for game
-
-
 import { io } from 'socket.io-client';
 import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import { SocketContext } from './context/SocketContext';
@@ -28,6 +6,7 @@ import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, HighlightedTile } from './types/clientTypes';
 import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
+import resetGameState from './gameLogic/resetGameState';
 
 const socket = io('http://localhost:3004');
 
@@ -272,6 +251,11 @@ function App() {
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
             console.log(`Socket Created room ${roomId}`);
+            // const {initialBoard} = resetGameState();
+            // setGameState(initialBoard);
+            setWinner(null);
+            setGameOver(false);
+            console.log('createRoom gameState', gameState, winner, gameOver)
         });
 
         return () => {
@@ -340,6 +324,9 @@ function App() {
     useEffect(() => {
         const handleGameState = (arg:React.SetStateAction<GameStateType>) => {
             //arg.turn === 1 ? arg.turn = 'black' : arg.turn = 'white'; 
+            if (arg === null) {
+                arg = resetGameState()
+            }
             console.log('gameState', arg)
             setGameState(arg);
         }
@@ -429,7 +416,7 @@ function App() {
     const chessProps: Props = {
         playerNumber,
         gameOver,
-        gameState,
+        gameState: gameState || initialBoard,
         turnState,
         highlightedTiles,
         winner,

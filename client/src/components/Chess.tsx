@@ -21,6 +21,7 @@ import getMovesForPiece from '../gameLogic/pieceMoves';
 import moveOutOfCheck from '../gameLogic/validMoves';
 import isCheckOpponent from '../gameLogic/isCheckOpponent';
 import BoardButtons from './BoardButtons';
+import resetGameState from '../gameLogic/resetGameState';
 
 interface HandleDropProps {
     gameState: GameState;
@@ -32,6 +33,11 @@ interface HandleDropProps {
 }
 
 const Chess: React.FC<Props> = (props) => {
+    // if (!props.gameState) {
+    //     const { initialBoard } = resetGameState();
+    //     props.gameState = initialBoard
+    //     console.log('props.gameState', props.gameState)
+    // }
     const gameState = props.gameState;
     const { roomCode } = useParams();
     console.log('roomCode', roomCode, 'props', typeof props.gameState);
@@ -46,7 +52,7 @@ const Chess: React.FC<Props> = (props) => {
     console.log('761isKingInCheck', isKingInCheck, currentPlayerInCheck);
     console.log('761props.gameState', props.gameState);
     const isKingInCheckMate = false;
-    let loser: string | null = null;
+    const loser: string | null = gameState.turn === 'black' ? 'white' : 'black';
     let newGameState;
     // if (props.gameState.history.length > 2) {
     //     ({ isKingInCheck, isKingInCheckMate, loser } = isCheck(props.gameState, props.playerNumber));
@@ -404,6 +410,10 @@ const Chess: React.FC<Props> = (props) => {
             setTurnState(3);
         }
     }, [gameState, playerNumber, setGameOver, setWinner, setTurnState, turnState, isKingInCheck]);
+    useEffect(() => {
+        setGameOver(false);
+        setWinner(null);
+    }, []);
     //render
     console.log('loser', loser)
     console.log('turnState2', turnState)
@@ -415,9 +425,9 @@ const Chess: React.FC<Props> = (props) => {
             <h2>Room Code: {roomCode}</h2>
             <h2>{playerNumber === turnState ? "Your Turn" : "Opponent's Turn"}</h2>
 
-            {gameOver && <GameOver gameState={gameState} winner={winner} />}
-            <BoardButtons gameState={gameState} />
-            <Board gameState={props.gameState} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
+            {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
+            <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} />
+            <Board setTurnState={setTurnState} setWinner={setWinner} gameState={props.gameState} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
         </div>
     );
 }

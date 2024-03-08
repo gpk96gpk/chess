@@ -4,11 +4,14 @@
 //Exit button will be a react router link to the lobby page
 import { useNavigate } from 'react-router-dom';
 import { saveGame } from '../apis/ChessGame';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { SocketContext } from "../context/SocketContext";
+import resetGameState from '../gameLogic/resetGameState';
 //import { GameState } from '../types/clientTypes';
 
 
-function GameOver( {gameState, winner}) {
+function GameOver( {gameState, winner, setWinner, setGameState, setTurnState}) {
+    const socket = useContext(SocketContext);
     console.log('winner',winner)
     const [saveStatus, setSaveStatus] = useState<null | string>(null);
     const navigate = useNavigate();
@@ -30,7 +33,15 @@ function GameOver( {gameState, winner}) {
     }
 
     const handleExit = () => {
+        const { initialBoard } = resetGameState()
+        gameState = initialBoard;
+        setGameState(initialBoard);
+        setWinner(null);
+        setTurnState(1);
         navigate('/');
+        if (socket) {
+            socket.emit('leaveRoom')
+        }
     };
 
     return (
