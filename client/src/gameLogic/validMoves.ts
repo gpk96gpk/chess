@@ -11,7 +11,7 @@ import { json } from 'react-router-dom';
 
 function validMoves(piece: PieceType, position: Position, gameState: GameState, playerNumber: number, lastPosition) {
   console.log('302validMoves piece', piece, 'position', position, 'gameState', gameState, 'playerNumber', playerNumber, 'lastPosition', lastPosition);
-  const moves: Move[] = [];
+  const moves: Position[] = [];
   let threateningSquares;
   let isKingInCheckMate = false;
   const fromPosition  = position;
@@ -455,11 +455,13 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
   
   if (errorFound) {
       console.error('Error: Invalid move position');
-      moves.splice(0, moves.length);
+      if (moves) {
+        moves.splice(0, moves.length);
+      }
   }
   const isPieceValidMove = moves && moves.some(move => {
     const isStartPosEqual = move.every((value, index) => value === piece.position[index]);
-    const isLastDragPosEqual = move.every((value, index) => value === [index]);
+    const isLastDragPosEqual = move.every((value, index) => value === index);
     return isStartPosEqual || isLastDragPosEqual;
   });    
   console.log('847isPieceValidMove', isPieceValidMove, moves);
@@ -495,30 +497,30 @@ function validMoves(piece: PieceType, position: Position, gameState: GameState, 
     
     return true;
 }
-  function simulateMove(gameState, piece, move) {
-    console.log('3333Simulating move for piece:', piece);
+  // function simulateMove(gameState, piece, move) {
+  //   console.log('3333Simulating move for piece:', piece);
   
-    // Create a deep copy of the gameState
-    const simulatedGameState = JSON.parse(JSON.stringify(gameState));
+  //   // Create a deep copy of the gameState
+  //   const simulatedGameState = JSON.parse(JSON.stringify(gameState));
   
-    // Get the current position of the piece
-    const [currentY, currentX] = piece.position;
-    console.log('3333Current position:', [currentY, currentX]);
+  //   // Get the current position of the piece
+  //   const [currentY, currentX] = piece.position;
+  //   console.log('3333Current position:', [currentY, currentX]);
   
-    // Get the new position of the piece
-    const [newY, newX] = move;
-    console.log('3333New position:', [newY, newX]);
+  //   // Get the new position of the piece
+  //   const [newY, newX] = move;
+  //   console.log('3333New position:', [newY, newX]);
   
-    // Move the piece in the copied gameState
-    simulatedGameState.board[currentY][currentX] = {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false};
-    simulatedGameState.board[newY][newX] = piece;
+  //   // Move the piece in the copied gameState
+  //   simulatedGameState.board[currentY][currentX] = {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false};
+  //   simulatedGameState.board[newY][newX] = piece;
   
-    // Update the position of the piece
-    piece.position = [newY, newX];
+  //   // Update the position of the piece
+  //   piece.position = [newY, newX];
   
-    console.log('3333Simulated game state:', simulatedGameState);
-    return simulatedGameState;
-  }
+  //   console.log('3333Simulated game state:', simulatedGameState);
+  //   return simulatedGameState;
+  // }
 
   function isCheckmate(gameState, player): boolean {
     console.log('3333Checking checkmate for player:', player);

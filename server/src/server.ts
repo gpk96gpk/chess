@@ -127,7 +127,7 @@ io.on('connection', (socket: Socket) => {
         //console.log(rooms[roomCode], roomCode, roomStates[roomCode])
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
-        //console.log('emitted load game to host')
+        console.log('emitted load game to host')
     });
     //Turn 
     socket.on('turn', (playerTurn, roomCode:string) => {

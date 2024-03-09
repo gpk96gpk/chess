@@ -10,28 +10,37 @@ import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { getSavedGames, deleteGame } from '../apis/ChessGame';
 import { SocketContext } from "../context/SocketContext";
+import { Dispatch, SetStateAction } from "react";
+import { GameStateType } from '../types/clientTypes';
+
 
 interface Game {
   id: number;
   username1: string;
   username2: string;
   date: string;
+  gamestate: string;
 }
 
-const LobbySavedGames = ({ username, setGameState }: { username: string }) => {
-  const [games, setGames] = useState<Game[]>([]);
+interface SavedGames {
+  games: Game[];
+}
+
+interface LobbySavedGamesProps {
+  setGameState: Dispatch<SetStateAction<GameStateType>>;
+  username: string;
+}
+
+const LobbySavedGames = ({ setGameState, username }: LobbySavedGamesProps) => {
+  const [games, setGames] = useState<SavedGames | null>(null);
   const [showGames, setShowGames] = useState(false);
   const socket = useContext(SocketContext);
   
   useEffect(() => {
     const fetchGames = async () => {
-      if (games.length === 0) {
+      if (!games) {
         const savedGames = await getSavedGames();
-        if (Array.isArray(savedGames.games)) {
-          setGames(savedGames);
-        } else {
-          console.log(savedGames); // Log the message
-        }
+        setGames(savedGames);
       }
     };
   
@@ -40,14 +49,19 @@ const LobbySavedGames = ({ username, setGameState }: { username: string }) => {
 
   const handleDeleteGame = async (gameId: number) => {
     await deleteGame(gameId);
-    setGames(games.filter(game => game.id !== gameId));
+    if (games) {
+      setGames({
+        games: games.games.filter(game => game.id !== gameId)
+      });
+    }
   };
+
   console.log('games', games);
 
   return (
     <div>
       <button onClick={() => setShowGames(!showGames)}>Show Saved Games</button>
-      {showGames && (
+      {showGames && games && (
         <table className="table table-hover table-dark">
           <thead>
             <tr>

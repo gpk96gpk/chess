@@ -4,9 +4,9 @@ import { SocketContext } from './context/SocketContext';
 import { useEffect, useState } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
-import { Props, GameStateType, Position, HighlightedTile } from './types/clientTypes';
-import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
+import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
 import resetGameState from './gameLogic/resetGameState';
+//import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
 const socket = io('http://localhost:3004');
 
@@ -14,12 +14,9 @@ let index = 0;
 let whitePawnIndex = 24;
 let whiteMajorIndex = 16;
 
-const createPiece = (type: string, color: string, position: Position, index: number) => ({ type, color, position, hasMoved: false, isHighlighted: false, index });
-const createPawn = (color: string, position: Position, index: number) => ({ type: 'pawn', color, position, hasMoved: false, isHighlighted: false, index });
+const createPiece = (type: PieceNames, color: 'black' | 'white' | 'none', position: Position, index: number): PieceType => ({ type, color, position, hasMoved: false, index });
 
-const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
-
-
+const majorPieces: PieceNames[] = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
 
 // const testBoard: GameStateType = {
 //     board: [
@@ -81,10 +78,10 @@ const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'kni
 
 const initialBoard: GameStateType = {
     board: [
-        majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
+        majorPieces.map((type: PieceNames, i: number) => createPiece(type, 'black', [0, i], index++)),
         Array(8).fill(null).map((_, i) => createPiece('pawn', 'black', [1, i], index++)),
         ...Array(4).fill(null).map(() =>
-            Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, isHighlighted: false }))
+            Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, position: [], index } as PieceType))
         ),
         Array(8).fill(null).map((_, i) => createPiece('pawn', 'white', [6, i], whitePawnIndex++)),
         majorPieces.map((type, i) => createPiece(type, 'white', [7, i], whiteMajorIndex++)),
@@ -238,15 +235,14 @@ const initialBoard: GameStateType = {
 
 
 function App() {
-    const [playerNumber, setPlayerNumber] = useState<number>(1);
+    const [playerNumber, setPlayerNumber] = useState< 1 | 2 >(1);
     const [gameOver, setGameOver] = useState(false);
-    const [turnState, setTurnState] = useState<0 | 1 | 2>(1);
+    const [turnState, setTurnState] = useState<0 | 1 | 2 | 3>(1);
     const [gameState, setGameState] = useState<GameStateType>(initialBoard);
-    const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
-    const [checkmateResult, setCheckmateResult] = useState<{ isInCheckmate: boolean, loser: string | null }>({ isInCheckmate: false, loser: null });
     const { roomCode } = useParams()
+    //const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
 
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
@@ -261,6 +257,7 @@ function App() {
         return () => {
             socket.off('createRoom');
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -311,7 +308,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        socket.on('playerNumber', (number: number) => {
+        socket.on('playerNumber', (number: 1) => {
             console.log(`Socket Player number: ${number}`);
             setPlayerNumber(number);
         });
@@ -350,6 +347,7 @@ function App() {
         return () => {
             socket.off("gameOver", handleGameOver)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -373,10 +371,11 @@ function App() {
         return () => {
             socket.off('loadSaveGame');
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        const turnStateChange = (arg:React.SetStateAction< 0 | 1 | 2 >) => {
+        const turnStateChange = (arg:React.SetStateAction< 0 | 1 | 2 | 3>) => {
             setTurnState(arg);
             console.log('turnState', turnState)
             console.log(`Socket Turn state: ${arg}`);
@@ -387,6 +386,7 @@ function App() {
         return () => {
             socket.off('turn', turnStateChange)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -418,19 +418,17 @@ function App() {
         gameOver,
         gameState: gameState || initialBoard,
         turnState,
-        highlightedTiles,
+        //highlightedTiles,
         winner,
         isPlayerInCheck,
-        checkmateResult,
         setPlayerNumber,
         setGameState,
         setGameOver,
         setTurnState,
-        setHighlightedTiles,
+        //setHighlightedTiles,
         setWinner,
         setIsPlayerInCheck,
         handleReset,
-        setCheckmateResult,
     };
 
     return (

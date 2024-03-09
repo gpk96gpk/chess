@@ -9,9 +9,10 @@
 import LobbySignInButton from './LobbySignInButton';
 import LobbyGameButtons from './LobbyGameButtons';
 import LobbySignUpButton from './LobbySignUpButton';
-import { useState } from 'react';
+import { useState, Dispatch, SetStateAction } from 'react';
+import { GameStateType } from '../types/clientTypes';
 
-const Lobby = ({ setGameState }) => {
+const Lobby = ({ setGameState }: { setGameState: Dispatch<SetStateAction<GameStateType>> }): JSX.Element => {
   const [username, setUsername] = useState<string>('');
 
   return (

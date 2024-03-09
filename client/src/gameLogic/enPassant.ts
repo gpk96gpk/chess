@@ -1,6 +1,6 @@
-import { GameState, Move, Position } from "../types/clientTypes";
+import { GameStateType, Move, PieceType, Position } from "../types/clientTypes";
 
-function enPassant(piece: { type: string; color: 'white' | 'black'; }, lastPosition: Position, gameState: GameState, playerNumber: number) {
+function enPassant(piece: PieceType, lastPosition: Position, gameState: GameStateType) {
     console.log("Running enPassant function with piece:", piece, "and lastPosition:", lastPosition);
 
     if (piece.type !== 'pawn') {
@@ -27,7 +27,7 @@ function enPassant(piece: { type: string; color: 'white' | 'black'; }, lastPosit
             to: [toX, toY] as Position,
             board: gameState.board,
             turn: piece.color,
-            turnNumber: gameState.history[gameState.history.length - 1]?.turnNumber + 1
+            turnNumber: gameState.history[gameState.history.length - 1]?.turnNumber + 1,
         };
         console.log("En passant move:", move);
     }

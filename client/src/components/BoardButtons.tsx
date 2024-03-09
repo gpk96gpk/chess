@@ -29,7 +29,7 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, se
 
   const handleConfirmExit = () => {
     const { initialBoard } = resetGameState();
-    setGameState(initialBoard);
+    setGameState(initialBoard!);
     setWinner(null);
     setTurnState(1);
     navigate('/');

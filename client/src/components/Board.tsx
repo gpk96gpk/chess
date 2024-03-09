@@ -2,33 +2,15 @@
 //import Piece
 import Square from './Square';
 import Piece from './Piece';
-import { Position, Piece as PieceType, GameState, HighlightedTile, Props } from '../types/clientTypes';
+import { BoardProps, PieceType } from '../types/clientTypes';
 
 
-type BoardProps = {
-    gameState: GameState;
-    highlightedTiles: HighlightedTile[];
-    handleDragStart: (
-        event: React.DragEvent<HTMLDivElement>, 
-        piece: PieceType, 
-        position: Position, 
-        setHighlightedTiles: (tiles: Position[]) => void, 
-        props: Props
-    ) => void;
-    handleDragOver: (
-        event: React.DragEvent<HTMLDivElement>, 
-        position: Position
-    ) => void;
-    handleDrop: (
-        event: React.DragEvent<HTMLDivElement>, 
-        props: Props
-    ) => void;
-};
+
 // component render
 // div for container of board
 // render chess board as array or Square components mapped from gameState array
 // if the gameState array has a piece in the tile render the piece
-const Board: React.FC<BoardProps> = ({ gameState, highlightedTiles, handleDragStart, handleDragOver, handleDrop, playerNumber }) => {
+const Board: React.FC<BoardProps> = ({ gameState, handleDragStart, handleDragOver, handleDrop, playerNumber }) => {
     console.log('761gameState', gameState);
     // console.log(gameState.board)
     return (
@@ -40,8 +22,8 @@ const Board: React.FC<BoardProps> = ({ gameState, highlightedTiles, handleDragSt
                         const squareStyle = isDark ? { backgroundColor: 'tan' } : { backgroundColor: 'white' };
 
                         return (
-                            <Square key={j} position={[i, j]} style={squareStyle} highlightedTiles={highlightedTiles} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop}>
-                                {piece !== '' ? <Piece position={[i, j]} piece={piece as PieceType} handleDragStart={handleDragStart} gameState={gameState} playerNumber={playerNumber} /> : <div className="empty-square" />}
+                            <Square key={j} position={[i, j]} style={squareStyle} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop}>
+                                {piece !== '' ? <Piece position={[i, j]} piece ={piece as PieceType} handleDragStart={handleDragStart} gameState={gameState} playerNumber={playerNumber!} /> : <div className="empty-square" />}
                             </Square>
                         );
                     })}

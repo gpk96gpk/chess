@@ -1,31 +1,27 @@
-//TODO:
-// Piece component takes in props for piece type position and color
-
-//function handleDragStart where it will store the initial piece
-//and the initial tile it was dragged from
-//use event.dataTransfer.setData to store the piece and position for server
-
-// render div thats draggable and has an onDragStart event
-//render the piece image based off of the color and piece type props passed in
 import { getPieceIcon } from '../assets/icons'; // import your icon function
-import validMoves from '../gameLogic/validMoves';
-import { GameState, Move, Piece as PieceType, Position } from '../types/clientTypes';
+import { GameStateType, PieceColor, PieceType, Position } from '../types/clientTypes';
 
-const Piece = ({ piece, position, gameState, playerNumber, handleDragStart }: {piece: PieceType | string, position: Position, gameState: GameState, playerNumber: number}) => {
-
+const Piece = ({ piece, position, handleDragStart }: 
+    {piece: PieceType, 
+    position: Position, 
+    gameState: GameStateType, 
+    playerNumber: number, 
+    handleDragStart: (
+    event: React.DragEvent<HTMLDivElement>, 
+    piece: PieceType, 
+    position: Position,  
+) => void;}) => {
 
     const onDragStart = (event: React.DragEvent) => {
         console.log('Piece:', piece);
         console.log('Position:', position);
         if (piece && position) {
             const newPiece = { ...piece, position: [position[0], position[1]] as Position };
-            handleDragStart(event, newPiece, position);
-            console.log('Startposition', position); 
+            handleDragStart(event as React.DragEvent<HTMLDivElement>, newPiece, position);
         } else {
             console.error('Piece or piece position is undefined');
         }
     };
-
 
     if (typeof piece === 'string') {
         return null;
@@ -34,7 +30,7 @@ const Piece = ({ piece, position, gameState, playerNumber, handleDragStart }: {p
     if (typeof piece === 'object' && piece !== null && piece.type !== 'empty') {
         return (
             <div draggable={true} onDragStart={onDragStart} className='piece'>
-                <img src={getPieceIcon(piece.type, piece.color)} alt={`${piece.color} ${piece.type}`} />
+                <img src={getPieceIcon(piece.type, piece.color as PieceColor)} alt={`${piece.color} ${piece.type}`} />
             </div>
         );
     }
@@ -43,25 +39,3 @@ const Piece = ({ piece, position, gameState, playerNumber, handleDragStart }: {p
 };
 
 export default Piece;
-
-
-//TODO: add restriction to moving diagonally so it only allowed when pieces of the opposite color are there
-//add restriction for taking your own pieces
-//Check the fix to the board initialization in the app.tsx file review the changes made to the board initialization and why they were made
-//fix variables and props for the major pieces to match the same as the pawns
-//fix the variables for the special moves to match the same as the pawns
-//fix the game state being stuck at draw this has to do with fixing the checkmate function
-//fix the board buttons so they display and use the updated logic
-//fix the socket server errors
-//debug and check that gamestate and turnstate are being updated correctly from the socket server
-//fix the error with the square being draggable so that the square is not draggable is immutable but the piece is mutable
-
-//add the piece type to the move object to go with position
-//use the type as well as position to determine if the take is valid i think the valid move and take are different functions so no need to over complicate it
-//
-//fix error where the piece is not being moved to the new position on the first turn after the room is created
-
-//fix any error with the backend server for saves eck that all the requests are being sent correctly
-
-//check is adjacent variable in en passant is working correctly when the turn are linked it needs to be true as along as pieces are parallel but it 
-//only returns true if the pieces are diagonal

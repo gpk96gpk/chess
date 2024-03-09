@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SocketContext } from "../context/SocketContext";
 import { useContext } from 'react';
-import resetGameState from '../gameLogic/resetGameState';
 
 
 const ConnectionManager = () => {

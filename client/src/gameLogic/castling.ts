@@ -1,6 +1,6 @@
-import { GameState, Piece as PieceType, Position, Move } from "../types/clientTypes";
+import { GameStateType, PieceType, Position, Move } from "../types/clientTypes";
 
-function getCastlingMove(gameState: GameState, piece: PieceType, position: Position): Move | null {
+function getCastlingMove(gameState: GameStateType, piece: PieceType, position: Position): Position | null {
     const kingRow = position[0];
     const kingColumn = position[1];
     let castlingMove: Move | null = null;
@@ -15,26 +15,29 @@ function getCastlingMove(gameState: GameState, piece: PieceType, position: Posit
 
     if (leftRook && leftRook.type === 'rook' && !leftRook.hasMoved && 
         !gameState.board[kingRow][1] && !gameState.board[kingRow][2] && !gameState.board[kingRow][3]) {
-        castlingMove = {
-            piece,
-            from: position,
-            to: [kingRow, kingColumn - 2],
-            board: gameState.board,
-            turn: piece.color,
-            turnNumber: gameState.history.length
-        };
+            if (piece.color !== 'none') {
+                castlingMove = {
+                    piece,
+                    from: position,
+                    to: [kingRow, kingColumn - 2],
+                    board: gameState.board,
+                    turn: piece.color,
+                    turnNumber: gameState.history.length
+                };
+            }
     } else if (rightRook && rightRook.type === 'rook' && !rightRook.hasMoved && 
-               !gameState.board[kingRow][5] && !gameState.board[kingRow][6]) {
-        castlingMove = {
-            piece,
-            from: position,
-            to: [kingRow, kingColumn + 2],
-            board: gameState.board,
-            turn: piece.color,
-            turnNumber: gameState.history.length
-        };
+        !gameState.board[kingRow][5] && !gameState.board[kingRow][6]) {
+            if (piece.color !== 'none') {
+                castlingMove = {
+                    piece,
+                    from: position,
+                    to: [kingRow, kingColumn + 2],
+                    board: gameState.board,
+                    turn: piece.color,
+                    turnNumber: gameState.history.length
+                };
+            }
     }
-
     return castlingMove ? castlingMove.to : null;
 }
 export default getCastlingMove;

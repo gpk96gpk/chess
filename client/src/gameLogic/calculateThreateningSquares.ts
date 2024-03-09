@@ -1,7 +1,7 @@
-import { GameStateType } from "../types/clientTypes";
+import { GameStateType, PieceType, Position } from "../types/clientTypes";
 
-export function calculateThreateningSquares(gameState: GameStateType, opponentColor: string, piece, lastPosition ) {
-    let kingPosition;
+export function calculateThreateningSquares(gameState: GameStateType, opponentColor: 'black' | 'white', piece: PieceType, lastPosition: Position ) {
+    let kingPosition: Position;
     if (piece.type === 'king') {
         kingPosition = lastPosition;
     } else {
@@ -40,7 +40,7 @@ export function calculateThreateningSquares(gameState: GameStateType, opponentCo
         }
     
         // For other moves, return an array with multiple positions
-        let positions = [];
+        const positions = [];
         for (let i = 0; i < 7; i++) {
             const y = kingPosition[0] + dy * (i + 1); // reversed
             const x = kingPosition[1] + dx * (i + 1); // reversed

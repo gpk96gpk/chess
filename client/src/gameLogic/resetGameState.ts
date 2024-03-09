@@ -1,19 +1,19 @@
-import { GameStateType, Position } from './types/clientTypes';
+import { GameStateType, PieceNames, PieceType, Position } from '../types/clientTypes';
 
 function resetGameState() {
     let index = 0;
     let whitePawnIndex = 24;
     let whiteMajorIndex = 16;
 
-    const createPiece = (type: string, color: string, position: Position, index: number) => ({ type, color, position, hasMoved: false, isHighlighted: false, index });
+    const createPiece = (type: PieceNames, color: 'black' | 'white' | 'none', position: Position, index: number): PieceType => ({ type, color, position, hasMoved: false, index });
 
-    const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+    const majorPieces: PieceNames[] = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
     const initialBoard: GameStateType = {
         board: [
-            majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
+            majorPieces.map((type: PieceNames, i: number) => createPiece(type, 'black', [0, i], index++)),
             Array(8).fill(null).map((_, i) => createPiece('pawn', 'black', [1, i], index++)),
             ...Array(4).fill(null).map(() =>
-                Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, isHighlighted: false }))
+                Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, position: [], index } as PieceType))
             ),
             Array(8).fill(null).map((_, i) => createPiece('pawn', 'white', [6, i], whitePawnIndex++)),
             majorPieces.map((type, i) => createPiece(type, 'white', [7, i], whiteMajorIndex++)),
@@ -140,7 +140,8 @@ function resetGameState() {
             white: false,
         },
     };
-
+    
+    
     return initialBoard;
 }
 

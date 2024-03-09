@@ -7,7 +7,7 @@ function performValidMove(gameState, piece, move, currentPlayerColor, opponentPl
     if (isPieceValidMove) {
       const tempGameState = JSON.parse(JSON.stringify(gameState));
       tempGameState.board[toX][toY] = piece;
-      tempGameState.board[fromX][fromY] = { type: 'empty', color: 'none', hasMoved: false, isHighlighted: false };
+      tempGameState.board[fromX][fromY] = { type: 'empty', color: 'none', hasMoved: false};
       console.log('847tempGameState', tempGameState, gameState);
       let checkPosition;
       let matchFoundInDirection;
@@ -35,7 +35,7 @@ function performValidMove(gameState, piece, move, currentPlayerColor, opponentPl
 
     // Move the piece in the copied gameState
     tempGameState.board[toX][toY] = piece;
-    tempGameState.board[fromX][fromY] = { type: 'empty', color: 'none', hasMoved: false, isHighlighted: false };
+    tempGameState.board[fromX][fromY] = { type: 'empty', color: 'none', hasMoved: false};
 
     // Check if the move would result in the player's king being in check
     const moveIntoCheck = isCheckOpponent(tempGameState, gameState.threateningPiecesPositions[currentPlayerColor], opponentPlayerNumber, piece, piece.position, playerNumber, lastDragOverPosition.current, currentPlayerColor);
@@ -65,7 +65,7 @@ function performValidMove(gameState, piece, move, currentPlayerColor, opponentPl
     console.log('3333New position:', [newY, newX]);
   
     // Move the piece in the copied gameState
-    simulatedGameState.board[currentY][currentX] = {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false};
+    simulatedGameState.board[currentY][currentX] = {type: 'empty', color: 'none', hasMoved: false};
     simulatedGameState.board[newY][newX] = piece;
   
     // Update the position of the piece
@@ -97,7 +97,7 @@ function performValidMove(gameState, piece, move, currentPlayerColor, opponentPl
         if (canPerformValidMove) {
           // If the move is valid, update the gameState
           gameState.board[move[0]][move[1]] = piece;
-          gameState.board[piece.position[0]][piece.position[1]] = { type: 'empty', color: 'none', hasMoved: false, isHighlighted: false };
+          gameState.board[piece.position[0]][piece.position[1]] = { type: 'empty', color: 'none', hasMoved: false};
   
           // Check if the move would result in the player being able to move out of check
           const {isKingInCheck} = isCheckOpponent(gameState, gameState.threateningPiecesPositions[opponentColor], opponentPlayerNumber, piece, piece.position, playerNumber, move, currentColor)

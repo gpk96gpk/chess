@@ -1,24 +1,24 @@
-import { GameStateType, Position, Piece as PieceType, Move } from '../types/clientTypes';
+import { GameStateType, Position, PieceType, PlayerNumber, ThreateningSquares, Color } from '../types/clientTypes';
 import calculateThreateningSquares from './calculateThreateningSquares';
-import isCheckmate from './isCheckmate';
+//import isCheckmate from './isCheckmate';
 
 interface CheckResult {
   isKingInCheck: boolean;
   isKingInCheckmate: boolean;
   loser: string;
 }
-function isCheck(gameState, threateningSquares, opponentPlayerNumber, checkPosition, piece, position, playerNumber, lastPosition, matchFoundInDirection, currentPlayerColor): CheckResult {
+function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquares, opponentPlayerNumber: PlayerNumber, checkPosition: Position | null, piece: PieceType, position: Position | [], playerNumber: PlayerNumber, lastPosition: Position | null, matchFoundInDirection: number, currentPlayerColor: Color): CheckResult {
   console.log(
-    'Game State:', gameState, 
-    'Threatening Squares:', threateningSquares, 
-    'Opponent Player Number:', opponentPlayerNumber, 
-    'Check Position:', checkPosition, 
-    'Piece:', piece, 
-    'Position:', position, 
-    'Player Number:', playerNumber, 
-    'Last Position:', lastPosition, 
-    'Match Found In Direction:', matchFoundInDirection, 
-    'Current Player Color:', currentPlayerColor
+    'Game State:', gameState as GameStateType, 
+    'Threatening Squares:', threateningSquares as ThreateningSquares, 
+    'Opponent Player Number:', opponentPlayerNumber as PlayerNumber, 
+    'Check Position:', checkPosition as Position, 
+    'Piece:', piece as PieceType, 
+    'Position:', position as Position, 
+    'Player Number:', playerNumber as PlayerNumber, 
+    'Last Position:', lastPosition as Position, 
+    'Match Found In Direction:', matchFoundInDirection as number, 
+    'Current Player Color:', currentPlayerColor as Color
   );  console.log('7322threateningSquares', threateningSquares)
   console.log('7322gameState', gameState)
   const pieceColor = piece.color;
@@ -46,7 +46,7 @@ function isCheck(gameState, threateningSquares, opponentPlayerNumber, checkPosit
 
   const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
 
-  const kingPosition = lastPosition ? lastPosition : gameState.kingPositions[currentPlayerColor];
+  //const kingPosition = lastPosition ? lastPosition : gameState.kingPositions[currentPlayerColor];
 
   let isKingInCheck = gameState.checkStatus[currentPlayerColor];
   
@@ -60,7 +60,7 @@ function isCheck(gameState, threateningSquares, opponentPlayerNumber, checkPosit
     console.log('7322gameState', gameState);
     const opponentKnights = gameState.piecePositions[opponentColor].filter(piece => piece.type === 'knight');
   
-    for (let knight of opponentKnights) {
+    for (const knight of opponentKnights) {
       const [knightY, knightX] = knight.position;
   
       // Check if the knight is in a position that could attack the king
@@ -73,14 +73,14 @@ function isCheck(gameState, threateningSquares, opponentPlayerNumber, checkPosit
     return false;
   }
   function canBlock(gameState: GameStateType, threateningSquares: Position[][][], 
-    checkingPiecePosition: Position, currentPlayerColor: string, piece, lastPosition): boolean {
+    checkingPiecePosition: Position, currentPlayerColor: string, piece: PieceType): boolean {
     console.log('7322gameState', gameState);
     console.log('7322piece', piece, pieceIndex);
     console.log('7322lastPosition', pieceLastPosition);
     console.log('7322canBlockParams', gameState, threateningSquares, 
     checkingPiecePosition, currentPlayerColor); 
     console.log('7322threateningSquares', threateningSquares)
-    let squarePiece;
+    let squarePiece: PieceType;
 
     const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
     if (isKnightAttackingPosition()) {
