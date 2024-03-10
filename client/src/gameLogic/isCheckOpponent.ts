@@ -1,4 +1,5 @@
 import { GameStateType, Position, Piece as PieceType, Move } from '../types/clientTypes';
+import calculateThreateningSquares from './calculateThreateningSquares';
 import isCheckmate from './isCheckmate';
 
 interface CheckResult {
@@ -14,6 +15,8 @@ function isCheckOpponent(gameState, threateningSquares, opponentPlayerNumber, ch
   const pieceType = piece.type;
   const pieceIndex = piece.index;
   const pieceLastPosition = lastPosition;
+  const color = playerNumber === 1 ? 'black' : 'white';
+  const opponentColor = color === 'white' ? 'black' : 'white';
   let firstTriggeringCurrentPiece;
   let directionIndex;
   let slicedThreateningSquares;
@@ -33,9 +36,7 @@ function isCheckOpponent(gameState, threateningSquares, opponentPlayerNumber, ch
     return { isKingInCheck: false, isKingInCheckmate: false, loser: '' };
   }
 
-  const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
-
-  const kingPosition = lastPosition ? lastPosition : gameState.kingPositions[opponentColor];
+  //const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
 
   let isKingInCheck = gameState.checkStatus[opponentColor];
   function isKnightAttackingPosition(): boolean {
@@ -61,29 +62,36 @@ function isCheckOpponent(gameState, threateningSquares, opponentPlayerNumber, ch
     return false;
   }
   function canBlock(gameState: GameStateType, threateningSquares: Position[][][], 
-    checkingPiecePosition: Position, currentPlayerColor: string, piece, lastPosition): boolean {
+    checkingPiecePosition: Position, currentPlayerColor: string, piece: PieceType): boolean {
     console.log('7322gameState', gameState);
     console.log('7322piece', piece, pieceIndex);
     console.log('7322lastPosition', pieceLastPosition);
     console.log('7322canBlockParams', gameState, threateningSquares, 
     checkingPiecePosition, currentPlayerColor); 
     console.log('7322threateningSquares', threateningSquares)
+    const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
     let squarePiece;
 
-    const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
+    
     if (isKnightAttackingPosition()) {
       console.log('7322Knight is attacking the checking piece.');
       return true;
     }
-
+    
     const currentPlayerPieces = gameState.piecePositions[currentPlayerColor];
     console.log('7322currentPlayerPieces', currentPlayerPieces);
     console.log('5556threateningSquares', threateningSquares, opponentColor);
-    const threateningSquaresCopy = threateningSquares;
-
+    let threateningSquaresCopy = threateningSquares;
+    
     console.log('7322threateningSquaresCopy', threateningSquaresCopy);
     let newThreateningSquares = [];
-
+    
+    if (piece.type === 'king' && lastPosition[0] !== gameState.kingPositions[opponentColor][0] && lastPosition[1] !== gameState.kingPositions[opponentColor][1]) {
+      console.log('7322King is moving to a new position.');
+      threateningSquaresCopy = calculateThreateningSquares(gameState, opponentColor, piece, lastPosition);
+      console.log('7322newThreateningSquares', threateningSquaresCopy);
+      
+    }
     for (directionIndex = 0; directionIndex < threateningSquaresCopy.length; directionIndex++) {
       console.log(`5556Iterating over direction ${directionIndex}`, threateningSquaresCopy[directionIndex]); // Log the current direction
   
@@ -98,6 +106,10 @@ function isCheckOpponent(gameState, threateningSquares, opponentPlayerNumber, ch
         squarePiece = gameState.board[y][x];
         console.log('5556squarePiece', square, squarePiece, gameState)
         console.log(`5556Iterating over square ${square} with squarePiece color ${squarePiece.color}`, gameState, squarePiece); // Log the current square and squarePiece color
+        if (squarePiece.type === 'king' && squarePiece.color === opponentColor) {
+          console.log(`5556King found at square ${square}`); // Log the result
+          continue; // Skip to the next iteration of the inner loop if the squarePiece is the current player's king
+        }
         if (directionIndex >= 8 && squarePiece.type !== 'knight') {
           console.log(`5556No opponent's knight at square ${square}`); // Log the result
           continue; // Skip to the next iteration of the inner loop if the squarePiece is not an opponent's knight
@@ -106,8 +118,7 @@ function isCheckOpponent(gameState, threateningSquares, opponentPlayerNumber, ch
           console.log(`5556No piece or color at square ${square}`); // Log the result
           continue; // Skip to the next iteration of the inner loop if the squarePiece is empty or has no color
         }
-        const color = playerNumber === 1 ? 'black' : 'white';
-        const opponentColor = color === 'white' ? 'black' : 'white';
+        
         console.log(`5556color`, color, squarePiece.color, opponentColor, squarePiece.color === opponentColor)
         if (squarePiece.color === opponentColor ) {
           console.log(`5556Opponent's piece found at square ${square}`, color); // Log the result
@@ -215,6 +226,7 @@ canBlock(gameState, threateningSquares, checkPosition, currentPlayerColor, piece
 
 // Assuming firstTriggeringCurrentPiece is a coordinate like [y, x]
 let firstTriggeringCurrentPieceIndex = -1;
+let firstTriggeringCurrentPieceCoordinates = [];
 const checkDirection = gameState.checkStatus.direction;
 const opponentThreateningSquares = gameState.threateningPiecesPositions[opponentColor];
 console.log('843firstTriggeringCurrentPiece', firstTriggeringCurrentPiece)
@@ -228,9 +240,21 @@ for (let i = 0; i < opponentThreateningSquares[checkDirection].length; i++) {
   let piece = gameState.board[y][x];
   console.log('843piece', piece)
   console.log('843opponentThreateningSquares[checkDirection]', opponentThreateningSquares[checkDirection])
-
+  if (piece.type === 'king') {
+    const kingPosition = lastPosition;
+    console.log('843kingPosition', kingPosition, firstTriggeringCurrentPieceCoordinates, isKingInCheck)
+    if (kingPosition[0] !== firstTriggeringCurrentPieceCoordinates[0] && firstTriggeringCurrentPieceCoordinates[1] !== x && isKingInCheck === true) {
+      console.log('843King is moving into check while in check');
+      continue;
+      return { isKingInCheck: true, isKingInCheckmate: true, loser: '' };
+    }
+  }
+  console.log('843piece', piece.color, currentPlayerColor, [y, x], checkDirection)
   if (piece && piece.color === currentPlayerColor) {
     firstTriggeringCurrentPiece = piece;
+    firstTriggeringCurrentPieceCoordinates = [y, x];
+    firstTriggeringCurrentPieceIndex = -1;
+    console.log('843piece.type', piece.type)
     console.log('843firstTriggeringCurrentPiece', firstTriggeringCurrentPiece)
     slicedCoordinates = opponentThreateningSquares[checkDirection].slice(0, i + 1);
     console.log('843slicedCoordinates', slicedCoordinates)
@@ -248,7 +272,7 @@ if (slicedCoordinates && Array.isArray(slicedCoordinates)) {
       console.log('843squares', squares)
     for (let j = 0; j < squares.length; j++) {
       console.log('843square', squares, 'firstTriggeringCurrentPiece.position', lastPosition)
-      if (squares[0] === lastPosition[0] && squares[1] === lastPosition[1]) {
+      if (squares[0] === lastPosition[0] && squares[1] === lastPosition[1] && firstTriggeringCurrentPieceIndex === -1) {
         firstTriggeringCurrentPieceIndex = i;
         console.log('843Match found at index:', i);
         break;
