@@ -26,7 +26,7 @@ function enPassant(piece: PieceType, lastPosition: Position, gameState: GameStat
             from: lastPosition,
             to: [toX, toY] as Position,
             board: gameState.board,
-            turn: piece.color,
+            turn: piece.color!,
             turnNumber: gameState.history[gameState.history.length - 1]?.turnNumber + 1,
         };
         console.log("En passant move:", move);

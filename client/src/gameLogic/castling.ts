@@ -21,7 +21,7 @@ function getCastlingMove(gameState: GameStateType, piece: PieceType, position: P
                     from: position,
                     to: [kingRow, kingColumn - 2],
                     board: gameState.board,
-                    turn: piece.color,
+                    turn: piece.color!,
                     turnNumber: gameState.history.length
                 };
             }
@@ -33,7 +33,7 @@ function getCastlingMove(gameState: GameStateType, piece: PieceType, position: P
                     from: position,
                     to: [kingRow, kingColumn + 2],
                     board: gameState.board,
-                    turn: piece.color,
+                    turn: piece.color!,
                     turnNumber: gameState.history.length
                 };
             }

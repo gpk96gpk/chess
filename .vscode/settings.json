@@ -1,6 +1,8 @@
 {
     "cSpell.words": [
-        "PSQL"
+        "gamestate",
+        "PSQL",
+        "userid"
     ],
     "github.copilot.advanced": {}
 }

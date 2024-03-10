@@ -14,7 +14,7 @@ import validMoves from '../gameLogic/validMoves'
 import isDraw from '../gameLogic/isDraw'
 import Board from './Board';
 import GameOver from './GameOver';
-import { Props, Position, PieceType, GameStateType } from '../types/clientTypes';
+import { Props, Position, PieceType, GameStateType, ValidMovesResult } from '../types/clientTypes';
 import calculateThreateningSquares from '../gameLogic/calculateThreateningSquares';
 import BoardButtons from './BoardButtons';
 // import BoardTimer from './BoardTimer';
@@ -119,12 +119,12 @@ const Chess: React.FC<Props> = (props) => {
             currentPlayerInCheck, gameState)
         console.log('761currentPlayerInCheck', currentPlayerInCheck)
         //this may not need to declare threatening squares with validMoves and instead call calculateThreateningSquares separately
-        const validMovesResult = validMoves(piece, startPosition.current!, gameState, playerNumber, lastDragOverPosition.current);
+        const validMovesResult = validMoves(piece, startPosition.current!, gameState, playerNumber, lastDragOverPosition.current!);
         if (!validMovesResult) {
             console.error('Error: validMoves returned nothing');
             return
         } 
-        const { moves: pieceValidMoves, threateningSquares, isKingInCheck, checkDirection, isKingInCheckMate, isOpponentKingInCheck, enPassantMove, canCastle } = validMovesResult;
+        const { moves: pieceValidMoves, threateningSquares, isKingInCheck, checkDirection, isKingInCheckMate, isOpponentKingInCheck, enPassantMove, canCastle } = validMovesResult as ValidMovesResult;
         console.log('761pieceValidMoves', pieceValidMoves, isOpponentKingInCheck);
         if (isOpponentKingInCheck) {
             console.log('761isOpponentKingInCheck', isOpponentKingInCheck, opponentColor);
@@ -235,7 +235,7 @@ const Chess: React.FC<Props> = (props) => {
             if (isKingInCheck && gameState.checkStatus[currentPlayerColor] === true) {
                 console.log('761isKingInCheck', isKingInCheck, opponentColor, gameState);
                 gameState.checkStatus[opponentColor] = true;
-                gameState.checkStatus.direction = checkDirection;
+                gameState.checkStatus.direction = checkDirection!;
             }
         }
         
@@ -293,7 +293,7 @@ const Chess: React.FC<Props> = (props) => {
             let checkPosition;
             let matchFoundInDirection;
             //add a check to see if piece is moving into threatening square array from game state 
-            const moveIntoCheck = isCheck(tempGameState, gameState.threateningPiecesPositions[currentPlayerColor], opponentPlayerNumber, checkPosition!, piece, piece.position, playerNumber, lastDragOverPosition.current, matchFoundInDirection!, currentPlayerColor);
+            const moveIntoCheck = isCheck(tempGameState, gameState.threateningPiecesPositions[currentPlayerColor], opponentPlayerNumber, checkPosition!, piece, piece.position!, playerNumber, lastDragOverPosition.current, matchFoundInDirection!, currentPlayerColor);
             console.log('847moveIntoCheck', moveIntoCheck.isKingInCheck, gameState, isOpponentKingInCheck);
             if (moveIntoCheck.isKingInCheck) {
                 console.log('847moveIntoCheck', moveIntoCheck);

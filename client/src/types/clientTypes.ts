@@ -13,10 +13,10 @@ export type PlayerNumber = 1 | 2
 
 export type PieceType = {
     type: PieceNames;
-    color: Color | PieceColor;
-    position: Position | [];
+    color?: PieceColor | 'none';
+    position?: Position | [];
     hasMoved: boolean;
-    index: number;
+    index?: number;
     hasMovedTwo?: boolean;
     isHighlighted?: boolean;
 };
@@ -25,7 +25,7 @@ export type PiecePositions = {
     id: number;
     type: PieceNames;
     position: Position | [];
-    color: Color;
+    color?: Color;
     index?: number;
     hasMoved?: boolean;
     hasMovedTwo?: boolean;
@@ -39,6 +39,7 @@ export interface GameStateType {
     history: Move[];
     turn: 'white' | 'black';
     kingPositions: { black: Position; white: Position };
+    playerNumber?: 1 | 2;
     threateningPiecesPositions: {
         black: number[][][] | number[][];
         white: number[][][] | number[][];
@@ -170,3 +171,4 @@ export interface CheckResult {
     matchFoundInDirection: number |  undefined;
     currentPlayerColor: Color | PieceColor;
 }
+
