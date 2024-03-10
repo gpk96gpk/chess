@@ -1,5 +1,5 @@
 // import e from 'express';
-import { PieceType, Position, GameStateType, ThreateningSquares, ValidMovesResult, PlayerNumber, PieceColor, PiecePositions } from '../types/clientTypes';
+import { PieceType, Position, GameStateType, ThreateningSquares, PlayerNumber, PieceColor, PiecePositions } from '../types/clientTypes';
 import calculateThreateningSquares from './calculateThreateningSquares';
 // import canBlock from './canBlock';
 // import getCastlingMove from './castling';
@@ -8,10 +8,18 @@ import isCheckOpponent from './isCheckOpponent';
 import getMovesForPiece from './pieceMoves';
 // import isCheck from './isCheck';
 // import { json } from 'react-router-dom';
+type ValidMoveReturn = {
+  moves: Position[]; 
+  threateningSquares: { black: number[][] | number[][][]; white: number[][] | number[][][]; }; 
+  isKingInCheck: false; 
+  checkDirection: number | undefined; 
+  isKingInCheckMate: boolean; 
+  isOpponentKingInCheck: boolean | undefined; 
+  enPassantMove: Position; 
+  canCastle: boolean; 
+}
 
-
-
-function validMoves(piece: PieceType, position: Position, gameState: GameStateType, playerNumber: PlayerNumber, lastPosition: Position): Position[] | ValidMovesResult | undefined {
+function validMoves(piece: PieceType, position: Position, gameState: GameStateType, playerNumber: PlayerNumber, lastPosition: Position): Position[] | ValidMoveReturn | undefined {
   console.log('302validMoves piece', piece, 'position', position, 'gameState', gameState, 'playerNumber', playerNumber, 'lastPosition', lastPosition);
   const moves: Position[] = [];
   let threateningSquares: ThreateningSquares = [[], [], [], [], [], [], [], []];
@@ -479,7 +487,7 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
       tempGameState.board[fromX!][fromY!] = { type: 'empty', color: 'none', hasMoved: false, isHighlighted: false };
       console.log('847tempGameState', tempGameState, gameState);
       let checkPosition: Position;
-      let matchFoundInDirection: number;
+      const matchFoundInDirection: number = -1;
       //add a check to see if piece is moving into threatening square array from game state 
       const moveIntoCheck = isCheckOpponent(tempGameState, gameState.threateningPiecesPositions[opponentColor], opponentPlayerNumber, checkPosition!, piece as PieceType, piece.position as Position, playerNumber, pieceLastPosition, matchFoundInDirection, currentPlayerColor);
       console.log('847moveIntoCheck', moveIntoCheck.isKingInCheck, gameState, isOpponentKingInCheck);
@@ -623,16 +631,20 @@ if (errorFound) {
     console.error('Error: Invalid move position');
     moves.splice(0, moves.length);
 }
-  return {
-    moves,
-    threateningSquares,
-    isKingInCheck,
-    checkDirection,
-    isKingInCheckMate,
-    isOpponentKingInCheck,
-    enPassantMove,
-    canCastle
-  };
+
+return {
+  moves,
+  threateningSquares: {
+      black: threateningSquares, // Replace with your actual data
+      white: threatenedSquaresWithOpponentPieces, // Replace with your actual data
+  },
+  isKingInCheck,
+  checkDirection,
+  isKingInCheckMate,
+  isOpponentKingInCheck,
+  enPassantMove,
+  canCastle
+} as ValidMoveReturn;
 
 
 
