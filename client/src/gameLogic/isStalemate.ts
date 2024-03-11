@@ -1,7 +1,7 @@
-import { GameState } from "../types/clientTypes";
+import { GameStateType, Position } from "../types/clientTypes";
 import getMovesForPiece from "./pieceMoves";
 
-function isStalemate(gameState: GameState, playerNumber: number) {
+function isStalemate(gameState: GameStateType, playerNumber: number) {
     if (playerNumber === 0) {
         return false;
     }

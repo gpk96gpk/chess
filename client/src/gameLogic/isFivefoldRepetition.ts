@@ -1,7 +1,7 @@
-import { Move, Piece as PieceType } from "../types/clientTypes";
+import { Move } from "../types/clientTypes";
 
 function isFivefoldRepetition(history: Move[]) {
-    const positions = history.map((move: { board: PieceType[][]; turn: 'white' | 'black'; }) => JSON.stringify({
+    const positions = history.map((move: Move) => JSON.stringify({
         board: move.board,
         turn: move.turn
     }));
@@ -9,4 +9,5 @@ function isFivefoldRepetition(history: Move[]) {
 
     return uniquePositions.some(position => positions.filter(p => p === position).length >= 5);
 }
+
 export default isFivefoldRepetition;
