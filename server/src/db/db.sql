@@ -2,14 +2,14 @@
 CREATE TABLE users (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(50) NOT NULL
+    password VARCHAR(255) NOT NULL
 );
 
 --Create savedGames table
 CREATE TABLE savedGames (
     id BIGSERIAL NOT NULL PRIMARY KEY,
     userId BIGINT NOT NULL,
-    gameState VARCHAR(255) NOT NULL,
+    gameState TEXT NOT NULL,
     savedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userId) REFERENCES users(id)
 );

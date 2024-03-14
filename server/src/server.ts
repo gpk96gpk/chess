@@ -43,7 +43,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { createServer } from "http";
 import { Server, Socket } from 'socket.io';
-import { SocketTypes } from '../types/serverTypes';
+import { GameStateType, PieceColor, PlayerNumber, SocketTypes } from '../types/serverTypes';
 import { Request, Response, NextFunction } from 'express';
 const db = require('./db')
 
@@ -56,12 +56,18 @@ interface PlayerInfo {
 
 const app = express();
 const httpServer = createServer(app);
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    optionsSuccessStatus: 200
+}
+  
 const io = new Server<SocketTypes>(httpServer, {
-  cors: {
-    origin: "http://localhost:5173",
-  }
+    cors: {
+      origin: 'http://localhost:5173',
+      methods: ["GET", "POST"]
+    }
 });
-app.use(cors())
+app.use(cors(corsOptions))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -95,19 +101,19 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
 
 let players: { [socketId: string]: PlayerInfo } = {};
 let rooms: { [key: string]: string[] } = {};
-let roomStates: { [roomCode: string]: string} = {};
+let roomStates: { [roomCode: string]: GameStateType } = {};
 
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket: Socket) => {
     //Create a room
-    socket.on('createRoom', (roomCode:string, gameState?) => {
+    socket.on('createRoom', (roomCode:string, gameState?:GameStateType) => {
         rooms[roomCode] = [socket.id];
         const playerNumber = 1;
         players[socket.id] = { roomCode, playerNumber };
         socket.emit('playerNumber', playerNumber);
         socket.emit('gameState', gameState)
         socket.emit('createRoom', roomCode)
-        roomStates[roomCode] = gameState;
+        roomStates[roomCode] = gameState!;
     });
     //Join a room
     socket.on('joinRoom', (roomCode:string) => {
@@ -130,9 +136,9 @@ io.on('connection', (socket: Socket) => {
         console.log('emitted load game to host')
     });
     //Turn 
-    socket.on('turn', (playerTurn, roomCode:string) => {
+    socket.on('turn', (playerTurn: 1 | 2, roomCode: string) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit('turn', playerTurn);
+        io.to(otherPlayerSocketId).emit('turn', playerTurn as any);
         console.log('turn', roomCode, playerTurn)
     });
     //Leave a room
@@ -152,11 +158,11 @@ io.on('connection', (socket: Socket) => {
         delete players[socket.id];
     });
     //Error handling
-    socket.on('error', (error) => {
+    socket.on('error', (error: Error) => {
         console.error('Socket.IO error:', error);
     });
     //Game state
-    socket.on('gameState', (gameState, roomCode:string) => {
+    socket.on('gameState', (gameState: GameStateType, roomCode:string) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('gameState', gameState);
 
@@ -164,7 +170,7 @@ io.on('connection', (socket: Socket) => {
 
     });
     //Game over
-    socket.on('gameOver', (isGameOver, winner, roomCode:string) => {
+    socket.on('gameOver', (isGameOver: boolean, winner: PieceColor, roomCode:string) => {
         const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         io.to(otherPlayerSocketId).emit('gameOver', {winner, isGameOver});
         console.log('gameOver', roomCode, winner, isGameOver)
@@ -185,6 +191,10 @@ io.on('connection', (socket: Socket) => {
 });
 
 //SERVER ROUTES
+app.get('/', (req, res) => {
+    res.send('Hello World!')
+})
+
 //Sign in for users
 app.post("/api/v1/chess/users/login", async (req, res) => {
     try {
@@ -263,10 +273,13 @@ app.post("/api/v1/chess/users/register", async (req, res) => {
             });
         }
     } catch (err) {
-        console.log(err);
+
+
+        console.error(err);
         res.status(500).json({
-            status: "error",
-            message: "An error occurred while processing your request"
+            status: "error xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            message: "An error occurred while processing your request" + err,
+            error: err,
         });
     }
 });
@@ -430,7 +443,7 @@ app.listen(PORT, () => {
     console.log(`Authentication server running on PORT ${PORT}`)
 })
 
-httpServer.listen(3004, () => {
+httpServer.listen(3004, '0.0.0.0', () => {
     console.log('socket server running at http://localhost:3004');
   });
   

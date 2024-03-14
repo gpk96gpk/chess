@@ -1,23 +1,39 @@
 version: '3'
 services:
-  backend:
-    build: ./backend
+  server:
+    build: ./server
     ports:
-      - 3001:3001
+      - 3005:3005  # Map host port 3005 to container port 80 for the server
+      - 3004:3004  # Map host port 3004 to container port 3004 for the socket server
     env_file:
       - .env
     depends_on:
       - db
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/postgres
+      POSTGRES_HOST: db
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: chess
+      POSTGRES_PORT: 5432
+
   frontend:
-    build: ./frontend
+    build: ./client
     ports:
-      - 3000:80
+      - 5173:80  # Map host port 5173 to container port 80 for the frontend
   db:
     image: postgres
+    ports:
+      - 5432:5432  # Map host port 5432 to container port 5432 for PostgreSQL
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
-      POSTGRES_PASSWORD: example
+      POSTGRES_HOST: db
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: chess
+      POSTGRES_PORT: 5432
 
 volumes:
   db-data:

@@ -13,11 +13,11 @@ RUN npm install
 # Copy the rest of the code
 COPY . .
 
-# Build the React app
-RUN npm run build
+# Build the Vite.js app
+RUN npm run build 
 
 # Stage 2 - the production environment
 FROM nginx:alpine
-COPY --from=build /usr/src/app/build /usr/share/nginx/html
+COPY --from=build /usr/src/app/dist /usr/share/nginx/html  
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
