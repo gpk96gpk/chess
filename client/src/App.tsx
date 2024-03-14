@@ -8,7 +8,7 @@ import { Props, GameStateType, Position, PieceType, PieceNames } from './types/c
 import resetGameState from './gameLogic/resetGameState';
 //import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
-const socket = io('http://localhost:3004');
+const socket = io('http://35.175.174.86/:3004');
 
 let index = 0;
 let whitePawnIndex = 24;

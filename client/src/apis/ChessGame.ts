@@ -2,7 +2,7 @@ import axios from 'axios'
 import { GameStateType } from '../types/clientTypes';
 //axios creates a base url for us to use to not have to repeat the same url over and over again
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3005/api/v1/chess'
+    baseURL: 'http://35.175.174.86/:3005/api/v1/chess'
 });
 
 export const saveGame = async (gameState: GameStateType) => {
