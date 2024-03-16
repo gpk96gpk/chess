@@ -57,13 +57,13 @@ interface PlayerInfo {
 const app = express();
 const httpServer = createServer(app);
 const corsOptions = {
-    origin: 'http://3.89.47.53/:5173',
+    origin: 'http://34.224.30.160/:5173',
     optionsSuccessStatus: 200
 }
   
 const io = new Server<SocketTypes>(httpServer, {
     cors: {
-      origin: 'http://3.89.47.53/:5173',
+      origin: 'http://34.224.30.160/:5173',
       methods: ["GET", "POST"]
     }
 });
@@ -444,7 +444,7 @@ app.listen(PORT, () => {
 })
 
 httpServer.listen(3004, '0.0.0.0', () => {
-    console.log('socket server running at http://3.89.47.53/:3004');
+    console.log('socket server running at http://34.224.30.160/:3004');
   });
   
   httpServer.on('error', (err) => {
