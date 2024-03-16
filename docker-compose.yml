@@ -19,8 +19,8 @@ services:
 
   frontend:
     build: ./client
-    ports:
-      - 5173:80  # Map host port 5173 to container port 80 for the frontend
+    # ports:
+    #   - 5173:80  # Map host port 5173 to container port 80 for the frontend
   db:
     image: postgres
     ports:
@@ -34,6 +34,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: chess
       POSTGRES_PORT: 5432
-
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+      - frontend
 volumes:
   db-data:
