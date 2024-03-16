@@ -1,25 +1,20 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "skipLibCheck": true,
-
-    /* Adjusted for typical front-end projects */
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,  /* Keeps true as Vite handles the module bundling */
     "jsx": "react-jsx",
-
-    /* Linting and checks */
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
     "strict": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"], /* It's common to exclude node_modules and the dist folder */
-  "references": [{ "path": "./tsconfig.node.json" }] /* Only needed if you're using project references */
+  "include": ["src"]
 }
