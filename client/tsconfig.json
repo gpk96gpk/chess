@@ -10,11 +10,13 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "strict": true,
-    "noEmit": true,
+    //"noEmit": false,
+    "outDir": "./dist",
     "resolveJsonModule": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
