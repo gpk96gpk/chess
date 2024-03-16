@@ -6,20 +6,20 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    /* Adjusted for typical front-end projects */
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": true,  /* Keeps true as Vite handles the module bundling */
     "jsx": "react-jsx",
 
-    /* Linting */
+    /* Linting and checks */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["node_modules", "dist"], /* It's common to exclude node_modules and the dist folder */
+  "references": [{ "path": "./tsconfig.node.json" }] /* Only needed if you're using project references */
 }
