@@ -3,8 +3,8 @@ services:
   server:
     build: ./server
     ports:
-      - 3005:3005  # Map host port 3005 to container port 80 for the server
-      - 3004:3004  # Map host port 3004 to container port 3004 for the socket server
+      - 3005:3005  
+      - 3004:3004  
     env_file:
       - .env
     depends_on:
@@ -18,13 +18,13 @@ services:
       POSTGRES_PORT: 5432
 
   frontend:
-    build: ./client
-    # ports:
-    #   - 5173:80  # Map host port 5173 to container port 80 for the frontend
+    build:
+      context: ./client
+      dockerfile: Dockerfile
   db:
     image: postgres
     ports:
-      - 5432:5432  # Map host port 5432 to container port 5432 for PostgreSQL
+      - 5432:5432 
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -35,11 +35,13 @@ services:
       POSTGRES_DB: chess
       POSTGRES_PORT: 5432
   nginx:
-    build: ./nginx
+    build:
+      context: ./nginx 
+      dockerfile: Dockerfile
     ports:
       - "80:80"
     depends_on:
-      - server
       - frontend
+      #- server
 volumes:
   db-data:
