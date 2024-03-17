@@ -2,7 +2,7 @@
 FROM node:lts as build
 
 # Set working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /home/ubuntu/chess
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -19,9 +19,9 @@ RUN npm run build
 # Stage 2 - the production environment
 FROM node:lts
 
-WORKDIR /usr/src/app
+WORKDIR /home/ubuntu/chess
 
-COPY --from=build /usr/src/app/dist/src /usr/src/app/dist/src
+COPY --from=build /home/ubuntu/chess/dist/src /home/ubuntu/chess/dist/src
 COPY package*.json ./
 
 # Install production dependencies

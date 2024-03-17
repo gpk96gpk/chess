@@ -1,19 +1,12 @@
 # Use official Node.js LTS version as base image
 FROM node:lts as build
 
-
-
-
 RUN ls -la
 RUN find / -type d -name "client" -print
 RUN find / -type f -name "package.json" -print
-RUN ls -la /usr
-RUN ls -la /usr/src
-RUN ls -la /usr/src/app
-RUN ls -la /usr/src/app/dist
-RUN ls -la /usr/src/app/dist/client
+RUN ls -la /home/ubuntu/chess
 # Set working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /home/ubuntu/chess
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -32,8 +25,8 @@ FROM nginx:alpine
 
 # Assuming your Docker context is set correctly and includes both client and server directories:
 RUN find / -type d -name "client" -print
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html/client
-COPY --from=build /usr/src/app//dist /usr/share/nginx/html/server
+COPY --from=build /home/ubuntu/chess/dist /usr/share/nginx/html/client
+COPY --from=build /home/ubuntu/chess//dist /usr/share/nginx/html/server
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
