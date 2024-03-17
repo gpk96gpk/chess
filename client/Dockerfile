@@ -3,7 +3,7 @@ FROM node:lts as build
 
 RUN ls -la
 RUN ls -la /home
-RUN ls -la /home/ubuntu
+RUN find / -type d -name "chess" -print
 RUN find / -type d -name "client" -print
 RUN find / -type f -name "package.json" -print
 # Set working directory in the container
