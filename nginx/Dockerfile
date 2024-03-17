@@ -2,12 +2,10 @@
 FROM node:lts as build
 
 # Set the working directory for the build stage
-WORKDIR /home/ubuntu/chess
+WORKDIR /usr/src/app
 
 # List all files in the current directory (for debugging)
-RUN ls -la /home
-RUN ls -la /home/ubuntu
-RUN ls -la /home/ubuntu/chess 
+RUN ls -la
 
 RUN find / -type d -name "client" -print
 
@@ -39,13 +37,13 @@ RUN ls -la dist
 FROM nginx:alpine
 
 # Copy the built assets from the build stage to Nginx's serve directory
-COPY --from=build /home/ubuntu/chess/dist /usr/share/nginx/html
+COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 
 # List files in Nginx serve directory to verify (for debugging)
 RUN ls -la /usr/share/nginx/html
 
 # Copy your custom Nginx configuration into the container
-COPY /home/ubuntu/chess/nginx/nginx.conf /etc/nginx/nginx.conf 
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf 
 
 # Expose port 80 to the host so that the service can be accessed
 EXPOSE 80
