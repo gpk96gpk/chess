@@ -7,6 +7,8 @@ WORKDIR /usr/src/app
 # List all files in the current directory (for debugging)
 RUN ls -la
 
+RUN find / -type d -name "client" -print
+
 # Try to find package.json in the entire filesystem (for debugging)
 RUN find / -type f -name "package.json" -print
 
