@@ -5,7 +5,9 @@ FROM node:lts as build
 WORKDIR /home/ubuntu/chess
 
 # List all files in the current directory (for debugging)
-RUN ls -la
+RUN ls -la /home
+RUN ls -la /home/ubuntu
+RUN ls -la /home/ubuntu/chess 
 
 RUN find / -type d -name "client" -print
 
