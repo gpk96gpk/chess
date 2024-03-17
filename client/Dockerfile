@@ -18,7 +18,7 @@ RUN npm run build
 RUN ls -la /usr/src/app/dist
 
 # Stage 2 - the production environment
-FROM nginx:alpine
+# FROM nginx:alpine
 
 # Assuming your Docker context is set correctly and includes both client and server directories:
 RUN find / -type d -name "client" -print
@@ -29,5 +29,5 @@ RUN ls -la
 RUN find / -type d -name "client" -print
 RUN find / -type f -name "package.json" -print
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# EXPOSE 80
+# CMD ["nginx", "-g", "daemon off;"]
