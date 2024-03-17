@@ -5,6 +5,7 @@ FROM node:lts as build
 WORKDIR /usr/src/app
 
 # Install dependencies
+RUN ls -la find / -type f -name "package.json" -print
 COPY package*.json ./
 RUN npm install
 
