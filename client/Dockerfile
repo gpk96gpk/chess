@@ -2,9 +2,10 @@
 FROM node:lts as build
 
 RUN ls -la
+RUN ls -la /home
+RUN ls -la /home/ubuntu
 RUN find / -type d -name "client" -print
 RUN find / -type f -name "package.json" -print
-RUN ls -la /home/ubuntu/chess
 # Set working directory in the container
 WORKDIR /home/ubuntu/chess
 
