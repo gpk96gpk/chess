@@ -1,6 +1,17 @@
 # Use official Node.js LTS version as base image
 FROM node:lts as build
 
+
+
+
+RUN ls -la
+RUN find / -type d -name "client" -print
+RUN find / -type f -name "package.json" -print
+RUN ls -la /usr
+RUN ls -la /usr/src
+RUN ls -la /usr/src/app
+RUN ls -la /usr/src/app/dist
+RUN ls -la /usr/src/app/dist/client
 # Set working directory in the container
 WORKDIR /usr/src/app
 
@@ -15,7 +26,6 @@ COPY . .
 
 # Build the Vite.js app
 RUN npm run build 
-RUN ls -la /usr/src/app/dist
 
 # Stage 2 - the production environment
 FROM nginx:alpine

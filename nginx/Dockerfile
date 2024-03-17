@@ -13,7 +13,7 @@ RUN find / -type d -name "client" -print
 RUN find / -type f -name "package.json" -print
 
 # Copy package.json and package-lock.json
-COPY ./client/package*.json ./
+# COPY ./client/package*.json ./
 
 # List files in /usr/src/app to verify copy (for debugging)
 RUN ls -la
