@@ -37,7 +37,7 @@ services:
   nginx:
     build:
       context: /home/ubuntu/chess 
-      dockerfile: /nginx/Dockerfile
+      dockerfile: ./nginx/Dockerfile
     ports:
       - "80:80"
     depends_on:
