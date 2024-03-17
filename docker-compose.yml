@@ -36,8 +36,8 @@ services:
       POSTGRES_PORT: 5432
   nginx:
     build:
-      context: /home/ubuntu/chess/nginx 
-      dockerfile: Dockerfile
+      context: /home/ubuntu/chess 
+      dockerfile: /nginx/Dockerfile
     ports:
       - "80:80"
     depends_on:
