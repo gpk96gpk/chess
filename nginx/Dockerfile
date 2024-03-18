@@ -43,7 +43,7 @@ COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 RUN ls -la /usr/share/nginx/html
 
 # Copy your custom Nginx configuration into the container
-COPY ./nginx/nginx.conf /etc/nginx/nginx.conf 
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80 to the host so that the service can be accessed
 EXPOSE 80
