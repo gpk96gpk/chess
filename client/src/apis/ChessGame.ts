@@ -1,13 +1,13 @@
 import axios from 'axios'
 import { GameStateType } from '../types/clientTypes';
 
-const API_URL = '34.224.30.160';
+export const API_URL = 'http://34.224.30.160';
 // const API_URL = 'http://localhost:3005';
 //axios creates a base url for us to use to not have to repeat the same url over and over again
 const axiosInstance = axios.create({
     baseURL: `${API_URL}/api/v1/chess`
 });
-
+ 
 export const saveGame = async (gameState: GameStateType) => {
     try {
         const token = localStorage.getItem('jwt');

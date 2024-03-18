@@ -6,9 +6,10 @@ import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
 import resetGameState from './gameLogic/resetGameState';
+import { API_URL } from './apis/ChessGame';
 //import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
-const socket = io('/socket.io');
+const socket = io(`${API_URL}:3004`);
 
 let index = 0;
 let whitePawnIndex = 24;

@@ -45,7 +45,9 @@ import { createServer } from "http";
 import { Server, Socket } from 'socket.io';
 import { GameStateType, PieceColor, PlayerNumber, SocketTypes } from '../types/serverTypes';
 import { Request, Response, NextFunction } from 'express';
+
 const db = require('./db')
+
 
 
 interface PlayerInfo {
@@ -55,15 +57,16 @@ interface PlayerInfo {
 
 
 const app = express();
+
 const httpServer = createServer(app);
 const corsOptions = {
-    origin: 'http://34.224.30.160/:5173',
+    origin: '*',
     optionsSuccessStatus: 200
 }
   
 const io = new Server<SocketTypes>(httpServer, {
     cors: {
-      origin: 'http://34.224.30.160/:5173',
+      origin: '',
       methods: ["GET", "POST"]
     }
 });
