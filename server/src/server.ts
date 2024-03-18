@@ -66,7 +66,7 @@ const corsOptions = {
   
 const io = new Server<SocketTypes>(httpServer, {
     cors: {
-      origin: '',
+      origin: '*',
       methods: ["GET", "POST"]
     }
 });
