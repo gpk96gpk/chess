@@ -95,8 +95,29 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
       }
   }
   }
+  function checkPositionsBetweenAreEmpty(gameState: GameStateType, lastPosition: Position, position: Position): boolean {
+    const [startX, startY] = lastPosition;
+    const [, endY] = position;
 
+    const direction = endY - startY > 0 ? 1 : -1;
+    let i = startY + direction;
+
+    console.log(`Checking positions between ${startY} and ${endY} in direction ${direction}`);
+
+    while (i !== endY) {
+        console.log(`Checking position at ${i}`, gameState, startX, i);
+        if (i <= 0 || i >= 7 || gameState.board[startX][i].type !== 'empty') {
+            console.log(`Position at ${i} is not empty or out of range`);
+            return false;
+        }
+        i += direction;
+    }
+
+    console.log(`All positions between ${startY} and ${endY} are empty`);
+    return true;
+  }
   console.log('843matchFoundInDirection', matchFoundInDirection);
+  let canCastle = false;
 
   const addMoveIfValid = (position: Position, tempGameState: GameStateType) => {
     if (!position || canEnPassant) {
@@ -105,7 +126,32 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     }
     
     console.log('843position', position, tempGameState);
+    if (piece && piece.type === 'king') {
+      const lastPiece = gameState.board[lastPosition[0]][lastPosition[1]];
 
+      console.log(`Checking if last piece is a rook of the same color`, lastPosition, piece.type, lastPiece.type);
+
+      if (lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) {
+          console.log(`Last piece is a rook of the same color`);
+
+          const positionsBetweenAreEmpty = lastPosition[0] === position[0] 
+              ? checkPositionsBetweenAreEmpty(gameState, position, lastPosition)
+              : checkPositionsBetweenAreEmpty(gameState, position, lastPosition);
+
+          if (positionsBetweenAreEmpty) {
+              canCastle = true;
+              console.log(`Positions between are empty`, canCastle);
+              moves.push(lastPosition);
+              console.log(moves)
+              return moves;
+              //addMoveIfValid(lastPosition, tempGameState);
+          } else {
+              console.log(`Positions between are not empty`);
+          }
+      } else {
+          console.log(`Last piece is not a rook of the same color`, lastPiece, lastPosition);
+      }
+    }
     const currentIndex = tempGameState.board[position[0]][position[1]].index;
     console.log('843currentIndex', currentIndex, tempGameState.board[position[0]][position[1]], position);
     //tempGameState.board[position[0]][position[1]] = {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false};    
@@ -225,32 +271,11 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     addMoveIfValid(lastPosition, tempGameState); // Don't check for check yet
     
   }
-  function checkPositionsBetweenAreEmpty(gameState: GameStateType, lastPosition: Position, position: Position): boolean {
-    const [startX, startY] = lastPosition;
-    const [, endY] = position;
-
-    const direction = endY - startY > 0 ? 1 : -1;
-    let i = startY + direction;
-
-    console.log(`Checking positions between ${startY} and ${endY} in direction ${direction}`);
-
-    while (i !== endY) {
-        console.log(`Checking position at ${i}`, gameState, startX, i);
-        if (i <= 0 || i >= 7 || gameState.board[startX][i].type !== 'empty') {
-            console.log(`Position at ${i} is not empty or out of range`);
-            return false;
-        }
-        i += direction;
-    }
-
-    console.log(`All positions between ${startY} and ${endY} are empty`);
-    return true;
-  }
-  let canCastle = false;
+  
   if (piece && piece.type === 'king') {
       const lastPiece = gameState.board[lastPosition[0]][lastPosition[1]];
 
-      console.log(`Checking if last piece is a rook of the same color`);
+      console.log(`Checking if last piece is a rook of the same color`, lastPosition, piece.type, lastPiece.type);
 
       if (lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) {
           console.log(`Last piece is a rook of the same color`);

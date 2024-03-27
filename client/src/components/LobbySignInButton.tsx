@@ -18,19 +18,21 @@ interface LobbySignInButtonProps {
   setUsername: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const LobbySignInButton = ({ username, setUsername }: LobbySignInButtonProps) => {
+const LobbySignInButton = ({ setUsername }: LobbySignInButtonProps) => {
   const [showSignIn, setShowSignIn] = useState(false);
+  const [inputUsername, setInputUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSignIn = async () => {
-    const token = await signIn(username, password);
+    const token = await signIn(inputUsername, password);
     if (token) {
       localStorage.setItem('jwt', token);
+      setUsername(inputUsername); // Set the username here
       setShowSignIn(false);
-      navigate(`/lobby/${username}`);
-      console.log('username', username); 
+      navigate(`/lobby/${inputUsername}`);
+      console.log('username', inputUsername); 
     } else {
       setErrorMessage('Incorrect username or password');
     }
@@ -40,7 +42,7 @@ const LobbySignInButton = ({ username, setUsername }: LobbySignInButtonProps) =>
     <div>
       {showSignIn ? (
         <div>
-          <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" />
+          <input type="text" value={inputUsername} onChange={e => setInputUsername(e.target.value)} placeholder="Username" />
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" />
           <button onClick={handleSignIn}>Sign In</button>
           <button onClick={() => setShowSignIn(false)}>Exit</button>

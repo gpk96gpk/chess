@@ -37,7 +37,7 @@ export interface GameStateType {
     board: PieceType[][];
     initialBoard?: GameStateType;
     history: Move[];
-    turn: 'white' | 'black';
+    turn: 'white' | 'black' | null;
     kingPositions: { black: Position; white: Position };
     playerNumber?: 1 | 2;
     threateningPiecesPositions: {

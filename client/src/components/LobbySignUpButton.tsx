@@ -2,9 +2,13 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signUp } from '../apis/ChessGame';
 
-const LobbySignUpButton = () => {
+interface LobbySignInButtonProps {
+  username: string;
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const LobbySignUpButton = ({ username, setUsername }: LobbySignInButtonProps) => {
   const [showSignUp, setShowSignUp] = useState(false);
-  const [username, setUsername] = useState('');
   const passwordRef = useRef<HTMLInputElement>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();

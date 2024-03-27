@@ -22,14 +22,18 @@ const Piece = ({ piece, position, handleDragStart }:
             console.error('Piece or piece position is undefined');
         }
     };
-
+    
+    const handleTouchStart = (event: React.TouchEvent) => {
+        event.preventDefault();
+    };
+    
     if (typeof piece === 'string') {
         return null;
     }
 
     if (typeof piece === 'object' && piece !== null && piece.type !== 'empty') {
         return (
-            <div draggable={true} onDragStart={onDragStart} className='piece'>
+            <div draggable={true} onDragStart={onDragStart} onTouchStart={handleTouchStart} className='piece'>
                 <img src={getPieceIcon(piece.type, piece.color as PieceColor)} alt={`${piece.color} ${piece.type}`} />
             </div>
         );

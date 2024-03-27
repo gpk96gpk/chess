@@ -21,7 +21,7 @@ const Lobby = ({ setGameState }: { setGameState: Dispatch<SetStateAction<GameSta
       <span>Would you like to sign in and create an account?</span>
       <div>
         <LobbySignInButton username={username} setUsername={setUsername}/>
-        <LobbySignUpButton />
+        <LobbySignUpButton username={username} setUsername={setUsername}/>
       </div>
       <LobbyGameButtons setGameState={setGameState} username={username} />
     </div>

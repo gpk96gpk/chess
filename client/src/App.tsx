@@ -9,7 +9,7 @@ import resetGameState from './gameLogic/resetGameState';
 import { API_URL } from './apis/ChessGame';
 //import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
-const socket = io(`ws://34.224.30.160:3004/`);
+const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
 
 let index = 0;
 let whitePawnIndex = 24;
@@ -264,6 +264,7 @@ function App() {
     useEffect(() => {
         socket.on('joinRoom', (roomId) => {
             console.log(`Socket Joined room ${roomId}`);
+            socket.emit('turn', turnState, roomId)
         });
 
         return () => {
@@ -352,12 +353,23 @@ function App() {
     }, []);
 
     useEffect(() => {
-        socket.on('loadSaveGame', (roomId, gameState) => {
-            const turnNumber = gameState.turn === 'black' ? 1 : 2
-            
+        socket.on('loadSaveGame', (roomId, gameStateParameter) => {
+            let turnNumber;
+            if (gameStateParameter && gameStateParameter.turn) {
+                turnNumber = gameStateParameter.turn === 'black' ? 1 : 2;
+                console.log('turnNumber', turnNumber)
+            } else {
+                // Handle the case where gameStateParameter or gameStateParameter.turn is null
+                console.log('turnNumber', turnNumber)
+                turnNumber = 2;
+            }            
+            if (!gameStateParameter && gameState && gameState.history.length === 0) {
+                console.log('turnState change initial', turnNumber)
+                turnNumber = 1
+            } 
             console.log('roomCode', roomCode, roomId)
-            socket.emit('gameState', gameState, roomId );
-            console.log('emitting to guest client', gameState)
+            console.log('emitting to guest client', gameStateParameter, gameState)
+            socket.emit('gameState', gameStateParameter || gameState, roomId );
             console.log('loadSave turn state management', turnNumber)
             setTurnState(turnNumber)
             socket.emit('turn', turnNumber, roomId)
@@ -373,7 +385,7 @@ function App() {
             socket.off('loadSaveGame');
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [gameState]);
 
     useEffect(() => {
         const turnStateChange = (arg:React.SetStateAction< 0 | 1 | 2 | 3>) => {
