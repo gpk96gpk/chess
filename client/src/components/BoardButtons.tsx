@@ -31,7 +31,7 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, se
     const { initialBoard } = resetGameState();
     setGameState(initialBoard!);
     setWinner(null);
-    setTurnState(1);
+    setTurnState(0);
     navigate('/');
     if (socket) {
       socket.emit('leaveRoom')
@@ -39,15 +39,19 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, se
   };
 
   return (
-    <div>
-      <button onClick={handleExit}>Exit</button>
-      {/* <button onClick={handleSave}>Save</button> */}
-      <BoardSaveGameButton gameState={gameState} />
+    <div className='BoardButtons'>
+      {!showExitOverlay && (
+        <>
+          <button onClick={handleExit}>Exit</button>
+          <BoardSaveGameButton gameState={gameState} />
+        </>
+      )}
+      
 
       {showExitOverlay && (
-        <div>
-          <p>Are you sure you want to leave?</p>
-          <button onClick={handleConfirmExit}>Yes, I'm sure</button>
+        <div className='exit-overlay'>
+          {/* <p>Are you sure?</p> */}
+          <button onClick={handleConfirmExit}>Yes, Exit</button>
           <button onClick={() => setShowExitOverlay(false)}>Cancel</button>
         </div>
       )}

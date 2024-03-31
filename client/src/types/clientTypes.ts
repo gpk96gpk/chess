@@ -134,6 +134,10 @@ export type BoardProps = {
         piece: PieceType, 
         position: Position
     ) => void;
+    handleDragEnter: (
+        event: React.DragEvent<HTMLDivElement>, 
+        position: Position
+    ) => void;
     handleDragOver: (
         event: React.DragEvent<HTMLDivElement>, 
         position: Position

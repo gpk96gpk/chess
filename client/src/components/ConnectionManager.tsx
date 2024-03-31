@@ -6,7 +6,7 @@ import { useContext } from 'react';
 
 const ConnectionManager = () => {
     const socket = useContext(SocketContext);
-    const [roomId, setRoomId] = useState(Number);
+    const [roomId, setRoomId] = useState<number | null>(null);
     const navigate = useNavigate();
 
 
@@ -35,18 +35,18 @@ const ConnectionManager = () => {
     }
 
     return (
-        <>
+        <div className='ConnectionManager'>
             <button onClick={createRoom}>Create Room</button>
             <form onSubmit={(e) => { e.preventDefault(); joinRoom(); }}>
                 <input
                     type="text"
-                    value={roomId}
-                    onChange={e => setRoomId(Number(e.target.value))}
-                    placeholder="Enter room ID"
+                    value={roomId ?? ''}
+                    onChange={e => setRoomId(e.target.value ? Number(e.target.value) : null)}
+                    placeholder="Room #"
                 />
                 <button type="submit">Join Room</button>
             </form>
-        </>
+        </div>
     );
 }
 

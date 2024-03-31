@@ -10,7 +10,7 @@ import { BoardProps, PieceType } from '../types/clientTypes';
 // div for container of board
 // render chess board as array or Square components mapped from gameState array
 // if the gameState array has a piece in the tile render the piece
-const Board: React.FC<BoardProps> = ({ gameState, handleDragStart, handleDragOver, handleDrop, playerNumber }) => {
+const Board: React.FC<BoardProps> = ({ gameState, handleDragStart, handleDragEnter, handleDragOver, handleDrop, playerNumber }) => {
     console.log('761gameState', gameState);
     // console.log(gameState.board)
     return (
@@ -22,7 +22,7 @@ const Board: React.FC<BoardProps> = ({ gameState, handleDragStart, handleDragOve
                         const squareStyle = isDark ? { backgroundColor: 'tan' } : { backgroundColor: 'white' };
 
                         return (
-                            <Square key={j} position={[i, j]} style={squareStyle} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop}>
+                            <Square key={j} position={[i, j]} style={squareStyle} handleDragStart={handleDragStart} handleDragEnter={handleDragEnter} handleDragOver={handleDragOver} handleDrop={handleDrop}>
                                 {piece !== '' ? <Piece position={[i, j]} piece ={piece as PieceType} handleDragStart={handleDragStart} gameState={gameState} playerNumber={playerNumber!} /> : <div className="empty-square" />}
                             </Square>
                         );

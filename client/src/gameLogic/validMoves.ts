@@ -131,8 +131,25 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
 
       console.log(`Checking if last piece is a rook of the same color`, lastPosition, piece.type, lastPiece.type);
 
-      if (lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) {
-          console.log(`Last piece is a rook of the same color`);
+      let castleDirection: number;
+      let rookDirection: number = -1;
+      let rookPosition: number;
+      
+      if ((lastPosition[1] === 0 || lastPosition[1] === 2) && piece && piece.position) {
+          castleDirection = piece.position[1]! - 2
+          rookPosition = piece.position[1]! - 1
+          rookDirection = 0
+          console.log('castlingPosition', castleDirection)
+        }
+      if ((lastPosition[1] === 7 || lastPosition[1] === 6) && piece && piece.position) {
+          castleDirection = piece.position[1]! + 2
+          rookPosition = piece.position[1]! + 1
+          rookDirection = 7;
+          console.log('castlingPosition', castleDirection, rookPosition)
+        }
+        console.log('lastPosition and rooks', lastPosition, rookPosition!, piece.position)
+      if ((lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) || (gameState.board[lastPosition[0]][rookDirection!].hasMoved === false && gameState.board[lastPosition[0]][rookDirection!].type === 'rook' && lastPosition[1] === castleDirection! && (lastPosition[0] === 0 || lastPosition[0] === 7))) {
+          console.log(`Last piece is a rook of the same color or last position was `);
 
           const positionsBetweenAreEmpty = lastPosition[0] === position[0] 
               ? checkPositionsBetweenAreEmpty(gameState, position, lastPosition)
@@ -141,8 +158,21 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
           if (positionsBetweenAreEmpty) {
               canCastle = true;
               console.log(`Positions between are empty`, canCastle);
-              moves.push(lastPosition);
-              console.log(moves)
+              const castlePosition: Position = [-1, -1];
+              if (lastPosition[1] === (0 || 2) && piece && piece.position) { 
+                castlePosition[1] = piece.position[1]! - 2
+                castlePosition[0] = piece.position[0]!
+                console.log('castlingPosition', castlePosition)
+              }
+              if (lastPosition[1] === (7 || 6) && piece && piece.position) { 
+                castlePosition[1] = piece.position[1]! + 2
+                castlePosition[0] = piece.position[0]!
+                console.log('castlingPosition', castlePosition)
+              }
+              console.log('castlingPosition', castlePosition, piece.position)
+
+              moves.push(castlePosition);
+              console.log('moves validMoves', moves)
               return moves;
               //addMoveIfValid(lastPosition, tempGameState);
           } else {
@@ -277,7 +307,7 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
 
       console.log(`Checking if last piece is a rook of the same color`, lastPosition, piece.type, lastPiece.type);
 
-      if (lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) {
+      if ((lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) || (lastPosition[0] === (0 || 7)) ) {
           console.log(`Last piece is a rook of the same color`);
 
           const positionsBetweenAreEmpty = lastPosition[0] === position[0] 

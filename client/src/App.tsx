@@ -238,7 +238,7 @@ const initialBoard: GameStateType = {
 function App() {
     const [playerNumber, setPlayerNumber] = useState< 1 | 2 >(1);
     const [gameOver, setGameOver] = useState(false);
-    const [turnState, setTurnState] = useState<0 | 1 | 2 | 3>(1);
+    const [turnState, setTurnState] = useState<0 | 1 | 2 | 3>(0);
     const [gameState, setGameState] = useState<GameStateType>(initialBoard);
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
@@ -276,6 +276,8 @@ function App() {
         socket.on('leaveRoom', (roomId) => {
             //setGameOver(true);
             setWinner(null);
+            socket.emit('turn', 0, roomId);
+            setTurnState(0)
             console.log(`Socket Left room ${roomId}`);
         });
 
@@ -355,6 +357,7 @@ function App() {
     useEffect(() => {
         socket.on('loadSaveGame', (roomId, gameStateParameter) => {
             let turnNumber;
+
             if (gameStateParameter && gameStateParameter.turn) {
                 turnNumber = gameStateParameter.turn === 'black' ? 1 : 2;
                 console.log('turnNumber', turnNumber)

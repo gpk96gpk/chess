@@ -17,6 +17,17 @@ import GameOver from './GameOver';
 import { Props, Position, PieceType, GameStateType, ValidMovesResult } from '../types/clientTypes';
 import calculateThreateningSquares from '../gameLogic/calculateThreateningSquares';
 import BoardButtons from './BoardButtons';
+import { polyfill } from "mobile-drag-drop";
+import { scrollBehaviourDragImageTranslateOverride } from "mobile-drag-drop/scroll-behaviour";
+
+
+polyfill({
+    dragImageTranslateOverride: scrollBehaviourDragImageTranslateOverride
+});
+
+window.addEventListener('touchmove', function(event) {
+    event.preventDefault();
+}, { passive: false });
 // import BoardTimer from './BoardTimer';
 // import getMovesForPiece from '../gameLogic/pieceMoves';
 // import moveOutOfCheck from '../gameLogic/validMoves';
@@ -54,12 +65,15 @@ const Chess: React.FC<Props> = (props) => {
     const isKingInCheckMate = false;
     const loser: string | null = gameState.turn === 'black' ? 'white' : 'black';
     let newGameState;
+    let hasCastled = false;
     let toX: number, toY: number;
     // if (props.gameState.history.length > 2) {
     //     ({ isKingInCheck, isKingInCheckMate, loser } = isCheck(props.gameState, props.playerNumber));
     // }
     //let dragOverPiece;
+    
     const handleDragStart = (event: React.DragEvent, piece: PieceType, position: Position) => {
+        //event.preventDefault();
         console.log('handleDragStart');
         console.log('turnState', turnState, 'playerNumber', playerNumber)
         if (currentPlayerColor !== (playerNumber === 1 ? 'black' : 'white')) {
@@ -75,6 +89,12 @@ const Chess: React.FC<Props> = (props) => {
         console.log('StartPosition', position);
         console.log('StartPiece', currentPlayerColor, gameState);
     };
+    
+    const handleDragEnter = (event: React.DragEvent<HTMLDivElement>, position: Position) => {
+        event.preventDefault();
+        console.log('handleDragEnter');
+        console.log('DragEnterPosition', position, gameState);
+    };
 
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>, position: Position | null) => {
         event.preventDefault();
@@ -86,8 +106,8 @@ const Chess: React.FC<Props> = (props) => {
     };
 
     const handleDrop = (event: React.DragEvent) => {
-        console.log('761handleDropProps.gameState', gameState);
         event.preventDefault();
+        console.log('761handleDropProps.gameState', gameState);
         console.log('handleDrop');
         const pieceData = event.dataTransfer.getData('piece');
         console.log('handleDropPieceData', pieceData);
@@ -195,6 +215,9 @@ const Chess: React.FC<Props> = (props) => {
         //     return true;
         //   }
         const updateBoard = (gameState: GameStateType, x: number, y: number, piece: PieceType) => {
+            if (hasCastled) {
+                return
+            }
             console.log('761updateBoard', x, y, piece, gameState.board[x][y]);
             gameState.board[x][y].type = piece.type;
             gameState.board[x][y].color = piece.color;
@@ -242,15 +265,46 @@ const Chess: React.FC<Props> = (props) => {
         const castlingDirection = piece.type === 'king' && toY! - fromY! === 2 ? 1 : -1;
 
         const handleCastling = (gameState: GameStateType, toX: number, toY: number, piece: PieceType) => {
-            gameState.board[fromX!][fromY!].color = currentPlayerColor;
-            gameState.board[fromX!][fromY!].type = 'rook';
-            gameState.board[fromX!][fromY!].hasMoved = true;
-            gameState.board[fromX!][fromY!].position = piece.position;
+            let castleDirection : number;
+            let rookDirection : number;
+            let rookPosition : number;
+            if ((toY === 0 || toY === 2) && piece && piece.position) {
+                castleDirection = fromY! - 2
+                rookPosition = fromY! - 1
+                rookDirection = 0
+                console.log('castlingPosition', castleDirection)
+              }
+              if ((toY === 7 || toY === 6) && piece && piece.position) {
+                castleDirection = fromY! + 2
+                rookPosition = fromY! + 1
+                rookDirection = 7;
+                console.log('castlingPosition', castleDirection)
+              }
+ 
+            gameState.board[fromX!][rookPosition!].color = currentPlayerColor;
+            gameState.board[fromX!][rookPosition!].type = 'rook';
+            gameState.board[fromX!][rookPosition!].hasMoved = true;
+            gameState.board[fromX!][rookPosition!].position = piece.position;
+            gameState.board[fromX!][rookPosition!].index = gameState.board[fromX!][rookDirection!].index
 
-            gameState.board[toX][toY].color = currentPlayerColor;
-            gameState.board[toX][toY].type = 'king';
-            gameState.board[toX][toY].hasMoved = true;
-            gameState.board[toX][toY].position = [toX, toY];
+            gameState.board[fromX!][castleDirection!].color = currentPlayerColor;
+            gameState.board[fromX!][castleDirection!].type = 'king';
+            gameState.board[fromX!][castleDirection!].hasMoved = true;
+            gameState.board[fromX!][castleDirection!].position = [toX, castleDirection!];
+            gameState.board[fromX!][castleDirection!].index = gameState.board[fromX!][fromY!].index
+            
+            gameState.board[fromX!][rookDirection!].color = 'none';
+            gameState.board[fromX!][rookDirection!].type = 'empty';
+            gameState.board[fromX!][rookDirection!].hasMoved = true;
+            gameState.board[fromX!][rookDirection!].position = [];
+            gameState.board[fromX!][rookDirection!].index = -1
+
+            gameState.board[fromX!][fromY!].color = 'none';
+            gameState.board[fromX!][fromY!].type = 'empty';
+            gameState.board[fromX!][fromY!].hasMoved = true;
+            gameState.board[fromX!][fromY!].position = [];
+            gameState.board[fromX!][fromY!].index = -1
+            hasCastled = true
 
         }
 
@@ -429,14 +483,15 @@ const Chess: React.FC<Props> = (props) => {
     console.log('761props.gameState', props.gameState)
     setGameState(props.gameState)
     return (
-        <div>
-            <h1>Chess Game</h1>
-            <h2>Room Code: {roomCode}</h2>
-            <h2>{playerNumber === turnState ? "Your Turn" : "Opponent's Turn"}</h2>
-
-            {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
-            <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} />
-            <Board setTurnState={setTurnState} setWinner={setWinner} gameState={props.gameState} handleDragStart={handleDragStart} handleDragOver={handleDragOver} handleDrop={handleDrop} />
+        <div className='Chess'>
+            {/* <h1>Chess Game</h1> */}
+            <h1>Room Code: <br /> {roomCode}</h1>
+            <div className='chess-buttons-status'>
+                <h2>{turnState === 0 ? "Waiting for opponent" : (playerNumber === turnState ? "Your Turn" : "Opponent's Turn")}</h2>
+                {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
+                <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} />
+            </div>
+            <Board setTurnState={setTurnState} setWinner={setWinner} gameState={props.gameState} handleDragStart={handleDragStart} handleDragEnter={handleDragEnter} handleDragOver={handleDragOver} handleDrop={handleDrop} />
         </div>
     );
 }

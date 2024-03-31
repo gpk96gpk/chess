@@ -1,5 +1,5 @@
 //TODO:
-// take username from LobbySignInButtons
+// take username from LobbySignInSignUpButton
 // render button component
 //on button click display overlay with list of saved games
 //list of saved games with columns (username1 and username2's game), date, load button, delete button 
@@ -60,8 +60,8 @@ const LobbySavedGames = ({ setGameState, username }: LobbySavedGamesProps) => {
 
   return (
     <div>
-      <button onClick={() => setShowGames(!showGames)}>Show Saved Games</button>
-      {showGames && games && (
+      <button className='show-saved-games-button' onClick={() => setShowGames(!showGames)}>Show Saved Games</button>
+      {showGames && games && games.games && (
         <table className="table table-hover table-dark">
           <thead>
             <tr>
