@@ -19,7 +19,7 @@ import { GameStateType } from "../types/clientTypes";
 
 interface LobbySavedGamesProps {
     setGameState: Dispatch<SetStateAction<GameStateType>>;
-    username: string;
+    username: string | null;
 }
 
 const LobbyGameButtons = ({ setGameState, username }: LobbySavedGamesProps) => {

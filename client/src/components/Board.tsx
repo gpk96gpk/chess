@@ -18,11 +18,11 @@ const Board: React.FC<BoardProps> = ({ gameState, handleDragStart, handleDragEnt
             {gameState.board.map((row: (PieceType | string)[], i: number) => (
                 <div key={i} className="row">
                     {row.map((piece: PieceType | string, j: number) => {
+                        //let squareStyle = {};
                         const isDark = (i + j) % 2 === 0;
-                        const squareStyle = isDark ? { backgroundColor: 'tan' } : { backgroundColor: 'white' };
-
+                        const className = isDark ? 'dark-square' : 'light-square';
                         return (
-                            <Square key={j} position={[i, j]} style={squareStyle} handleDragStart={handleDragStart} handleDragEnter={handleDragEnter} handleDragOver={handleDragOver} handleDrop={handleDrop}>
+                            <Square key={j} position={[i, j]} className={className} handleDragStart={handleDragStart} handleDragEnter={handleDragEnter} handleDragOver={handleDragOver} handleDrop={handleDrop}>
                                 {piece !== '' ? <Piece position={[i, j]} piece ={piece as PieceType} handleDragStart={handleDragStart} gameState={gameState} playerNumber={playerNumber!} /> : <div className="empty-square" />}
                             </Square>
                         );

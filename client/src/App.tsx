@@ -6,10 +6,11 @@ import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
 import resetGameState from './gameLogic/resetGameState';
-import { API_URL } from './apis/ChessGame';
+//import { API_URL } from './apis/ChessGame';
 //import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
-const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
+// const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
+const socket = io(`http://localhost:3004/`);
 
 let index = 0;
 let whitePawnIndex = 24;
@@ -208,6 +209,8 @@ const initialBoard: GameStateType = {
         black: false,
         white: false,
     },
+    username1: 'Guest Player 1',
+    username2: 'Guest Player 2'
 };
 
 
@@ -242,6 +245,7 @@ function App() {
     const [gameState, setGameState] = useState<GameStateType>(initialBoard);
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
+    const [username, setUsername] = useState<string | null>(null);
     const { roomCode } = useParams()
     //const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
 
@@ -270,6 +274,7 @@ function App() {
         return () => {
             socket.off('joinRoom');
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -356,14 +361,14 @@ function App() {
 
     useEffect(() => {
         socket.on('loadSaveGame', (roomId, gameStateParameter) => {
-            let turnNumber;
+            let turnNumber: 0 | 1 | 2 | 3;
 
             if (gameStateParameter && gameStateParameter.turn) {
                 turnNumber = gameStateParameter.turn === 'black' ? 1 : 2;
                 console.log('turnNumber', turnNumber)
             } else {
                 // Handle the case where gameStateParameter or gameStateParameter.turn is null
-                console.log('turnNumber', turnNumber)
+                //console.log('turnNumber', turnNumber)
                 turnNumber = 2;
             }            
             if (!gameStateParameter && gameState && gameState.history.length === 0) {
@@ -374,7 +379,9 @@ function App() {
             console.log('emitting to guest client', gameStateParameter, gameState)
             socket.emit('gameState', gameStateParameter || gameState, roomId );
             console.log('loadSave turn state management', turnNumber)
-            setTurnState(turnNumber)
+            
+            setTurnState(turnNumber);
+            
             socket.emit('turn', turnNumber, roomId)
 
         });
@@ -437,6 +444,7 @@ function App() {
         //highlightedTiles,
         winner,
         isPlayerInCheck,
+        username,
         setPlayerNumber,
         setGameState,
         setGameOver,
@@ -445,13 +453,14 @@ function App() {
         setWinner,
         setIsPlayerInCheck,
         handleReset,
+        setUsername
     };
 
     return (
         <SocketContext.Provider value={socket}>
             <Router>
                 <Routes>
-                    <Route path="/lobby?/:username?" element={<Lobby setGameState={ setGameState } />} />
+                    <Route path="/lobby?/:username?" element={<Lobby setGameState={ setGameState } setUsername={setUsername} username={username}/>} />
                     <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
                 </Routes>
             </Router>

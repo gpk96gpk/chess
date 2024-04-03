@@ -113,6 +113,7 @@ io.on('connection', (socket: Socket) => {
         rooms[roomCode] = [socket.id];
         const playerNumber = 1;
         players[socket.id] = { roomCode, playerNumber };
+        console.log('players', players, roomCode, playerNumber, gameState)
         socket.emit('playerNumber', playerNumber);
         socket.emit('gameState', gameState)
         socket.emit('createRoom', roomCode)
@@ -124,11 +125,32 @@ io.on('connection', (socket: Socket) => {
         socket.join(roomCode);
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
+            //players[socket.id] = { roomCode, playerNumber: 1 };
         }
+        if (!rooms[roomCode] || rooms[roomCode].length === 0) {
+            socket.emit('roomError', 'The room is empty.');
+            return;
+        }
+        if (rooms[roomCode].some(id => id === '')) {
+            const indexOfPlayer = rooms[roomCode].indexOf(socket.id);
+            players[socket.id] = { roomCode, playerNumber: indexOfPlayer === 0 ? 2 : 1};
+        }
+        if (rooms[roomCode].length === 1) {
+            const otherPlayerSocketId = rooms[roomCode][0];
+            players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1};
+        } 
+        console.log('players', players, roomCode)
+        console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id)
         rooms[roomCode].push(socket.id);
-        const playerNumber = 2;
-        players[socket.id] = { roomCode, playerNumber };
-        socket.emit('playerNumber', playerNumber);
+        const player = players[socket.id];
+        let playerNumber: number;
+        if (player) {
+            player.roomCode = roomCode;
+            playerNumber = player.playerNumber;
+            console.log('playerNumber', playerNumber, player.playerNumber, player.roomCode, player, players[socket.id], socket.id)
+            players[socket.id] = { roomCode, playerNumber };
+            socket.emit('playerNumber', playerNumber);
+        }
         socket.emit('gameState', roomStates[roomCode]);
     });
     //Load save game
@@ -139,16 +161,21 @@ io.on('connection', (socket: Socket) => {
         console.log('emitted load game to host')
     });
     //Turn 
-    socket.on('turn', (playerTurn: 1 | 2, roomCode: string) => {
-        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit('turn', playerTurn as any);
-        console.log('turn', roomCode, playerTurn)
+    socket.on('turn', (playerTurn: 0 | 1 | 2, roomCode: string) => {
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('turn', playerTurn as any);
+            console.log('turn', roomCode, playerTurn)
+        } else {
+            console.log(`No moves have been made in room with room code ${roomCode}`);
+        }
     });
     //Leave a room
     socket.on('leaveRoom', (roomCode:string) => {
         if (rooms[roomCode] && Array.isArray(rooms[roomCode])) {
             const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
             io.to(otherPlayerSocketId).emit('leaveRoom');
+            io.to(otherPlayerSocketId).emit('turn', 0 as any);
             console.log(`Player with socket ID ${otherPlayerSocketId} has left room with room code ${roomCode}`)
         }
         socket.leave(roomCode);
@@ -156,6 +183,10 @@ io.on('connection', (socket: Socket) => {
             const index = rooms[roomCode].indexOf(socket.id);
             if (index !== -1) {
                 rooms[roomCode].splice(index, 1);
+            }
+            if (rooms[roomCode].length === 0) {
+                delete rooms[roomCode];
+                delete roomStates[roomCode];
             }
         }
         delete players[socket.id];
@@ -190,6 +221,20 @@ io.on('connection', (socket: Socket) => {
     //Disconnect
     socket.on('disconnect', () => {
         console.log('user disconnected');
+        const player = players[socket.id];
+        console.log('disconnected player', player)
+        if (player) {
+            const roomCode = player.roomCode;
+            socket.broadcast.to(roomCode).emit('turn', 0);
+            const playerIndex = rooms[roomCode].indexOf(socket.id);
+            if (playerIndex !== -1) {
+                rooms[roomCode][playerIndex] = '';
+            }
+            if (rooms[roomCode].length === 0) {
+                delete rooms[roomCode];
+                delete roomStates[roomCode];
+            }
+        }
     });
 });
 
@@ -446,9 +491,12 @@ app.listen(PORT, () => {
     console.log(`Authentication server running on PORT ${PORT}`)
 })
 
-httpServer.listen(3004, '0.0.0.0', () => {
-    console.log('socket server running at http://34.224.30.160/:3004');
+httpServer.listen(3004, () => {
+    console.log('socket server running at localhost/:3004');
   });
+//   httpServer.listen(3004, '0.0.0.0', () => {
+//     console.log('socket server running at http://34.224.30.160/:3004');
+//   });
   
   httpServer.on('error', (err) => {
     process.exit(1);

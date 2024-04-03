@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SocketContext } from "../context/SocketContext";
 import { useContext } from 'react';
@@ -7,6 +7,8 @@ import { useContext } from 'react';
 const ConnectionManager = () => {
     const socket = useContext(SocketContext);
     const [roomId, setRoomId] = useState<number | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [errorClass, setErrorClass] = useState<string>('');
     const navigate = useNavigate();
 
 
@@ -24,27 +26,56 @@ const ConnectionManager = () => {
         navigate(`/game/${newRoomId}`);
     }
 
-    const joinRoom = () => {
+    const joinRoom = async () => {
         if (socket) {
-            socket.emit('joinRoom', roomId);
-            console.log('roomCode', roomId)
-            socket.emit('loadSaveGame', roomId);
+            const errorMessage = await new Promise<string | null>((resolve) => {
+                socket.emit('joinRoom', roomId);
+                socket.on('roomError', (errorMsg) => {
+                    setError(errorMsg);
+                    console.log('roomError', errorMsg);
+                    resolve(errorMsg);
+                });
+                socket.emit('loadSaveGame', roomId);
+                // If no error is received after 5 seconds, resolve the promise with null
+                setTimeout(() => resolve(null), 5000);
+            });
+            console.log('errorMessage', errorMessage)
+            if (!errorMessage) {
+                navigate(`/game/${roomId}`);
+            } else {
+                setErrorClass('error'); // Apply the error class
+            }
+            return Number(roomId);
         }
-        navigate(`/game/${roomId}`);
-        return Number(roomId);
     }
+    
+    // Revert the error class after a delay
+    useEffect(() => {
+        if (errorClass === 'error') {
+            const timer = setTimeout(() => setErrorClass(''), 700); // Revert the error class after 5 seconds
+            return () => clearTimeout(timer); // Clean up the timer
+        }
+    }, [errorClass]);
 
     return (
         <div className='ConnectionManager'>
             <button onClick={createRoom}>Create Room</button>
             <form onSubmit={(e) => { e.preventDefault(); joinRoom(); }}>
                 <input
-                    type="text"
+                    type='text'
+                    inputMode='numeric'
+                    pattern='[0-9]+'
                     value={roomId ?? ''}
-                    onChange={e => setRoomId(e.target.value ? Number(e.target.value) : null)}
-                    placeholder="Room #"
+                    onChange={e => {
+                        const value = e.target.value;
+                        if (value === '' || /^\d+$/.test(value)) {
+                            setRoomId(value ? Number(value) : null);
+                        }
+                    }}
+                    placeholder='Enter Room #'
+                    style={{ fontSize: '15px' }}
                 />
-                <button type="submit">Join Room</button>
+                <button type='submit' className={`join-room-button ${errorClass}`}>Join Room</button>
             </form>
         </div>
     );

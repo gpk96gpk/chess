@@ -50,6 +50,12 @@ const Chess: React.FC<Props> = (props) => {
     //     console.log('props.gameState', props.gameState)
     // }
     const gameState = props.gameState;
+    if (props.playerNumber === 1) {
+        gameState.username1 = props.username;
+    }
+    if (props.playerNumber === 2) {
+        gameState.username2 = props.username;
+    }
     const { roomCode } = useParams();
     console.log('roomCode', roomCode, 'props', typeof props.gameState);
     const socket = useContext(SocketContext);
@@ -489,7 +495,7 @@ const Chess: React.FC<Props> = (props) => {
             <div className='chess-buttons-status'>
                 <h2>{turnState === 0 ? "Waiting for opponent" : (playerNumber === turnState ? "Your Turn" : "Opponent's Turn")}</h2>
                 {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
-                <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} />
+                <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} />
             </div>
             <Board setTurnState={setTurnState} setWinner={setWinner} gameState={props.gameState} handleDragStart={handleDragStart} handleDragEnter={handleDragEnter} handleDragOver={handleDragOver} handleDrop={handleDrop} />
         </div>

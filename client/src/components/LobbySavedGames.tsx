@@ -23,29 +23,64 @@ interface Game {
 }
 
 interface SavedGames {
-  games: Game[];
+  games: Game[] | string;
 }
 
 interface LobbySavedGamesProps {
   setGameState: Dispatch<SetStateAction<GameStateType>>;
-  username: string;
+  username: string | null;
 }
 
 const LobbySavedGames = ({ setGameState, username }: LobbySavedGamesProps) => {
-  const [games, setGames] = useState<SavedGames | null>(null);
-  const [showGames, setShowGames] = useState(false);
-  const socket = useContext(SocketContext);
+  const [games, setGames] = useState<SavedGames | string | null>(null);
+const [showGames, setShowGames] = useState(false);
+const [error, setError] = useState<string | null>(null);
+const socket = useContext(SocketContext);
   
-  useEffect(() => {
-    const fetchGames = async () => {
-      if (!games) {
-        const savedGames = await getSavedGames();
-        setGames(savedGames);
+useEffect(() => {
+  const fetchGames = async () => {
+    try {
+      const savedGames: SavedGames = await getSavedGames();
+      setGames(savedGames);
+      setError(null);
+    } catch (err: Error) {
+      setError(err.message);
+    }
+  };
+
+  fetchGames();
+}, [username, games]);
+
+useEffect(() => {
+  const showSavedGamesButton = document.querySelector('.show-saved-games-button');
+
+  const handleClick = () => {
+    if (error || games === 'Error fetching saved games') {
+      if (showSavedGamesButton) {
+        showSavedGamesButton.classList.add('error');
+        showSavedGamesButton.addEventListener('animationend', () => {
+          showSavedGamesButton.classList.remove('error');
+        });
       }
-    };
-  
-    fetchGames();
-  }, [username, games]);
+    } else {
+      setShowGames(!showGames);
+      if (showSavedGamesButton) {
+        showSavedGamesButton.classList.remove('error');
+      }
+    }
+  };
+
+  if (showSavedGamesButton) {
+    showSavedGamesButton.addEventListener('click', handleClick);
+  }
+
+  // Clean up the event listener when the component is unmounted
+  return () => {
+    if (showSavedGamesButton) {
+      showSavedGamesButton.removeEventListener('click', handleClick);
+    }
+  };
+}, [error, games, showGames]);
 
   const handleDeleteGame = async (gameId: number) => {
     await deleteGame(gameId);
@@ -56,11 +91,11 @@ const LobbySavedGames = ({ setGameState, username }: LobbySavedGamesProps) => {
     }
   };
 
-  console.log('games', games);
+  console.log('games', games, error, typeof games);
 
   return (
     <div>
-      <button className='show-saved-games-button' onClick={() => setShowGames(!showGames)}>Show Saved Games</button>
+      <button className={`show-saved-games-button ${error ? 'error' : ''}`}>Show Saved Games</button>
       {showGames && games && games.games && (
         <table className="table table-hover table-dark">
           <thead>
@@ -74,7 +109,7 @@ const LobbySavedGames = ({ setGameState, username }: LobbySavedGamesProps) => {
           <tbody>
             {games.games.map(game => (
               <tr key={game.id}>
-                <td>{username} and {game.username2 || 'guest'}'s game</td>
+                <td>{game.username1 || 'guest'} and {game.username2 || 'guest'}'s game</td>
                 <td>{game.date}</td>
                 <td>
                   <Link

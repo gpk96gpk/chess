@@ -9,11 +9,11 @@
 import LobbySignInSignUpButton from './LobbySignInSignUpButton';
 import LobbyGameButtons from './LobbyGameButtons';
 // import LobbySignUpButton from './LobbySignUpButton';
-import { useState, Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { GameStateType } from '../types/clientTypes';
 
-const Lobby = ({ setGameState }: { setGameState: Dispatch<SetStateAction<GameStateType>> }): JSX.Element => {
-  const [username, setUsername] = useState<string>('');
+const Lobby = ({ setGameState, setUsername, username }: { setGameState: Dispatch<SetStateAction<GameStateType>>, setUsername:  Dispatch<SetStateAction<string | null>>, username: string | null}): JSX.Element => {
+  
 
   return (
     <div>

@@ -57,7 +57,8 @@ export interface GameStateType {
         black: boolean;
         white: boolean;
     };
-
+    username1: string | null;
+    username2: string | null;
 }
 
 export type BoardPiece = {
@@ -99,6 +100,8 @@ export type Props = {
     setWinner: (winner: string | null) => void;
     isPlayerInCheck: boolean;
     setIsPlayerInCheck: (arg0: boolean) => void;
+    username: string | null;
+    setUsername: React.Dispatch<React.SetStateAction<string | null>>;
     handleReset: () => void;
     // highlightedTiles: Position[];
     // setHighlightedTiles: (arg0: Position[]) => void;
@@ -108,7 +111,8 @@ export interface BoardButtonsProps {
     gameState: GameStateType;
     setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
     setWinner: (winner: string | null) => void;
-    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>; 
+    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>;
+    roomCode: string | undefined; 
 }
 
 export type ValidMovesResult = {

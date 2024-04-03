@@ -14,15 +14,16 @@ import { useNavigate } from 'react-router-dom';
 import { signUp, signIn } from '../apis/ChessGame';
 
 interface LobbySignInSignUpButtonProps {
-  username: string;
-  setUsername: React.Dispatch<React.SetStateAction<string>>;
+  username: string | null;
+  setUsername: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) => {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
-  const [hide, setHide] = useState(false);
+  //const [hide, setHide] = useState(false);
   const [inputUsername, setInputUsername] = useState('');
   const [password, setPassword] = useState('');
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -30,23 +31,33 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
-    const password = passwordRef.current ? passwordRef.current.value : '';
+    let signUpPassword = '';
+    signUpPassword = passwordRef.current ? passwordRef.current.value : password;
+    setPassword(signUpPassword);
     const token = await signUp(inputUsername, password);
     if (token) {
       localStorage.setItem('jwt', token);
-      setUsername(inputUsername);
-      setShowSignUp(false);
-      setShowSignIn(false);
-      navigate(`/lobby/${inputUsername}`);
       // Sign in the user after successful sign up
-      const signInResult = await signIn(inputUsername, password);
-      if (signInResult) {
-        // Sign in was successful, do something here
-      } else {
-        // Sign in failed, handle error here
-      }
+      signIn(inputUsername, password).then((signInResult) => {
+        if (signInResult) {
+          setUsername(inputUsername);
+          setShowSignUp(false);
+          setShowSignIn(false);
+          navigate(`/lobby/${inputUsername}`);
+          setShowSignIn(true);
+          handleContinueAsGuest();
+          const element: HTMLElement | null = document.querySelector('.ConnectionManager');
+          const showSavedGames = document.querySelector('.show-saved-games-button') as HTMLElement;
+          if (element) {
+            element.classList.add('visible');
+            showSavedGames.classList.add('visible');
+
+          }
+        }
+      });
     } else {
-      setErrorMessage('Failed to create account');
+      setErrorMessage('');
+      setTimeout(() => setErrorMessage('Incorrect username or password'), 0); // Set errorMessage after a delay
     }
   };
 
@@ -55,13 +66,17 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
     if (token) {
       localStorage.setItem('jwt', token);
       setUsername(inputUsername); // Set the username here
+      setPassword(password);
       setShowSignUp(false);
       setShowSignIn(false);
-      setShowSignUp(false);
-      navigate(`/lobby/${inputUsername}`);
+      setIsGuest(true);
+      // navigate(`/lobby/${inputUsername}`);
       console.log('username', inputUsername); 
+      setIsSignedIn(true); // Update the sign-in status
+      handleContinueAsGuest();
     } else {
-      setErrorMessage('Incorrect username or password');
+      setErrorMessage('');
+      setTimeout(() => setErrorMessage('Incorrect username or password'), 0); // Set errorMessage after a delay
     }
   };
 
@@ -97,13 +112,19 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
       button.addEventListener('click', handleClick);
     }
   
+    // If the user is signed in, update the visibility
+    if (isSignedIn && element && showSavedGames) {
+      element.classList.add('visible');
+      showSavedGames.classList.add('visible');
+    }
+  
     // Clean up the event listener when the component is unmounted
     return () => {
       if (button) {
         button.removeEventListener('click', handleClick);
       }
     };
-  }, []);
+  }, [isSignedIn]);
 
   // if (hide) {
   //   return null;
@@ -113,24 +134,28 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
     <div className={`LobbySignInSignUpButton ${isGuest ? 'hide' : ''}`}>
       {showSignUp ? (
         <div>
-          <input type="text" value={inputUsername} onChange={e => setInputUsername(e.target.value)} placeholder="Enter Username" />
-          <input type="password" ref={passwordRef} placeholder="Enter Password" />
+          <input type="text" className={errorMessage ? 'error' : ''} value={inputUsername} onChange={e => setInputUsername(e.target.value)} onAnimationEnd={e => e.currentTarget.classList.remove('error')}
+ placeholder="Enter Username" />
+          <input type="password" className={errorMessage ? 'error' : ''} ref={passwordRef} placeholder="Enter Password" />
           <br />
           
           {/* <button onClick={() => setShowSignUp(false)}>Exit</button> */}
           {errorMessage && <p>{errorMessage}</p>}
         </div>
       ): <div>
-        <input type="text" value={inputUsername} onChange={e => setInputUsername(e.target.value)} placeholder="Enter Username" />
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter Password" />  
+        <input type="text" className={errorMessage ? 'error' : ''} value={inputUsername} onChange={e => setInputUsername(e.target.value)} onAnimationEnd={e => e.currentTarget.classList.remove('error')}
+ placeholder="Enter Username" />
+        <input type="password" className={errorMessage ? 'error' : ''} value={password} onChange={e => setPassword(e.target.value)} onAnimationEnd={e => e.currentTarget.classList.remove('error')}
+ placeholder="Enter Password" />  
         {/* <button onClick={() => setShowSignIn(false)}>Exit</button> */}
-        {errorMessage && <p>{errorMessage}</p>}
       </div>
       }
       {showSignIn ? (
         <div>
-          <input type="text" value={inputUsername} onChange={e => setInputUsername(e.target.value)} placeholder="Username" />
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" />
+          <input type="text" className={errorMessage ? 'error' : ''} value={inputUsername} onChange={e => setInputUsername(e.target.value)} onAnimationEnd={e => e.currentTarget.classList.remove('error')}
+ placeholder="Username" />
+          <input type="password" className={errorMessage ? 'error' : ''} value={password} onChange={e => setPassword(e.target.value)} onAnimationEnd={e => e.currentTarget.classList.remove('error')}
+ placeholder="Password" />
           <br />
           
           {/* <button onClick={() => setShowSignIn(false)}>Exit</button> */}
@@ -138,8 +163,8 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
         </div>
       ) : (
         <div>
-          <button onClick={handleSignIn}>Sign In</button>
-          <button onClick={handleSignUp}>Sign Up</button>
+          <button className='signInButton' onClick={handleSignIn}>Sign In</button>
+          <button className='signUp' onClick={handleSignUp}>Sign Up</button>
           <button className='continue-as-guest-button' onClick={handleContinueAsGuest}>Continue as Guest</button>
         </div>
       )}

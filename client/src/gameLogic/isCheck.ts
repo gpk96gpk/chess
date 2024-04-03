@@ -6,7 +6,7 @@ interface CheckResult {
   isKingInCheck: boolean;
   isKingInCheckmate?: boolean;
   loser: Color | '';
-  slicedThreateningSquares?: number[][]; // Add this line
+  slicedThreateningSquares?: number[][];
   checkDirection?: number;
   firstTriggeringOpponentPiece?: PieceType | undefined;
   firstTriggeringOpponentPieceIndex?: number;
