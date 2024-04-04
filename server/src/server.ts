@@ -124,7 +124,7 @@ io.on('connection', (socket: Socket) => {
     socket.on('joinRoom', (roomCode:string) => {
         //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id)
-        if (!rooms[roomCode] || rooms[roomCode].length === 0 || roomCode === '' || roomCode === null) {
+        if (!rooms[roomCode] && rooms[roomCode].length === 0 || roomCode === '' || roomCode === null) {
             socket.emit('roomError', 'The room is empty.');
             console.log('The room is empty.');
             return;
@@ -159,9 +159,13 @@ io.on('connection', (socket: Socket) => {
     //Load save game
     socket.on('loadSaveGame', (roomCode:string) => {
         //console.log(rooms[roomCode], roomCode, roomStates[roomCode])
-        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
-        console.log('emitted load game to host')
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
+            console.log('emitted load game to host')
+        } else {
+            console.log(`No moves have been made in room with room code ${roomCode}`);
+        }
     });
     //Turn 
     socket.on('turn', (playerTurn: 0 | 1 | 2, roomCode: string) => {
@@ -200,8 +204,12 @@ io.on('connection', (socket: Socket) => {
     });
     //Game state
     socket.on('gameState', (gameState: GameStateType, roomCode:string) => {
-        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit('gameState', gameState);
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('gameState', gameState);
+        } else {
+            console.log(`No moves have been made in room with room code ${roomCode}`);
+        }
 
         //console.log(roomStates);
 

@@ -106,9 +106,14 @@ io.on('connection', (socket) => {
     //Load save game
     socket.on('loadSaveGame', (roomCode) => {
         //console.log(rooms[roomCode], roomCode, roomStates[roomCode])
-        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
-        console.log('emitted load game to host');
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
+            console.log('emitted load game to host');
+        }
+        else {
+            console.log(`No moves have been made in room with room code ${roomCode}`);
+        }
     });
     //Turn 
     socket.on('turn', (playerTurn, roomCode) => {
@@ -148,8 +153,13 @@ io.on('connection', (socket) => {
     });
     //Game state
     socket.on('gameState', (gameState, roomCode) => {
-        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit('gameState', gameState);
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('gameState', gameState);
+        }
+        else {
+            console.log(`No moves have been made in room with room code ${roomCode}`);
+        }
         //console.log(roomStates);
     });
     //Game over
