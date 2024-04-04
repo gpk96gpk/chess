@@ -9,8 +9,8 @@ import resetGameState from './gameLogic/resetGameState';
 //import { API_URL } from './apis/ChessGame';
 //import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
-// const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
-const socket = io(`http://localhost:3004/`);
+const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
+//const socket = io(`http://localhost:3004/`);
 
 let index = 0;
 let whitePawnIndex = 24;

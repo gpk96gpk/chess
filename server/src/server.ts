@@ -124,13 +124,14 @@ io.on('connection', (socket: Socket) => {
     socket.on('joinRoom', (roomCode:string) => {
         //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         socket.join(roomCode);
+        if (!rooms[roomCode] || rooms[roomCode].length === 0 || roomCode === '' || roomCode === null) {
+            socket.emit('roomError', 'The room is empty.');
+            console.log('The room is empty.');
+            return;
+        }
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
             //players[socket.id] = { roomCode, playerNumber: 1 };
-        }
-        if (!rooms[roomCode] || rooms[roomCode].length === 0) {
-            socket.emit('roomError', 'The room is empty.');
-            return;
         }
         if (rooms[roomCode].some(id => id === '')) {
             const indexOfPlayer = rooms[roomCode].indexOf(socket.id);
@@ -492,12 +493,12 @@ app.listen(PORT, () => {
     console.log(`Authentication server running on PORT ${PORT}`)
 })
 
-httpServer.listen(3004, () => {
-    console.log('socket server running at localhost/:3004');
-  });
-//   httpServer.listen(3004, '0.0.0.0', () => {
-//     console.log('socket server running at http://34.224.30.160/:3004');
+// httpServer.listen(3004, () => {
+//     console.log('socket server running at localhost/:3004');
 //   });
+  httpServer.listen(3004, '0.0.0.0', () => {
+    console.log('socket server running at http://34.224.30.160/:3004');
+  });
   
   httpServer.on('error', (err) => {
     process.exit(1);

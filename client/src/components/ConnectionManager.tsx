@@ -29,7 +29,11 @@ const ConnectionManager = () => {
     const joinRoom = async () => {
         if (socket) {
             const errorMessage = await new Promise<string | null>((resolve) => {
+                if (roomId === null || roomId === undefined) {
+                    resolve('Room ID cannot be null');
+                }
                 socket.emit('joinRoom', roomId);
+                
                 socket.on('roomError', (errorMsg) => {
                     setError(errorMsg);
                     console.log('roomError', errorMsg);
