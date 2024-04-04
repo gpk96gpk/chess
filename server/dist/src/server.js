@@ -20,7 +20,7 @@ const corsOptions = {
 };
 const io = new socket_io_1.Server(httpServer, {
     cors: {
-        origin: '*',
+        origin: 'https://api.chessbygeorge.com',
         methods: ["GET", "POST"]
     }
 });
