@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { GameStateType } from '../types/clientTypes';
 
-export const API_URL = 'http://34.224.30.160';
-// export const API_URL = 'https://api.chessbygeorge.com';
+// export const API_URL = 'http://34.224.30.160';
+export const API_URL = 'https://api.chessbygeorge.com';
 //export const API_URL = 'http://localhost:3005';
 //axios creates a base url for us to use to not have to repeat the same url over and over again
 const axiosInstance = axios.create({
