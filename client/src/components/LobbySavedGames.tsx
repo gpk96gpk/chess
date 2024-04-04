@@ -91,7 +91,7 @@ useEffect(() => {
     }
   };
 
-  console.log('games', games, error, typeof games);
+  //console.log('games', games, error, typeof games);
 
   return (
     <div>

@@ -15,7 +15,7 @@ const db = require('./db');
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);
 const corsOptions = {
-    origin: 'https://api.chessbygeorge.com',
+    origin: '*',
     optionsSuccessStatus: 200
 };
 const io = new socket_io_1.Server(httpServer, {

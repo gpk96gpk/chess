@@ -60,7 +60,7 @@ const app = express();
 
 const httpServer = createServer(app);
 const corsOptions = {
-    origin: 'https://api.chessbygeorge.com:3005',
+    origin: '*',
     optionsSuccessStatus: 200
 }
   
