@@ -28,23 +28,32 @@ const ConnectionManager = () => {
 
     const joinRoom = async () => {
         if (socket) {
-            const errorMessage = await new Promise<string | null>((resolve) => {
+            const errorMessage = await new Promise<string | null>((resolve, reject) => {
                 if (roomId === null || roomId === undefined) {
                     resolve('Room ID cannot be null');
+                    console.log('Room ID cannot be null', roomId);
                 }
-                socket.emit('joinRoom', roomId);
-                
+                if (roomId !== null) {
+                    socket.emit('joinRoom', roomId);
+                }
+    
                 socket.on('roomError', (errorMsg) => {
                     setError(errorMsg);
                     console.log('roomError', errorMsg);
                     resolve(errorMsg);
                 });
+    
                 socket.emit('loadSaveGame', roomId);
-                // If no error is received after 5 seconds, resolve the promise with null
-                setTimeout(() => resolve(null), 5000);
+    
+                // If no error is received after 5 seconds, reject the promise
+                setTimeout(() => resolve('Timeout'), 5000);
+            }).catch((error) => {
+                console.log('errorMessage', error);
+                return error;
             });
-            console.log('errorMessage', errorMessage)
-            if (!errorMessage) {
+    
+            if (errorMessage !== 'Timeout' && roomId !== null && errorMessage !== 'Room ID cannot be null') {
+                console.log('errorMessage', errorMessage, roomId);
                 navigate(`/game/${roomId}`);
             } else {
                 setErrorClass('error'); // Apply the error class

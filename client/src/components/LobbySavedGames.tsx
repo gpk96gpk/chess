@@ -49,13 +49,14 @@ useEffect(() => {
   };
 
   fetchGames();
-}, [username, games]);
+}, [username]);
 
 useEffect(() => {
   const showSavedGamesButton = document.querySelector('.show-saved-games-button');
 
   const handleClick = () => {
-    if (error || games === 'Error fetching saved games') {
+    console.log('games', games);
+    if (error || games === 'Error fetching saved games' || (Array.isArray(games.games) && games.games.length === 0 )) {
       if (showSavedGamesButton) {
         showSavedGamesButton.classList.add('error');
         showSavedGamesButton.addEventListener('animationend', () => {
