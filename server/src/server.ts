@@ -65,6 +65,8 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
+const httpServer = createServer(app);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -498,7 +500,6 @@ io.on('connection', (socket: Socket) => {
 });
 
 
-const httpServer = createServer(app);
 
 // process.env.PORT is used to get the port from the .env file 
 // or 3001 if it doesn't exist

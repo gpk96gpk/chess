@@ -19,6 +19,7 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 app.use((0, cors_1.default)(corsOptions));
+const httpServer = (0, http_1.createServer)(app);
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 const authenticateJWT = (req, res, next) => {
@@ -401,7 +402,6 @@ io.on('connection', (socket) => {
         }
     });
 });
-const httpServer = (0, http_1.createServer)(app);
 // process.env.PORT is used to get the port from the .env file 
 // or 3001 if it doesn't exist
 const PORT = process.env.PORT || 3005;
