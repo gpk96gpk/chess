@@ -70,7 +70,7 @@ const io = new Server<SocketTypes>(httpServer, {
       methods: ["GET", "POST"]
     }
 });
-httpServer.listen(3004);
+//httpServer.listen(3004);
 app.use(cors(corsOptions))
 
 app.use(express.json());
