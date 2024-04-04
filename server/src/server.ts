@@ -58,13 +58,11 @@ interface PlayerInfo {
 
 const app = express();
 
-const httpServer = createServer(app);
 const corsOptions = {
     origin: '*',
     // origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
     optionsSuccessStatus: 200
 }
-
 app.use(cors(corsOptions))
 
 app.use(express.json());
@@ -500,6 +498,7 @@ io.on('connection', (socket: Socket) => {
 });
 
 
+const httpServer = createServer(app);
 
 // process.env.PORT is used to get the port from the .env file 
 // or 3001 if it doesn't exist

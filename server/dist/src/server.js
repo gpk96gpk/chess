@@ -13,7 +13,6 @@ const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const db = require('./db');
 const app = (0, express_1.default)();
-const httpServer = (0, http_1.createServer)(app);
 const corsOptions = {
     origin: '*',
     // origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
@@ -402,6 +401,7 @@ io.on('connection', (socket) => {
         }
     });
 });
+const httpServer = (0, http_1.createServer)(app);
 // process.env.PORT is used to get the port from the .env file 
 // or 3001 if it doesn't exist
 const PORT = process.env.PORT || 3005;
