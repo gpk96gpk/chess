@@ -28,7 +28,7 @@ const ConnectionManager = () => {
 
     const joinRoom = async () => {
         if (socket) {
-            const errorMessage = await new Promise<string | null>((resolve, reject) => {
+            const errorMessage = await new Promise<string | null>((resolve) => {
                 if (roomId === null || roomId === undefined) {
                     resolve('Room ID cannot be null');
                     console.log('Room ID cannot be null', roomId);
@@ -46,7 +46,7 @@ const ConnectionManager = () => {
                 socket.emit('loadSaveGame', roomId);
     
                 // If no error is received after 5 seconds, reject the promise
-                setTimeout(() => reject('Timeout'), 2000);
+                setTimeout(() => resolve('Timeout'), 2200);
             }).catch((error) => {
                 console.log('errorMessage', error);
                 return error;
