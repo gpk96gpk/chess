@@ -20,7 +20,7 @@ const corsOptions = {
 };
 const io = new socket_io_1.Server(httpServer, {
     cors: {
-        origin: 'https://api.chessbygeorge.com',
+        origin: '*',
         methods: ["GET", "POST"]
     }
 });
@@ -70,12 +70,13 @@ io.on('connection', (socket) => {
     //Join a room
     socket.on('joinRoom', (roomCode) => {
         //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        socket.join(roomCode);
+        console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
         if (!rooms[roomCode] || rooms[roomCode].length === 0 || roomCode === '' || roomCode === null) {
             socket.emit('roomError', 'The room is empty.');
             console.log('The room is empty.');
             return;
         }
+        socket.join(roomCode);
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
             //players[socket.id] = { roomCode, playerNumber: 1 };

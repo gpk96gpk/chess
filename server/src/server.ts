@@ -66,7 +66,7 @@ const corsOptions = {
   
 const io = new Server<SocketTypes>(httpServer, {
     cors: {
-      origin: 'https://api.chessbygeorge.com',
+      origin: '*',
       methods: ["GET", "POST"]
     }
 });
