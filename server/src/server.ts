@@ -496,14 +496,14 @@ app.listen(PORT, () => {
 // httpServer.listen(3004, () => {
 //     console.log('socket server running at localhost/:3004');
 //   });
-  httpServer.listen(3004, '0.0.0.0', () => {
+httpServer.listen(3004, '0.0.0.0', () => {
     console.log('socket server running at http://34.224.30.160/:3004');
-  });
+});
   
-  httpServer.on('error', (err) => {
+httpServer.on('error', (err) => {
     process.exit(1);
     console.error(`Server error: ${err}`);
     httpServer.close(() => {
-      console.log('Socket Server stopped due to an error');
+        console.log('Socket Server stopped due to an error');
     });
-  });
+});
