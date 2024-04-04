@@ -66,10 +66,11 @@ const corsOptions = {
   
 const io = new Server<SocketTypes>(httpServer, {
     cors: {
-      origin: '*',
+      origin: 'https://api.chessbygeorge.com',
       methods: ["GET", "POST"]
     }
 });
+httpServer.listen(3004);
 app.use(cors(corsOptions))
 
 app.use(express.json());
