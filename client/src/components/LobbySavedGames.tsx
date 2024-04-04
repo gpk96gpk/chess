@@ -92,8 +92,6 @@ useEffect(() => {
     }
   };
 
-  //console.log('games', games, error, typeof games);
-
   return (
     <div>
       <button className={`show-saved-games-button ${error ? 'error' : ''}`}>Show Saved Games</button>

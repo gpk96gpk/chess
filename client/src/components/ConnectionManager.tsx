@@ -46,7 +46,7 @@ const ConnectionManager = () => {
                 socket.emit('loadSaveGame', roomId);
     
                 // If no error is received after 5 seconds, reject the promise
-                setTimeout(() => resolve('Timeout'), 5000);
+                setTimeout(() => reject('Timeout'), 2000);
             }).catch((error) => {
                 console.log('errorMessage', error);
                 return error;
