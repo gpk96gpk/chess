@@ -15,8 +15,9 @@ const db = require('./db');
 const app = (0, express_1.default)();
 const corsOptions = {
     origin: '*',
-    // origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use((0, cors_1.default)(corsOptions));
 const httpServer = (0, http_1.createServer)(app);

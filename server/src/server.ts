@@ -60,9 +60,10 @@ const app = express();
 
 const corsOptions = {
     origin: '*',
-    // origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
-    optionsSuccessStatus: 200
-}
+    optionsSuccessStatus: 200,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
 app.use(cors(corsOptions))
 
 const httpServer = createServer(app);
