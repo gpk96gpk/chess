@@ -16,15 +16,9 @@ const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);
 const corsOptions = {
     origin: '*',
+    // origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
     optionsSuccessStatus: 200
 };
-const io = new socket_io_1.Server(httpServer, {
-    cors: {
-        origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
-        methods: ["GET", "POST"]
-    }
-});
-//httpServer.listen(3004);
 app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
@@ -49,153 +43,6 @@ const authenticateJWT = (req, res, next) => {
         res.sendStatus(401);
     }
 };
-// app.use(authenticateJWT);
-//app.use(express.json())
-let players = {};
-let rooms = {};
-let roomStates = {};
-//SOCKET LISTENERS AND EMITTERS
-io.on('connection', (socket) => {
-    //Create a room
-    socket.on('createRoom', (roomCode, gameState) => {
-        rooms[roomCode] = [socket.id];
-        const playerNumber = 1;
-        players[socket.id] = { roomCode, playerNumber };
-        console.log('players', players, roomCode, playerNumber, gameState);
-        socket.emit('playerNumber', playerNumber);
-        socket.emit('gameState', gameState);
-        socket.emit('createRoom', roomCode);
-        roomStates[roomCode] = gameState;
-    });
-    //Join a room
-    socket.on('joinRoom', (roomCode) => {
-        //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
-        if (!rooms[roomCode] || (rooms[roomCode] && rooms[roomCode].length === 0) || roomCode === '' || roomCode === null) {
-            socket.emit('roomError', 'The room is empty.');
-            console.log('The room is empty.');
-            return;
-        }
-        socket.join(roomCode);
-        if (!rooms[roomCode]) {
-            rooms[roomCode] = [];
-            //players[socket.id] = { roomCode, playerNumber: 1 };
-        }
-        if (rooms[roomCode].some(id => id === '')) {
-            const indexOfPlayer = rooms[roomCode].indexOf(socket.id);
-            players[socket.id] = { roomCode, playerNumber: indexOfPlayer === 0 ? 2 : 1 };
-        }
-        if (rooms[roomCode].length === 1) {
-            const otherPlayerSocketId = rooms[roomCode][0];
-            players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1 };
-        }
-        console.log('players', players, roomCode);
-        console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
-        rooms[roomCode].push(socket.id);
-        const player = players[socket.id];
-        let playerNumber;
-        if (player) {
-            player.roomCode = roomCode;
-            playerNumber = player.playerNumber;
-            console.log('playerNumber', playerNumber, player.playerNumber, player.roomCode, player, players[socket.id], socket.id);
-            players[socket.id] = { roomCode, playerNumber };
-            socket.emit('playerNumber', playerNumber);
-        }
-        socket.emit('gameState', roomStates[roomCode]);
-    });
-    //Load save game
-    socket.on('loadSaveGame', (roomCode) => {
-        //console.log(rooms[roomCode], roomCode, roomStates[roomCode])
-        if (rooms[roomCode]) {
-            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-            io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
-            console.log('emitted load game to host');
-        }
-        else {
-            console.log(`No moves have been made in room with room code ${roomCode}`);
-        }
-    });
-    //Turn 
-    socket.on('turn', (playerTurn, roomCode) => {
-        if (rooms[roomCode]) {
-            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-            io.to(otherPlayerSocketId).emit('turn', playerTurn);
-            console.log('turn', roomCode, playerTurn);
-        }
-        else {
-            console.log(`No moves have been made in room with room code ${roomCode}`);
-        }
-    });
-    //Leave a room
-    socket.on('leaveRoom', (roomCode) => {
-        if (rooms[roomCode] && Array.isArray(rooms[roomCode])) {
-            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-            io.to(otherPlayerSocketId).emit('leaveRoom');
-            io.to(otherPlayerSocketId).emit('turn', 0);
-            console.log(`Player with socket ID ${otherPlayerSocketId} has left room with room code ${roomCode}`);
-        }
-        socket.leave(roomCode);
-        if (rooms[roomCode]) {
-            const index = rooms[roomCode].indexOf(socket.id);
-            if (index !== -1) {
-                rooms[roomCode].splice(index, 1);
-            }
-            if (rooms[roomCode].length === 0) {
-                delete rooms[roomCode];
-                delete roomStates[roomCode];
-            }
-        }
-        delete players[socket.id];
-    });
-    //Error handling
-    socket.on('error', (error) => {
-        console.error('Socket.IO error:', error);
-    });
-    //Game state
-    socket.on('gameState', (gameState, roomCode) => {
-        if (rooms[roomCode]) {
-            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-            io.to(otherPlayerSocketId).emit('gameState', gameState);
-        }
-        else {
-            console.log(`No moves have been made in room with room code ${roomCode}`);
-        }
-        //console.log(roomStates);
-    });
-    //Game over
-    socket.on('gameOver', (isGameOver, winner, roomCode) => {
-        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-        io.to(otherPlayerSocketId).emit('gameOver', { winner, isGameOver });
-        console.log('gameOver', roomCode, winner, isGameOver);
-    });
-    //Reset
-    socket.on('reset', () => {
-        const roomCode = players[socket.id].roomCode;
-        io.to(roomCode).to(socket.id).emit('reset');
-        if (rooms[roomCode]) {
-            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-            io.to(otherPlayerSocketId).to(socket.id).emit('reset');
-        }
-    });
-    //Disconnect
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-        const player = players[socket.id];
-        console.log('disconnected player', player);
-        if (player) {
-            const roomCode = player.roomCode;
-            socket.broadcast.to(roomCode).emit('turn', 0);
-            const playerIndex = rooms[roomCode].indexOf(socket.id);
-            if (playerIndex !== -1) {
-                rooms[roomCode][playerIndex] = '';
-            }
-            if (rooms[roomCode].length === 0) {
-                delete rooms[roomCode];
-                delete roomStates[roomCode];
-            }
-        }
-    });
-});
 //SERVER ROUTES
 app.get('/', (req, res) => {
     res.send('Hello World!');
@@ -400,6 +247,160 @@ app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
             message: "An error occurred while processing your request"
         });
     }
+});
+const io = new socket_io_1.Server(httpServer, {
+    cors: {
+        origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
+        methods: ["GET", "POST"]
+    }
+});
+//httpServer.listen(3004);
+// app.use(authenticateJWT);
+//app.use(express.json())
+let players = {};
+let rooms = {};
+let roomStates = {};
+//SOCKET LISTENERS AND EMITTERS
+io.on('connection', (socket) => {
+    //Create a room
+    socket.on('createRoom', (roomCode, gameState) => {
+        rooms[roomCode] = [socket.id];
+        const playerNumber = 1;
+        players[socket.id] = { roomCode, playerNumber };
+        console.log('players', players, roomCode, playerNumber, gameState);
+        socket.emit('playerNumber', playerNumber);
+        socket.emit('gameState', gameState);
+        socket.emit('createRoom', roomCode);
+        roomStates[roomCode] = gameState;
+    });
+    //Join a room
+    socket.on('joinRoom', (roomCode) => {
+        //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+        console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
+        if (!rooms[roomCode] || (rooms[roomCode] && rooms[roomCode].length === 0) || roomCode === '' || roomCode === null) {
+            socket.emit('roomError', 'The room is empty.');
+            console.log('The room is empty.');
+            return;
+        }
+        socket.join(roomCode);
+        if (!rooms[roomCode]) {
+            rooms[roomCode] = [];
+            //players[socket.id] = { roomCode, playerNumber: 1 };
+        }
+        if (rooms[roomCode].some(id => id === '')) {
+            const indexOfPlayer = rooms[roomCode].indexOf(socket.id);
+            players[socket.id] = { roomCode, playerNumber: indexOfPlayer === 0 ? 2 : 1 };
+        }
+        if (rooms[roomCode].length === 1) {
+            const otherPlayerSocketId = rooms[roomCode][0];
+            players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1 };
+        }
+        console.log('players', players, roomCode);
+        console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
+        rooms[roomCode].push(socket.id);
+        const player = players[socket.id];
+        let playerNumber;
+        if (player) {
+            player.roomCode = roomCode;
+            playerNumber = player.playerNumber;
+            console.log('playerNumber', playerNumber, player.playerNumber, player.roomCode, player, players[socket.id], socket.id);
+            players[socket.id] = { roomCode, playerNumber };
+            socket.emit('playerNumber', playerNumber);
+        }
+        socket.emit('gameState', roomStates[roomCode]);
+    });
+    //Load save game
+    socket.on('loadSaveGame', (roomCode) => {
+        //console.log(rooms[roomCode], roomCode, roomStates[roomCode])
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
+            console.log('emitted load game to host');
+        }
+        else {
+            console.log(`No moves have been made in room with room code ${roomCode}`);
+        }
+    });
+    //Turn 
+    socket.on('turn', (playerTurn, roomCode) => {
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('turn', playerTurn);
+            console.log('turn', roomCode, playerTurn);
+        }
+        else {
+            console.log(`No moves have been made in room with room code ${roomCode}`);
+        }
+    });
+    //Leave a room
+    socket.on('leaveRoom', (roomCode) => {
+        if (rooms[roomCode] && Array.isArray(rooms[roomCode])) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('leaveRoom');
+            io.to(otherPlayerSocketId).emit('turn', 0);
+            console.log(`Player with socket ID ${otherPlayerSocketId} has left room with room code ${roomCode}`);
+        }
+        socket.leave(roomCode);
+        if (rooms[roomCode]) {
+            const index = rooms[roomCode].indexOf(socket.id);
+            if (index !== -1) {
+                rooms[roomCode].splice(index, 1);
+            }
+            if (rooms[roomCode].length === 0) {
+                delete rooms[roomCode];
+                delete roomStates[roomCode];
+            }
+        }
+        delete players[socket.id];
+    });
+    //Error handling
+    socket.on('error', (error) => {
+        console.error('Socket.IO error:', error);
+    });
+    //Game state
+    socket.on('gameState', (gameState, roomCode) => {
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).emit('gameState', gameState);
+        }
+        else {
+            console.log(`No moves have been made in room with room code ${roomCode}`);
+        }
+        //console.log(roomStates);
+    });
+    //Game over
+    socket.on('gameOver', (isGameOver, winner, roomCode) => {
+        const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+        io.to(otherPlayerSocketId).emit('gameOver', { winner, isGameOver });
+        console.log('gameOver', roomCode, winner, isGameOver);
+    });
+    //Reset
+    socket.on('reset', () => {
+        const roomCode = players[socket.id].roomCode;
+        io.to(roomCode).to(socket.id).emit('reset');
+        if (rooms[roomCode]) {
+            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
+            io.to(otherPlayerSocketId).to(socket.id).emit('reset');
+        }
+    });
+    //Disconnect
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+        const player = players[socket.id];
+        console.log('disconnected player', player);
+        if (player) {
+            const roomCode = player.roomCode;
+            socket.broadcast.to(roomCode).emit('turn', 0);
+            const playerIndex = rooms[roomCode].indexOf(socket.id);
+            if (playerIndex !== -1) {
+                rooms[roomCode][playerIndex] = '';
+            }
+            if (rooms[roomCode].length === 0) {
+                delete rooms[roomCode];
+                delete roomStates[roomCode];
+            }
+        }
+    });
 });
 // process.env.PORT is used to get the port from the .env file 
 // or 3001 if it doesn't exist
