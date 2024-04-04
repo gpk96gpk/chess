@@ -71,7 +71,7 @@ io.on('connection', (socket) => {
     socket.on('joinRoom', (roomCode) => {
         //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
-        if (!rooms[roomCode] && rooms[roomCode].length === 0 || roomCode === '' || roomCode === null) {
+        if (!rooms[roomCode] || (rooms[roomCode] && rooms[roomCode].length === 0) || roomCode === '' || roomCode === null) {
             socket.emit('roomError', 'The room is empty.');
             console.log('The room is empty.');
             return;
