@@ -46,13 +46,13 @@ const ConnectionManager = () => {
                 socket.emit('loadSaveGame', roomId);
     
                 // If no error is received after 5 seconds, reject the promise
-                setTimeout(() => resolve('Timeout'), 2200);
+                setTimeout(() => resolve('Timeout'), 2000);
             }).catch((error) => {
                 console.log('errorMessage', error);
                 return error;
             });
     
-            if (errorMessage !== 'Timeout' && roomId !== null && errorMessage !== 'Room ID cannot be null') {
+            if (errorMessage !== 'Timeout' && roomId !== null && errorMessage !== 'Room ID cannot be null' && errorMessage !== 'The room is empty') {
                 console.log('errorMessage', errorMessage, roomId);
                 navigate(`/game/${roomId}`);
             } else {
