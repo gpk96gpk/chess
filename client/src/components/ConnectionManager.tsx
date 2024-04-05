@@ -87,7 +87,7 @@ const ConnectionManager = () => {
                         }
                     }}
                     placeholder='Enter Room #'
-                    style={{ fontSize: '15px' }}
+                    style={{ fontSize: '16px' }}
                 />
                 <button type='submit' className={`join-room-button ${errorClass}`}>Join Room</button>
             </form>

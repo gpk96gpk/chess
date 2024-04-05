@@ -101,7 +101,7 @@ button {
   border-color: inherit;
   text-transform: uppercase;
   padding: .4em 0 0 .8em;
-  font-size: 1em;
+  font-size: 1.1em;
   font-weight: 600;
   font-family: inherit;
   background-color: transparent;
@@ -165,7 +165,7 @@ input::placeholder {
   flex-direction: column;
   width: 100%;
   height: 100%;
-  font-size: 1em;
+  font-size: 1.1em;
   font-weight: 500;
   font-family: inherit;
   opacity: 1
