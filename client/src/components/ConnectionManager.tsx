@@ -52,7 +52,7 @@ const ConnectionManager = () => {
                 return error;
             });
     
-            if (errorMessage !== 'Timeout' && roomId !== null && errorMessage !== 'Room ID cannot be null' && errorMessage !== 'The room is empty') {
+            if (errorMessage !== 'Timeout' && roomId !== null && errorMessage !== 'Room ID cannot be null' && errorMessage !== 'The room is empty.') {
                 console.log('errorMessage', errorMessage, roomId);
                 navigate(`/game/${roomId}`);
             } else {
