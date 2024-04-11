@@ -2,9 +2,9 @@ import isStalemate from './isStalemate';
 import isInsufficientMaterial from './isInsufficientMaterial';
 import isThreefoldRepetition from './isThreefoldRepetition';
 import isFivefoldRepetition from './isFivefoldRepetition';
-import { GameState } from '../types/clientTypes';
+import { GameStateType } from '../types/clientTypes';
 
-function isDraw(gameState: GameState, currentPlayer: number) {
+function isDraw(gameState: GameStateType, currentPlayer: number) {
   // Check if it's not the first turn
   if (gameState.history.length < 1) {
     return false;

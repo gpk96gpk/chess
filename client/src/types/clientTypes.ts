@@ -1,25 +1,53 @@
+export type PieceNames = 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn' | 'empty';
+
+export type Color = 'black' | 'white' | 'none';
+  
+export type PieceColor = 'white' | 'black';
+
+export type PieceNameWithoutNone = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
+
+export type ThreateningSquares = number[][][] | number[][];
+
+
+export type PlayerNumber = 1 | 2
+
 export type PieceType = {
-    type: 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn' | 'empty';
-    color: 'black' | 'white' | 'none';
-    position: Position;
+    type: PieceNames;
+    color?: PieceColor | 'none';
+    position?: Position | [];
     hasMoved: boolean;
-    isHighlighted: boolean;
-    index: number;
+    index?: number;
     hasMovedTwo?: boolean;
+    isHighlighted?: boolean;
 };
+
+export type PiecePositions = {
+    id: number;
+    type: PieceNames;
+    position: Position | [];
+    color?: Color;
+    index?: number;
+    hasMoved?: boolean;
+    hasMovedTwo?: boolean;
+}
 
 export type Position = [number, number];
 
 export interface GameStateType {
     board: PieceType[][];
+    initialBoard?: GameStateType;
     history: Move[];
-    turn: 'white' | 'black';
+    turn: 'white' | 'black' | null;
     kingPositions: { black: Position; white: Position };
+    playerNumber?: 1 | 2;
     threateningPiecesPositions: {
-        black: Position[];
-        white: Position[];
+        black: number[][][] | number[][];
+        white: number[][][] | number[][];
     };
-
+    piecePositions: {
+        black: PiecePositions[];
+        white: PiecePositions[];
+    };
     checkStatus: {
         black: boolean;
         white: boolean;
@@ -29,15 +57,33 @@ export interface GameStateType {
         black: boolean;
         white: boolean;
     };
+    username1: string | null;
+    username2: string | null;
+}
 
-};
+export type BoardPiece = {
+    piece: PieceType | string, 
+    position: Position, 
+    gameState: GameStateType, 
+    playerNumber: number, 
+    handleDragStart: (
+        event: React.DragEvent<HTMLDivElement>, 
+        piece: PieceType, 
+        position: Position,  
+        props: Props
+    ) => void;
+} 
+
+export interface BoardSaveGameButtonProps {
+    gameState: GameStateType; 
+}
 
 export type Move = {
     piece: PieceType;
     from: Position;
     to: Position;
     board: PieceType[][];
-    turn: "white" | "black";
+    turn: Color | PieceColor;
     turnNumber: number;
 };
 
@@ -46,19 +92,91 @@ export type Props = {
     setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
     gameOver: boolean;
     setGameOver: (arg0: boolean) => void;
-    playerNumber: number;
-    setPlayerNumber: (arg0: number) => void;
-    turnState: 0 | 1 | 2;
-    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2>>;
+    playerNumber: 1 | 2;
+    setPlayerNumber: (arg0: 1 | 2) => void;
+    turnState: 0 | 1 | 2 | 3;
+    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>;
     winner: string | null;
     setWinner: (winner: string | null) => void;
-    highlightedTiles: Position[];
-    setHighlightedTiles: (arg0: Position[]) => void;
     isPlayerInCheck: boolean;
     setIsPlayerInCheck: (arg0: boolean) => void;
+    username: string | null;
+    setUsername: React.Dispatch<React.SetStateAction<string | null>>;
     handleReset: () => void;
+    // highlightedTiles: Position[];
+    // setHighlightedTiles: (arg0: Position[]) => void;
 };
 
 export interface BoardButtonsProps {
-    gameState: GameStateType; 
+    gameState: GameStateType;
+    setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
+    setWinner: (winner: string | null) => void;
+    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>;
+    roomCode: string | undefined; 
 }
+
+export type ValidMovesResult = {
+    moves: undefined | Position[];
+    threateningSquares: {
+      black: number[][][] | number[][];
+      white: number[][][] | number[][];
+    };
+    isKingInCheck: boolean | undefined;
+    checkDirection: number;
+    isKingInCheckMate: boolean;
+    isOpponentKingInCheck: boolean;
+    enPassantMove: Position | null | undefined;
+    canCastle: boolean;
+} ;
+
+export type BoardProps = {
+    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>; 
+    setWinner: (winner: string | null) => void;
+    gameState: GameStateType;
+    handleDragStart: (
+        event: React.DragEvent<HTMLDivElement>, 
+        piece: PieceType, 
+        position: Position
+    ) => void;
+    handleDragEnter: (
+        event: React.DragEvent<HTMLDivElement>, 
+        position: Position
+    ) => void;
+    handleDragOver: (
+        event: React.DragEvent<HTMLDivElement>, 
+        position: Position
+    ) => void;
+    handleDrop: (
+        event: React.DragEvent<HTMLDivElement>, 
+        props: Props
+    ) => void;
+    playerNumber?: 1 | 2
+};
+
+export type GameOverProps = {
+    gameState: GameStateType;
+    winner: string | null;
+    setWinner: (winner: string | null) => void;
+    setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
+    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>; 
+};
+
+export interface CheckResult {
+    gameState: GameStateType;
+    isKingInCheck: boolean;
+    isKingInCheckmate: boolean;
+    loser: string;
+    threateningSquares: {
+        black: number[][][] | number[][];
+        white: number[][][] | number[][];
+      };
+    opponentPlayerNumber: 1 | 2;
+    checkPosition: Position;
+    piece: PieceType;
+    position: Position;
+    playerNumber:  1 | 2;
+    lastPosition: Position;
+    matchFoundInDirection: number |  undefined;
+    currentPlayerColor: Color | PieceColor;
+}
+

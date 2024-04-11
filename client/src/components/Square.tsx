@@ -1,18 +1,25 @@
 //TODO:
 // Square component takes in the props for position children and handleDrop
 
-import { HighlightedTile, Piece as PieceType, Position, Props } from "../types/clientTypes";
+import React from "react";
+import { PieceType, Position, Props } from "../types/clientTypes";
 
 type SquareProps = {
-    style: React.CSSProperties;
+    style?: React.CSSProperties;
     position: Position | Position[];
-    highlightedTiles: Position[];
+    className?: React.HTMLAttributes<HTMLDivElement>['className'];
+    squareClass?: string;
+    //highlightedTiles: Position[];
     handleDragStart: (
         event: React.DragEvent<HTMLDivElement>, 
         piece: PieceType, 
         position: Position, 
-        setHighlightedTiles: (tiles: Position[]) => void, 
+        //setHighlightedTiles: (tiles: Position[]) => void, 
         props: Props
+    ) => void;
+    handleDragEnter: (
+        event: React.DragEvent<HTMLDivElement>, 
+        position: Position
     ) => void;
     handleDragOver: (
         event: React.DragEvent<HTMLDivElement>, 
@@ -32,8 +39,8 @@ type SquareProps = {
 //onDrop event calls handleDropWrapper function
 //onDragOver event prevents default behavior
 // render children
-const Square: React.FC<SquareProps> = ({ style, position, highlightedTiles, handleDragStart, handleDragOver, handleDrop, children }) => {
-    const isHighlighted = Array.isArray(highlightedTiles) && Array.isArray(position) && highlightedTiles.some(([x, y]) => x === position[0] && y === position[1]);
+const Square: React.FC<SquareProps> = ({ style, position, className, handleDragStart, handleDragEnter, handleDragOver, handleDrop, children }) => {
+    //const isHighlighted = Array.isArray(highlightedTiles) && Array.isArray(position) && highlightedTiles.some(([x, y]) => x === position[0] && y === position[1]);
     const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
         const pieceData = event.currentTarget.getAttribute('data-piece');
         if (pieceData === null) {
@@ -46,17 +53,19 @@ const Square: React.FC<SquareProps> = ({ style, position, highlightedTiles, hand
                 console.error('Invalid JSON string:', pieceData);
                 return;
             }
-            handleDragStart(event, piece, position as Position, () => {}, {} as Props);
+            handleDragStart(event, piece, position as Position, {} as Props);
         }
     }
+    const onDragEnter = (event: React.DragEvent<HTMLDivElement>) => handleDragEnter(event, position as Position);
     const onDragOver = (event: React.DragEvent<HTMLDivElement>) => handleDragOver(event, position as Position);
     const onDrop = (event: React.DragEvent<HTMLDivElement>) => handleDrop(event, {} as Props);
 
     return (
         <div 
-            className='square'
-            style={{...style, ...(isHighlighted ? { backgroundColor: 'blue' } : {})}}
+            className={`square ${className}`}
+            style={{...style}}
             draggable={false}
+            onDragEnter={onDragEnter}
             onDragStart={onDragStart}
             onDragOver={onDragOver}
             onDrop={onDrop}

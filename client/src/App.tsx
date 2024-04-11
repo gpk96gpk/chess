@@ -1,46 +1,24 @@
-//TODO:
-//Create Socket event listeners for the following events:
-//connect
-//disconnect
-//join room
-//create room
-//leave room connected to exit button on BoardButtons.tsx
-//connection error
-//player number
-//turn state
-//game state
-//game over
-//reset and emitter so both players can reset the game
-//Render ro
-
-
-//Render routes
-//wrap routes in socket provider
-//route for lobby
-//route for game
-
-
 import { io } from 'socket.io-client';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import { SocketContext } from './context/SocketContext';
 import { useEffect, useState } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
-import { Props, GameStateType, Position, HighlightedTile } from './types/clientTypes';
-import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
+import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
+import resetGameState from './gameLogic/resetGameState';
+//import { API_URL } from './apis/ChessGame';
+//import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
-const socket = io('http://localhost:3004');
+const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
+//const socket = io(`http://localhost:3004/`);
 
 let index = 0;
 let whitePawnIndex = 24;
 let whiteMajorIndex = 16;
 
-const createPiece = (type: string, color: string, position: Position, index: number) => ({ type, color, position, hasMoved: false, isHighlighted: false, index });
-const createPawn = (color: string, position: Position, index: number) => ({ type: 'pawn', color, position, hasMoved: false, isHighlighted: false, index });
+const createPiece = (type: PieceNames, color: 'black' | 'white' | 'none', position: Position, index: number): PieceType => ({ type, color, position, hasMoved: false, index });
 
-const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
-
-
+const majorPieces: PieceNames[] = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
 
 // const testBoard: GameStateType = {
 //     board: [
@@ -102,10 +80,10 @@ const majorPieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'kni
 
 const initialBoard: GameStateType = {
     board: [
-        majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
+        majorPieces.map((type: PieceNames, i: number) => createPiece(type, 'black', [0, i], index++)),
         Array(8).fill(null).map((_, i) => createPiece('pawn', 'black', [1, i], index++)),
         ...Array(4).fill(null).map(() =>
-            Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, isHighlighted: false }))
+            Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, position: [], index } as PieceType))
         ),
         Array(8).fill(null).map((_, i) => createPiece('pawn', 'white', [6, i], whitePawnIndex++)),
         majorPieces.map((type, i) => createPiece(type, 'white', [7, i], whiteMajorIndex++)),
@@ -231,6 +209,8 @@ const initialBoard: GameStateType = {
         black: false,
         white: false,
     },
+    username1: 'Guest Player 1',
+    username2: 'Guest Player 2'
 };
 
 
@@ -259,39 +239,50 @@ const initialBoard: GameStateType = {
 
 
 function App() {
-    const [playerNumber, setPlayerNumber] = useState<number>(1);
+    const [playerNumber, setPlayerNumber] = useState< 1 | 2 >(1);
     const [gameOver, setGameOver] = useState(false);
-    const [turnState, setTurnState] = useState<0 | 1 | 2>(1);
+    const [turnState, setTurnState] = useState<0 | 1 | 2 | 3>(0);
     const [gameState, setGameState] = useState<GameStateType>(initialBoard);
-    const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
-    const [checkmateResult, setCheckmateResult] = useState<{ isInCheckmate: boolean, loser: string | null }>({ isInCheckmate: false, loser: null });
+    const [username, setUsername] = useState<string | null>(null);
+    const { roomCode } = useParams()
+    //const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
 
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
             console.log(`Socket Created room ${roomId}`);
+            // const {initialBoard} = resetGameState();
+            // setGameState(initialBoard);
+            setWinner(null);
+            setGameOver(false);
+            console.log('createRoom gameState', gameState, winner, gameOver)
         });
 
         return () => {
             socket.off('createRoom');
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         socket.on('joinRoom', (roomId) => {
             console.log(`Socket Joined room ${roomId}`);
+            socket.emit('turn', turnState, roomId)
         });
 
         return () => {
             socket.off('joinRoom');
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         socket.on('leaveRoom', (roomId) => {
             //setGameOver(true);
             setWinner(null);
+            socket.emit('turn', 0, roomId);
+            setTurnState(0)
             console.log(`Socket Left room ${roomId}`);
         });
 
@@ -326,7 +317,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        socket.on('playerNumber', (number: number) => {
+        socket.on('playerNumber', (number: 1) => {
             console.log(`Socket Player number: ${number}`);
             setPlayerNumber(number);
         });
@@ -339,12 +330,14 @@ function App() {
     useEffect(() => {
         const handleGameState = (arg:React.SetStateAction<GameStateType>) => {
             //arg.turn === 1 ? arg.turn = 'black' : arg.turn = 'white'; 
+            if (arg === null) {
+                arg = resetGameState()
+            }
             console.log('gameState', arg)
             setGameState(arg);
         }
 
         socket.on('gameState', handleGameState);
-
         return () => {
             socket.off('gameState', handleGameState)
         }
@@ -363,10 +356,49 @@ function App() {
         return () => {
             socket.off("gameOver", handleGameOver)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        const turnStateChange = (arg:React.SetStateAction< 0| 1 | 2 >) => {
+        socket.on('loadSaveGame', (roomId, gameStateParameter) => {
+            let turnNumber: 0 | 1 | 2 | 3;
+
+            if (gameStateParameter && gameStateParameter.turn) {
+                turnNumber = gameStateParameter.turn === 'black' ? 1 : 2;
+                console.log('turnNumber', turnNumber)
+            } else {
+                // Handle the case where gameStateParameter or gameStateParameter.turn is null
+                //console.log('turnNumber', turnNumber)
+                turnNumber = 2;
+            }            
+            if (!gameStateParameter && gameState && gameState.history.length === 0) {
+                console.log('turnState change initial', turnNumber)
+                turnNumber = 1
+            } 
+            console.log('roomCode', roomCode, roomId)
+            console.log('emitting to guest client', gameStateParameter, gameState)
+            socket.emit('gameState', gameStateParameter || gameState, roomId );
+            console.log('loadSave turn state management', turnNumber)
+            
+            setTurnState(turnNumber);
+            
+            socket.emit('turn', turnNumber, roomId)
+
+        });
+        // const handleLoadSaveGame = () => {
+        //     // Emit the current game state
+        // }
+    
+    
+        // Clean up the effect
+        return () => {
+            socket.off('loadSaveGame');
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameState]);
+
+    useEffect(() => {
+        const turnStateChange = (arg:React.SetStateAction< 0 | 1 | 2 | 3>) => {
             setTurnState(arg);
             console.log('turnState', turnState)
             console.log(`Socket Turn state: ${arg}`);
@@ -377,6 +409,7 @@ function App() {
         return () => {
             socket.off('turn', turnStateChange)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -406,28 +439,28 @@ function App() {
     const chessProps: Props = {
         playerNumber,
         gameOver,
-        gameState,
+        gameState: gameState || initialBoard,
         turnState,
-        highlightedTiles,
+        //highlightedTiles,
         winner,
         isPlayerInCheck,
-        checkmateResult,
+        username,
         setPlayerNumber,
         setGameState,
         setGameOver,
         setTurnState,
-        setHighlightedTiles,
+        //setHighlightedTiles,
         setWinner,
         setIsPlayerInCheck,
         handleReset,
-        setCheckmateResult,
+        setUsername
     };
 
     return (
         <SocketContext.Provider value={socket}>
             <Router>
                 <Routes>
-                    <Route path="/lobby?/:username?" element={<Lobby />} />
+                    <Route path="/lobby?/:username?" element={<Lobby setGameState={ setGameState } setUsername={setUsername} username={username}/>} />
                     <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
                 </Routes>
             </Router>

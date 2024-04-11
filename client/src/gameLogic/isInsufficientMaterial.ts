@@ -1,6 +1,6 @@
-import { GameState } from "../types/clientTypes";
+import { GameStateType } from "../types/clientTypes";
 
-function isInsufficientMaterial(gameState: GameState) {
+function isInsufficientMaterial(gameState: GameStateType) {
   const pieces = gameState.board.flat().filter(piece => piece);
   const whitePieces = pieces.filter(piece => piece?.color === 'white');
   const blackPieces = pieces.filter(piece => piece?.color === 'black');
@@ -28,8 +28,8 @@ function isInsufficientMaterial(gameState: GameState) {
       const whiteBishop = whitePieces.find(piece => piece?.type === 'bishop');
       const blackBishop = blackPieces.find(piece => piece?.type === 'bishop');
       if (whiteBishop && blackBishop && 
-        (whiteBishop.position[0] + whiteBishop.position[1]) % 2 === 
-        (blackBishop.position[0] + blackBishop.position[1]) % 2) {
+        (whiteBishop.position![0]! + whiteBishop.position![1]!) % 2 === 
+        (blackBishop.position![0]! + blackBishop.position![1]!) % 2) {
         return true;
     }
   }

@@ -4,12 +4,8 @@
 //render button to trigger function for POST request
 import { useState } from 'react';
 import { saveGame } from '../apis/ChessGame';
-import { GameState } from '../types/clientTypes';
+import { BoardSaveGameButtonProps } from '../types/clientTypes';
 
-
-interface BoardSaveGameButtonProps {
-    gameState: GameState; // replace GameState with the actual type of your gameState
-  }
 
 const BoardSaveGameButton: React.FC<BoardSaveGameButtonProps> = ({ gameState }) => {
     const [saveStatus, setSaveStatus] = useState<string | null>(null);

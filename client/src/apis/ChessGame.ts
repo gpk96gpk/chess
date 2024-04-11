@@ -1,11 +1,15 @@
 import axios from 'axios'
-import { GameState } from '../types/clientTypes';
+import { GameStateType } from '../types/clientTypes';
+
+// export const API_URL = 'http://34.224.30.160';
+export const API_URL = 'https://api.chessbygeorge.com';
+//export const API_URL = 'http://localhost:3005';
 //axios creates a base url for us to use to not have to repeat the same url over and over again
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:3005/api/v1/chess'
-})
-
-export const saveGame = async (gameState: GameState) => {
+    baseURL: `${API_URL}/api/v1/chess`
+});
+ 
+export const saveGame = async (gameState: GameStateType) => {
     try {
         const token = localStorage.getItem('jwt');
         const response = await axiosInstance.post('/games/save', {
@@ -30,7 +34,15 @@ export const saveGame = async (gameState: GameState) => {
 };
 
 export const signIn = async (username: string, password: string) => {
+    // Check if the inputs are empty
     try {
+        username = username.toLowerCase()
+        if (!username || !password) {
+            throw new Error('Username and password cannot be empty');
+        }
+        if (username.includes(' ') || password.includes(' ')) {
+            throw new Error('Username and password cannot contain spaces');
+        }
         const response = await axiosInstance.post('/users/login', {
             username,
             password,
@@ -46,7 +58,9 @@ export const signIn = async (username: string, password: string) => {
             return null;
         }
     } catch (error) {
-        console.log('An error occurred while signing in', error);
+        if (error instanceof Error) {
+            console.log('An error occurred while signing in', error.message);
+          }
         return null;
     }
 };
@@ -82,7 +96,9 @@ export const deleteGame = async (gameId: number) => {
         });
         return response.data.data.game;
     } catch (error) {
-        console.error(error);
+        if (error instanceof Error) {
+            console.log('An error occurred while signing in', error.message);
+        }
         return null;
     }
 };
@@ -90,6 +106,13 @@ export const deleteGame = async (gameId: number) => {
 // Sign up a new user
 export const signUp = async (username: string, password: string) => {
     try {
+        username = username.toLowerCase()
+        if (!username || !password) {
+            throw new Error('Username and password cannot be empty');
+        }
+        if (username.includes(' ') || password.includes(' ')) {
+            throw new Error('Username and password cannot contain spaces');
+        }
         const response = await axiosInstance.post('/users/register', {
             username,
             password
@@ -101,9 +124,12 @@ export const signUp = async (username: string, password: string) => {
         // Store the token in local storage
         localStorage.setItem('token', token);
 
-        return response.data.data;
+        // Sign in the user
+        const signInResponse = await signIn(username, password);
+
+        return signInResponse;
     } catch (error) {
-        console.error(error);
+        console.error((error as Error).message);
         return null;
     }
 };

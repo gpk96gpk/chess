@@ -1,0 +1,47 @@
+version: '3'
+services:
+  server:
+    build: /home/ubuntu/chess/server
+    ports:
+      - 3005:3005  
+      - 3004:3004  
+    env_file:
+      - .env
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/postgres
+      POSTGRES_HOST: db
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: chess
+      POSTGRES_PORT: 5432
+
+  frontend:
+    build:
+      context: /home/ubuntu/chess/client
+      dockerfile: Dockerfile
+  db:
+    image: postgres
+    ports:
+      - 5432:5432 
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: chess
+      POSTGRES_PORT: 5432
+  nginx:
+    build:
+      context: /home/ubuntu/chess 
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      #- server
+volumes:
+  db-data:

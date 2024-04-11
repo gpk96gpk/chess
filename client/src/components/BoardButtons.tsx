@@ -16,8 +16,9 @@ import { useNavigate } from 'react-router-dom';
 import { SocketContext } from "../context/SocketContext";
 import BoardSaveGameButton from './BoardSaveGameButton';
 import { BoardButtonsProps } from '../types/clientTypes';
+import resetGameState from '../gameLogic/resetGameState';
 
-const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState }) => {
+const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, setWinner, setTurnState, roomCode }) => {
   const socket = useContext(SocketContext);
   const [showExitOverlay, setShowExitOverlay] = useState(false);
   const navigate = useNavigate();
@@ -27,22 +28,30 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState }) => {
   };
 
   const handleConfirmExit = () => {
+    const { initialBoard } = resetGameState();
+    setGameState(initialBoard!);
+    setWinner(null);
+    setTurnState(0);
     navigate('/');
     if (socket) {
-      socket.emit('leaveRoom')
+      socket.emit('leaveRoom', roomCode)
     }
   };
 
   return (
-    <div>
-      <button onClick={handleExit}>Exit</button>
-      {/* <button onClick={handleSave}>Save</button> */}
-      <BoardSaveGameButton gameState={gameState} />
+    <div className='BoardButtons'>
+      {!showExitOverlay && (
+        <>
+          <button onClick={handleExit}>Exit</button>
+          <BoardSaveGameButton gameState={gameState} />
+        </>
+      )}
+      
 
       {showExitOverlay && (
-        <div>
-          <p>Are you sure you want to leave?</p>
-          <button onClick={handleConfirmExit}>Yes, I'm sure</button>
+        <div className='exit-overlay'>
+          {/* <p>Are you sure?</p> */}
+          <button onClick={handleConfirmExit}>Yes, Exit</button>
           <button onClick={() => setShowExitOverlay(false)}>Cancel</button>
         </div>
       )}

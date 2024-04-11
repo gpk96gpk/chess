@@ -1,4 +1,4 @@
-import { Position, Piece as PieceType, GameState, Move } from "../types/clientTypes";
+import { Position, GameStateType, Move, PieceNameWithoutNone, PieceType, PieceColor, PiecePositions } from "../types/clientTypes";
 //import isCheck from "./isCheck";
 
 const pieceMoveFunctions = {
@@ -9,33 +9,39 @@ const pieceMoveFunctions = {
     'queen': getLinearMoves,
     'king': getFixedMoves,
 };
+type PieceMoveType = {
+    piece: PieceType 
+    position: Position
+    gameState: GameStateType
+    type: PieceNameWithoutNone
+    hasMoved?: boolean
+    color?: PieceColor
+};
 
 const linearDirections = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
 const knightDirections = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
 const kingDirections = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
 const bishopDirections = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 
-function getMovesForPiece(piece: PieceType, position: Position, gameState: GameState): Move[] {
+function getMovesForPiece(piece: PieceMoveType | PieceType | PiecePositions, position: Position, gameState: GameStateType): Position[] {
     if (piece?.type && piece.type in pieceMoveFunctions) {
         console.log('222getMovesForPiece', piece, position, gameState);
-        let moves = pieceMoveFunctions[piece.type](piece, position, gameState);
+        const moves: Position[] = pieceMoveFunctions[piece.type as PieceNameWithoutNone](piece as PieceMoveType, position, gameState).filter((move): move is Position => move !== null);
         console.log('222getMovesForPieceMoves', moves);
         
         if (piece.type === 'king') {
-            //const currentColor = playerNumber === 1 ? 'black' : 'white';
             const opponentColor = gameState.playerNumber === 1 ? 'white' : 'black';
             const threatenedSquares = gameState.threateningPiecesPositions && gameState.threateningPiecesPositions[opponentColor];
             console.log('threatenedSquares', threatenedSquares);
-            return moves.filter(move => !threatenedSquares || !threatenedSquares.some(([ty, tx]) => ty === move[0] && tx === move[1]));
+            return moves.filter((move: Position ) => move && (!threatenedSquares || !threatenedSquares.some(([ty, tx]) => ty === move[0] && tx === move[1])));
         }
         console.log('Returning moves:', moves, gameState);
         return moves;
     }
     return [];
 }
-
-function getPawnMoves(piece: { type: string, color: 'white' | 'black', hasMoved: boolean }, position: Position, gameState: GameState) {
-    const moves: Move[] = [];
+function getPawnMoves(piece: PieceMoveType, position: Position, gameState: GameStateType) {
+    const moves: Position[] = [];
     console.log('222PawnMovesCheck', piece, position, gameState);
     const forward: Position = [gameState.board[position[0]][position[1]].color === 'black' ? position[0] + 1 : position[0] - 1, position[1]];
     console.log('222PawnMovesForwards', forward, forward[0], forward[1]);
@@ -45,7 +51,7 @@ function getPawnMoves(piece: { type: string, color: 'white' | 'black', hasMoved:
             from: position,
             to: forward,
             board: gameState.board,
-            turn: gameState.board[position[0]][position[1]].color,
+            turn: gameState.board[position[0]][position[1]].color!,
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
@@ -60,7 +66,7 @@ function getPawnMoves(piece: { type: string, color: 'white' | 'black', hasMoved:
                 from: position,
                 to: forwardTwo,
                 board: gameState.board,
-                turn: gameState.board[position[0]][position[1]].color,
+                turn: gameState.board[position[0]][position[1]].color!,
                 turnNumber: gameState.history.length
             };
             moves.push(move.to);
@@ -77,7 +83,7 @@ function getPawnMoves(piece: { type: string, color: 'white' | 'black', hasMoved:
             from: position,
             to: leftCapture,
             board: gameState.board,
-            turn: gameState.board[position[0]][position[1]].color,
+            turn: gameState.board[position[0]][position[1]].color!,
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
@@ -89,7 +95,7 @@ function getPawnMoves(piece: { type: string, color: 'white' | 'black', hasMoved:
             from: position,
             to: rightCapture,
             board: gameState.board,
-            turn: gameState.board[position[0]][position[1]].color,
+            turn: gameState.board[position[0]][position[1]].color!,
             turnNumber: gameState.history.length
         };
         moves.push(move.to);
@@ -98,7 +104,7 @@ function getPawnMoves(piece: { type: string, color: 'white' | 'black', hasMoved:
     return moves;
 }
 
-function getLinearMoves(piece: { type: string, color: 'white' | 'black' }, position: [number, number], gameState: GameState) {
+function getLinearMoves(piece: PieceMoveType, position: [number, number], gameState: GameStateType) {
     console.log('222getLinearMoves', piece, position, gameState);
     let directions;
     if (piece.type === 'rook') {
@@ -114,7 +120,7 @@ function getLinearMoves(piece: { type: string, color: 'white' | 'black' }, posit
     }
     console.log('989directions', directions);
     const linearMoves = directions.flatMap(([dy, dx]) => {
-        let positions = [];
+        const positions = [];
         for (let i = 0; i < 7; i++) {
             const newPosition = [position[0] + dy * (i + 1), position[1] + dx * (i + 1)];
             console.log('989newPosition', newPosition, position, dy, dx, i);
@@ -156,7 +162,7 @@ function getLinearMoves(piece: { type: string, color: 'white' | 'black' }, posit
     return flattenedMoves;
 }
 
-function getFixedMoves(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState) {
+function getFixedMoves(piece: PieceMoveType, position: Position, gameState: GameStateType) {
     if (piece.type !== 'knight' && piece.type !== 'king') {
         throw new Error('This function only supports knights and kings');
     }
@@ -182,7 +188,7 @@ export default getMovesForPiece;
 
 
 
-// function getMovesInDirection(piece: { type: string, color: 'white' | 'black' }, position: Position, gameState: GameState, dy: number, dx: number, i: number): Position[] {
+// function getMovesInDirection(piece: { type: string, color: PieceColor | 'none' }, position: Position, gameState: GameState, dy: number, dx: number, i: number): Position[] {
 //     console.log('getMovesInDirection', piece, position, gameState, dy, dx, i);
 //     const y = position[0] + i * dy;
 //     const x = position[1] + i * dx;

@@ -11,18 +11,24 @@
 //that will load a game from the database and render the game page
 //with the saved game state and player turn
 
+import { Dispatch, SetStateAction } from "react";
 import ConnectionManager from "./ConnectionManager";
 import LobbySavedGames from "./LobbySavedGames";
+import { GameStateType } from "../types/clientTypes";
 
 
-const LobbyGameButtons = ({ username }: { username: string }) => {
-
-return (
-    <>
-        <ConnectionManager />
-        <LobbySavedGames username={username}/>
-    </>
-);
+interface LobbySavedGamesProps {
+    setGameState: Dispatch<SetStateAction<GameStateType>>;
+    username: string | null;
 }
+
+const LobbyGameButtons = ({ setGameState, username }: LobbySavedGamesProps) => {
+    return (
+        <>
+            <ConnectionManager />
+            <LobbySavedGames setGameState={setGameState} username={username}/>
+        </>
+    )
+};
 
 export default LobbyGameButtons;
