@@ -12,9 +12,9 @@ function enPassant(piece: PieceType, lastPosition: Position, gameState: GameStat
     const opponentColor = piece.color === 'white' ? 'black' : 'white';
     const enPassantDirection: number = piece.color === 'white' ? -1 : 1;
 
-    const enPassantCondition = toY - 1 >= 0 && gameState.board[toX][toY].type === 'empty' 
-    && gameState.board[toX - enPassantDirection][toY].type === 'pawn' && gameState.board[toX - enPassantDirection][toY].color === opponentColor
-    && gameState.board[toX - enPassantDirection][toY].hasMovedTwo === true;
+    const enPassantCondition = toY! - 1 >= 0 && gameState.board[toX!][toY!].type === 'empty' 
+    && gameState.board[toX! - enPassantDirection][toY!].type === 'pawn' && gameState.board[toX! - enPassantDirection][toY!].color === opponentColor
+    && gameState.board[toX! - enPassantDirection][toY!].hasMovedTwo === true;
 
     console.log("enPassantCondition:", enPassantCondition, "enPassantDirection:", enPassantDirection, "toX:", toX, "toY:", toY, "opponentColor:", opponentColor);
 

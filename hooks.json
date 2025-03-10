@@ -1,0 +1,361 @@
+[
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useState",
+    "line": 242,
+    "variable": "_playerNumber, setPlayerNumber_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useState",
+    "line": 243,
+    "variable": "_gameOver, setGameOver_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useState",
+    "line": 244,
+    "variable": "_turnState, setTurnState_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useState",
+    "line": 245,
+    "variable": "_gameState, setGameState_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useState",
+    "line": 246,
+    "variable": "_winner, setWinner_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useState",
+    "line": 247,
+    "variable": "_isPlayerInCheck, setIsPlayerInCheck_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useState",
+    "line": 248,
+    "variable": "_username, setUsername_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useParams",
+    "line": 249
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 252,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 268,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 280,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 294,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 309,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 319,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 330,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 347,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 362,
+    "dependencies": "[gameState]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 400,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "hook": "useEffect",
+    "line": 415
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "hook": "username.toLowerCase",
+    "line": 39
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "hook": "username.includes",
+    "line": 43
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "hook": "username.toLowerCase",
+    "line": 109
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "hook": "username.includes",
+    "line": 113
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardButtons.tsx",
+    "hook": "useContext",
+    "line": 22
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardButtons.tsx",
+    "hook": "useState",
+    "line": 23,
+    "variable": "_showExitOverlay, setShowExitOverlay_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardButtons.tsx",
+    "hook": "useNavigate",
+    "line": 24
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardSaveGameButton.tsx",
+    "hook": "useState",
+    "line": 11,
+    "variable": "_saveStatus, setSaveStatus_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardTimer.tsx",
+    "hook": "useState",
+    "line": 15,
+    "variable": "_seconds, setSeconds_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardTimer.tsx",
+    "hook": "useEffect",
+    "line": 18,
+    "dependencies": "[isPlayerTurn, seconds]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useParams",
+    "line": 59
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useContext",
+    "line": 61
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useRef",
+    "line": 62
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useRef",
+    "line": 63
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useEffect",
+    "line": 433,
+    "dependencies": "[gameState, turnState, handleDrop]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useEffect",
+    "line": 450,
+    "dependencies": "[gameState, gameOver, playerNumber, turnState, setTurnState, setWinner, setGameOver, loser, isKingInCheckMate]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useEffect",
+    "line": 463,
+    "dependencies": "[gameState, isKingInCheck, setIsPlayerInCheck]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useEffect",
+    "line": 472,
+    "dependencies": "[gameState, playerNumber, setGameOver, setWinner, setTurnState, turnState, isKingInCheck]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "hook": "useEffect",
+    "line": 480,
+    "dependencies": "[]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "hook": "useContext",
+    "line": 8
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "hook": "useState",
+    "line": 9,
+    "variable": "_roomId, setRoomId_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "hook": "useState",
+    "line": 10,
+    "variable": "_error, setError_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "hook": "useState",
+    "line": 11,
+    "variable": "_errorClass, setErrorClass_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "hook": "useNavigate",
+    "line": 12
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "hook": "useEffect",
+    "line": 67,
+    "dependencies": "[errorClass]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/GameOver.tsx",
+    "hook": "useContext",
+    "line": 15
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/GameOver.tsx",
+    "hook": "useState",
+    "line": 17,
+    "variable": "_saveStatus, setSaveStatus_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/GameOver.tsx",
+    "hook": "useNavigate",
+    "line": 18
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx",
+    "hook": "useState",
+    "line": 35,
+    "variable": "_games, setGames_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx",
+    "hook": "useState",
+    "line": 36,
+    "variable": "_showGames, setShowGames_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx",
+    "hook": "useState",
+    "line": 37,
+    "variable": "_error, setError_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx",
+    "hook": "useContext",
+    "line": 38
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx",
+    "hook": "useEffect",
+    "line": 40,
+    "dependencies": "[username]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx",
+    "hook": "useEffect",
+    "line": 54,
+    "dependencies": "[error, games, showGames]"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useState",
+    "line": 22,
+    "variable": "_showSignUp, setShowSignUp_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useState",
+    "line": 23,
+    "variable": "_showSignIn, setShowSignIn_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useState",
+    "line": 24,
+    "variable": "_isSignedIn, setIsSignedIn_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useState",
+    "line": 25,
+    "variable": "_isGuest, setIsGuest_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useState",
+    "line": 27,
+    "variable": "_inputUsername, setInputUsername_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useState",
+    "line": 28,
+    "variable": "_password, setPassword_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useRef",
+    "line": 29
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useState",
+    "line": 30,
+    "variable": "_errorMessage, setErrorMessage_"
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useNavigate",
+    "line": 31
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "hook": "useEffect",
+    "line": 98,
+    "dependencies": "[isSignedIn]"
+  }
+]

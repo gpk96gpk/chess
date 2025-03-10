@@ -12,6 +12,35 @@ interface CheckResult {
   firstTriggeringOpponentPiece?: PieceType | undefined;
   firstTriggeringOpponentPieceIndex?: number;
 }
+
+function isKnightAttackingPosition(
+  kingPosition: Position,
+  gameState: GameStateType,
+  currentPlayerColor: PieceColor
+): boolean {
+  const knightOffsets: Position[] = [
+    [-2, -1], [-2, 1],
+    [-1, -2], [-1, 2],
+    [1, -2], [1, 2],
+    [2, -1], [2, 1]
+  ];
+  // In this file, current player's pieces are attacking the opponent king.
+  const currentKnights = gameState.piecePositions[currentPlayerColor].filter(piece => piece.type === 'knight');
+  for (const knight of currentKnights) {
+    const [ky, kx] = knight.position;
+    for (const [dy, dx] of knightOffsets) {
+      const newY = ky! + dy!;
+      const newX = kx! + dx!;
+      if (newY >= 0 && newY < 8 && newX >= 0 && newX < 8) {
+        if (newY === kingPosition[0] && newX === kingPosition[1]) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 function isCheckOpponent(gameState: GameStateType, threateningSquares: ThreateningSquares, opponentPlayerNumber: PlayerNumber, checkPosition: Position, piece: PieceType | PiecePositions, position: Position, playerNumber: PlayerNumber, lastPosition: Position, matchFoundInDirection: number, currentPlayerColor: PieceColor): CheckResult {
   console.log('7322isCheckParams', gameState, threateningSquares, opponentPlayerNumber, checkPosition, piece, position, playerNumber, lastPosition, matchFoundInDirection, currentPlayerColor)
   console.log('7322threateningSquares', threateningSquares)
@@ -29,9 +58,9 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
   console.log('5556pieceLastPosition', pieceLastPosition, pieceIndex)
   if (pieceLastPosition) {
     const [lastY, lastX] = pieceLastPosition;
-    gameState.board[lastY][lastX] = {
+    gameState.board[lastY!][lastX!] = {
         type: pieceType,
-        color: pieceColor,
+        color: pieceColor!,
         position: pieceLastPosition,
         hasMoved: true,
         isHighlighted: false,
@@ -45,28 +74,35 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
   //const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
 
   let isKingInCheck = gameState.checkStatus[opponentColor];
-  function isKnightAttackingPosition(): boolean {
-    // Assuming gameState.board is a 2D array representing the game board
-    const threateningSquares = gameState.board.slice(8, 16).map((row, y) =>
-      row.length > 0 ? row.map((_, x) => [y + 8, x]) : []
-    ).flat();
-  
-    // Get the positions of the opponent's knights
-    console.log('7322gameState', gameState);
-    const currentKnights = gameState.piecePositions[currentPlayerColor as 'black' | 'white'].filter(piece => piece.type === 'knight');
-  
-    for (const knight of currentKnights) {
-      const [knightY, knightX] = knight.position;
-  
-      // Check if the knight is in a position that could attack the king
-      if (threateningSquares.some(coord => Array.isArray(coord) && coord[0] === knightY && coord[1] === knightX)) {
-        isKingInCheck = true;
-        return true;
-      }
-    }
-  
-    return false;
+
+  const kingPosition: Position = gameState.kingPositions[opponentColor];
+
+  if (isKnightAttackingPosition(kingPosition, gameState, currentPlayerColor)) {
+    isKingInCheck = true;
   }
+
+  // function isKnightAttackingPosition(): boolean {
+  //   // Assuming gameState.board is a 2D array representing the game board
+  //   const threateningSquares = gameState.board.slice(8, 16).map((row, y) =>
+  //     row.length > 0 ? row.map((_, x) => [y + 8, x]) : []
+  //   ).flat();
+  
+  //   // Get the positions of the opponent's knights
+  //   console.log('7322gameState', gameState);
+  //   const currentKnights = gameState.piecePositions[currentPlayerColor as 'black' | 'white'].filter(piece => piece.type === 'knight');
+  
+  //   for (const knight of currentKnights) {
+  //     const [knightY, knightX] = knight.position;
+  
+  //     // Check if the knight is in a position that could attack the king
+  //     if (threateningSquares.some(coord => Array.isArray(coord) && coord[0] === knightY && coord[1] === knightX)) {
+  //       isKingInCheck = true;
+  //       return true;
+  //     }
+  //   }
+  
+  //   return false;
+  // }
   function canBlock(gameState: GameStateType, threateningSquares: ThreateningSquares, 
     checkingPiecePosition: Position, currentPlayerColor: string, piece: PieceType): boolean {
     console.log('7322gameState', gameState);
@@ -79,10 +115,10 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
     let squarePiece;
 
     
-    if (isKnightAttackingPosition()) {
-      console.log('7322Knight is attacking the checking piece.');
-      return true;
-    }
+    // if (isKnightAttackingPosition()) {
+    //   console.log('7322Knight is attacking the checking piece.');
+    //   return true;
+    // }
     
     const currentPlayerPieces = gameState.piecePositions[currentPlayerColor as PieceColor];
     console.log('7322currentPlayerPieces', currentPlayerPieces);

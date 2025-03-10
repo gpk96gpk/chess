@@ -1,0 +1,553 @@
+{
+  "type": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/assets/icons.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts"
+  ],
+  "color": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/assets/icons.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts"
+  ],
+  "position": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Piece.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/castling.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isFivefoldRepetition.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isThreefoldRepetition.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts"
+  ],
+  "index": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isStalemate.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "i": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Board.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts"
+  ],
+  "_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/resetGameState.ts"
+  ],
+  "_playerNumber, setPlayerNumber_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "_gameOver, setGameOver_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "_turnState, setTurnState_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "_gameState, setGameState_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "_winner, setWinner_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "_isPlayerInCheck, setIsPlayerInCheck_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "_username, setUsername_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "roomId": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "error": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "reason": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "number": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "arg": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "gameState": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/calculateThreateningSquares.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/castling.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/enPassant.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isDraw.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isStalemate.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "gameStateParameter": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx"
+  ],
+  "username": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "password": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts"
+  ],
+  "gameId": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/apis/ChessGame.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "_ gameState, handleDragStart, handleDragEnter, handleDragOver, handleDrop, playerNumber _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Board.tsx"
+  ],
+  "row": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Board.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "piece": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Board.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Piece.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/calculateThreateningSquares.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/castling.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/enPassant.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isInsufficientMaterial.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isStalemate.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts"
+  ],
+  "j": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Board.tsx"
+  ],
+  "_ gameState, setGameState, setWinner, setTurnState, roomCode _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardButtons.tsx"
+  ],
+  "_showExitOverlay, setShowExitOverlay_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardButtons.tsx"
+  ],
+  "_ gameState _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardSaveGameButton.tsx"
+  ],
+  "_saveStatus, setSaveStatus_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardSaveGameButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/GameOver.tsx"
+  ],
+  "_ playerTurn, playerNumber, initialTime _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardTimer.tsx"
+  ],
+  "_seconds, setSeconds_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardTimer.tsx"
+  ],
+  "isPlayerTurn": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardTimer.tsx"
+  ],
+  "seconds": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardTimer.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardTimer.tsx"
+  ],
+  "event": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Piece.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Piece.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts"
+  ],
+  "props": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts"
+  ],
+  "x": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "y": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "pos": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "toX": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "toY": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "move": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isFivefoldRepetition.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isThreefoldRepetition.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "value": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "turnState": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "handleDrop": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "prevState": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "gameOver": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "playerNumber": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isStalemate.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "setTurnState": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "setWinner": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "setGameOver": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "loser": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "isKingInCheckMate": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "isKingInCheck": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "setIsPlayerInCheck": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx"
+  ],
+  "_roomId, setRoomId_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx"
+  ],
+  "_error, setError_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "_errorClass, setErrorClass_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx"
+  ],
+  "resolve": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx"
+  ],
+  "errorMsg": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx"
+  ],
+  "errorClass": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx"
+  ],
+  "e": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_gameState, winner, setWinner, setGameState, setTurnState_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/GameOver.tsx"
+  ],
+  "_ setGameState, setUsername, username _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Lobby.tsx"
+  ],
+  "_ setGameState, username _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbyGameButtons.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "_games, setGames_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "_showGames, setShowGames_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "games": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "showGames": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "game": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx"
+  ],
+  "_ setUsername _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_showSignUp, setShowSignUp_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_showSignIn, setShowSignIn_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_isSignedIn, setIsSignedIn_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_isGuest, setIsGuest_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_inputUsername, setInputUsername_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_password, setPassword_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_errorMessage, setErrorMessage_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "signInResult": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "isSignedIn": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx"
+  ],
+  "_ piece, position, handleDragStart _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Piece.tsx"
+  ],
+  "_ style, position, className, handleDragStart, handleDragEnter, handleDragOver, handleDrop, children _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx"
+  ],
+  "opponentColor": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/calculateThreateningSquares.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "lastPosition": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/calculateThreateningSquares.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/enPassant.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "_dy, dx_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/calculateThreateningSquares.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts"
+  ],
+  "kingPosition": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts"
+  ],
+  "threateningSquares": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "checkingPiecePosition": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "currentPlayerColor": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "existingPiece": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/canBlock.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "opponentPlayerNumber": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "checkPosition": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "matchFoundInDirection": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "coord": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheckOpponent.ts"
+  ],
+  "_y, x_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts"
+  ],
+  "square": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isCheck.ts"
+  ],
+  "currentPlayer": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isDraw.ts"
+  ],
+  "history": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isFivefoldRepetition.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isThreefoldRepetition.ts"
+  ],
+  "p": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isFivefoldRepetition.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isThreefoldRepetition.ts"
+  ],
+  "_ piece _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isStalemate.ts"
+  ],
+  "_ piece, position _": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/isStalemate.ts"
+  ],
+  "_ty, tx_": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/pieceMoves.ts"
+  ],
+  "tempGameState": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "player": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/gameLogic/validMoves.ts"
+  ],
+  "arg0": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts"
+  ],
+  "winner": [
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts",
+    "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/types/clientTypes.ts"
+  ]
+}

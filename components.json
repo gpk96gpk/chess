@@ -1,0 +1,72 @@
+[
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx",
+    "component": "App",
+    "line": 241
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Board.tsx",
+    "component": "Board",
+    "line": 13
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardButtons.tsx",
+    "component": "BoardButtons",
+    "line": 21
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardSaveGameButton.tsx",
+    "component": "BoardSaveGameButton",
+    "line": 10
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardTimer.tsx",
+    "component": "BoardTimer",
+    "line": 14
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx",
+    "component": "Chess",
+    "line": 46
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/ConnectionManager.tsx",
+    "component": "ConnectionManager",
+    "line": 7
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/GameOver.tsx",
+    "component": "GameOver",
+    "line": 14
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Lobby.tsx",
+    "component": "Lobby",
+    "line": 15
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbyGameButtons.tsx",
+    "component": "LobbyGameButtons",
+    "line": 25
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySavedGames.tsx",
+    "component": "LobbySavedGames",
+    "line": 34
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbySignInSignUpButton.tsx",
+    "component": "LobbySignInSignUpButton",
+    "line": 21
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Piece.tsx",
+    "component": "Piece",
+    "line": 4
+  },
+  {
+    "file": "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Square.tsx",
+    "component": "Square",
+    "line": 42
+  }
+]

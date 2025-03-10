@@ -342,7 +342,7 @@ app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
 
 const io = new Server<SocketTypes>(httpServer, {
     cors: {
-      origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
+      origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com', 'http://localhost:5173'],
       methods: ["GET", "POST"]
     }
 });
@@ -510,12 +510,12 @@ app.listen(PORT, () => {
     console.log(`Authentication server running on PORT ${PORT}`)
 })
 
-// httpServer.listen(3004, () => {
-//     console.log('socket server running at localhost/:3004');
-//   });
-httpServer.listen(3004, '0.0.0.0', () => {
-    console.log('socket server running at http://34.224.30.160/:3004');
-});
+httpServer.listen(3004, () => {
+    console.log('socket server running at localhost/:3004');
+  });
+// httpServer.listen(3004, '0.0.0.0', () => {
+//     console.log('socket server running at http://34.224.30.160/:3004');
+// });
   
 httpServer.on('error', (err) => {
     process.exit(1);

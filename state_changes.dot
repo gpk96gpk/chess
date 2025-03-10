@@ -1,0 +1,9 @@
+digraph G {
+  0 [label="Initial State"];
+  1 [label="State 1: count = 1"];
+  0 -> 1;
+  2 [label="State 2: count = 2"];
+  1 -> 2;
+  3 [label="State 3: count = 3"];
+  2 -> 3;
+}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Components and Hooks Visualization</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+  <style>
+    #graph {
+      width: 100%;
+      height: 100vh;
+      overflow: auto;
+    }
+    .hidden {
+      display: none;
+    }
+    svg {
+      min-width: 800px;
+      min-height: 600px;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="toggleLayer('Components')">Toggle Components</button>
+  <button onclick="toggleLayer('Hooks')">Toggle Hooks</button>
+  <div id="graph"></div>
+
+  <script>
+    const dotContent = `
+      digraph G {
+        rankdir=TB;
+        size="10,10"; // Set the maximum width and height of the graph
+        ratio=fill; // Ensure the graph fills the specified size
+        subgraph cluster_components {
+          label="Components";
+          color=blue;
+          0 [label="App", color=blue];
+          1 [label="Board", color=blue];
+          2 [label="BoardButtons", color=blue];
+          3 [label="BoardSaveGameButton", color=blue];
+          4 [label="BoardTimer", color=blue];
+          5 [label="Chess", color=blue];
+          6 [label="ConnectionManager", color=blue];
+          7 [label="GameOver", color=blue];
+          8 [label="Lobby", color=blue];
+          9 [label="LobbyGameButtons", color=blue];
+          10 [label="LobbySavedGames", color=blue];
+          11 [label="LobbySignInSignUpButton", color=blue];
+          12 [label="Piece", color=blue];
+          13 [label="Square", color=blue];
+        }
+        subgraph cluster_hooks {
+          label="Hooks";
+          color=red;
+          14 [label="useState ([playerNumber, setPlayerNumber])", color=red];
+          15 [label="useState ([gameOver, setGameOver])", color=red];
+          16 [label="useState ([turnState, setTurnState])", color=red];
+          17 [label="useState ([gameState, setGameState])", color=red];
+          18 [label="useState ([winner, setWinner])", color=red];
+          19 [label="useState ([isPlayerInCheck, setIsPlayerInCheck])", color=red];
+          20 [label="useState ([username, setUsername])", color=red];
+          21 [label="useParams", color=red];
+          22 [label="useEffect ([])", color=red];
+          23 [label="useEffect ([])", color=red];
+          24 [label="useEffect ([])", color=red];
+          25 [label="useEffect ([])", color=red];
+        }
+        26 [label="playerNumber", color=green];
+        27 [label="gameOver", color=green];
+        28 [label="turnState", color=green];
+        29 [label="gameState", color=green];
+        30 [label="winner", color=green];
+        31 [label="isPlayerInCheck", color=green];
+        32 [label="username", color=green];
+        26 -> 0 [color=green];
+        27 -> 0 [color=green];
+        28 -> 0 [color=green];
+        29 -> 0 [color=green];
+        30 -> 0 [color=green];
+        31 -> 0 [color=green];
+        32 -> 0 [color=green];
+      }
+    `;
+
+    const viz = new Viz();
+    viz.renderSVGElement(dotContent)
+      .then(function(element) {
+        document.getElementById('graph').appendChild(element);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+    function toggleLayer(layer) {
+      const elements = document.querySelectorAll(`[label*="${layer}"]`);
+      elements.forEach(element => {
+        element.classList.toggle('hidden');
+      });
+    }
+  </script>
+</body>
+</html>

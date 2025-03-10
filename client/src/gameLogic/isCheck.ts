@@ -35,7 +35,7 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
   console.log('5556pieceLastPosition', pieceLastPosition)
   if (pieceLastPosition) {
     const [lastY, lastX] = pieceLastPosition;
-    gameState.board[lastY][lastX] = {
+    gameState.board[lastY!][lastX!] = {
         type: pieceType,
         color: pieceColor,
         position: pieceLastPosition,
@@ -56,9 +56,20 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
   
   function isKnightAttackingPosition(): boolean {
     // Assuming gameState.board is a 2D array representing the game board
-    const threateningSquares = gameState.board.slice(8, 16).map((row, y) =>
-      row.length > 0 ? row.map((_, x) => [y + 8, x]) : []
-    ).flat().filter(coord => coord !== null);
+    const knightOffsets: Position[] = [
+      [2, 1], [2, -1],
+      [-2, 1], [-2, -1],
+      [1, 2], [1, -2],
+      [-1, 2], [-1, -2],
+    ];
+    const threateningSquares = knightOffsets.map(([dy, dx]) => {
+      if (!checkPosition) {
+        checkPosition = gameState.kingPositions[currentPlayerColor as PieceColor];
+      }
+      const y = checkPosition![0]! + dy!;
+      const x = checkPosition![1]! + dx!;
+      return [y, x];
+    }).filter(([y, x]) => y >= 0 && y < 8 && x >= 0 && x < 8);
   
     // Get the positions of the opponent's knights
     console.log('7322gameState', gameState);
@@ -88,8 +99,27 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
 
     const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
     if (isKnightAttackingPosition()) {
-      console.log('7322Knight is attacking the checking piece.');
-      return true;
+      const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
+      if (firstTriggeringOpponentPiece!) {
+        const aliveAttackingKnights = gameState.piecePositions[opponentColor].filter(knight =>
+          knight.type === 'knight' &&
+          knight.position[0] === firstTriggeringOpponentPiece!.position![0] &&
+          knight.position[1] === firstTriggeringOpponentPiece!.position![1]
+        );
+        if (aliveAttackingKnights.length > 0) {
+          console.log('7322Attacking knight is alive and attacking.');
+          return true;
+        } else {
+          console.log('7322Stored attacking knight is no longer alive.');
+        }
+      } else {
+        // Fallback: if no stored attacker, check for any alive knights.
+        const aliveAttackingKnights = gameState.piecePositions[opponentColor].filter(piece => piece.type === 'knight');
+        if (aliveAttackingKnights.length > 0) {
+          console.log('7322At least one attacking knight is alive.');
+          return true;
+        }
+      }
     }
 
     const currentPlayerPieces = gameState.piecePositions[currentPlayerColor];
@@ -111,7 +141,7 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
       let breakOuterLoop = false; // Flag to break the outer loop
       for (const square of threateningSquaresCopy[directionIndex] as Position[]) {
         const [y, x] = square;
-        squarePiece = gameState.board[y][x];
+        squarePiece = gameState.board[y!][x!];
         console.log('5556squarePiece', square, squarePiece, gameState)
         console.log(`5556Iterating over square ${square} with squarePiece color ${squarePiece.color}`, gameState, squarePiece); // Log the current square and squarePiece color
           
@@ -133,6 +163,35 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
         //   breakOuterLoop = true; // Set the flag to break the outer loop
         //   break; // Break the inner loop and move to the next direction
         // }
+
+        // New block to check pawn threats in diagonal directions (directionIndex 4 to 7)
+        if (directionIndex >= 4 && directionIndex < 8 && squarePiece.type === 'pawn') {
+          // Get the king's position (y,x)
+          const kingPos = piece.position ? piece.type === 'king' ? pieceLastPosition : piece.position : gameState.kingPositions[currentPlayerColor];
+          console.log(`5556King position: ${kingPos}`); // Log the king's position
+          // For y,x coordinates:
+          // Black pawn attacks: (y+1, x-1) and (y+1, x+1)
+          // White pawn attacks: (y-1, x-1) and (y-1, x+1)
+          const pawnY = square[0];
+          const pawnX = square[1];
+          const pawnAttacks = squarePiece.color === 'black' 
+            ? [[pawnY! + 1, pawnX! - 1], [pawnY! + 1, pawnX! + 1]]
+            : [[pawnY! - 1, pawnX! - 1], [pawnY! - 1, pawnX! + 1]];
+
+          if (pawnAttacks.some(([y, x]) => y === kingPos![0] && x === kingPos![1])) {
+              console.log(`Pawn at ${square} is attacking the king at ${kingPos}`);
+              isKingInCheck = true;
+              gameState.checkStatus[currentPlayerColor] = true;
+              gameState.checkStatus.direction = directionIndex;
+              checkPosition = square;
+              return false;
+          } else {
+              console.log(`Pawn at ${square} does not threaten the king at ${kingPos}`);
+              // If the pawn is not threatening, break out of this direction's loop.
+              break;
+          }
+        }
+
         if ((directionIndex < 4 && squarePiece.type !== 'rook' && squarePiece.type !== 'queen') ||
             (directionIndex >= 4 && directionIndex < 8 && squarePiece.type !== 'bishop' && squarePiece.type !== 'queen') || 
             (directionIndex >= 8 && squarePiece.type !== 'knight') || // Check if the squarePiece is not an opponent's knight
@@ -148,6 +207,9 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
             isKingInCheck = true;
             gameState.checkStatus[currentPlayerColor] = true; // Set the checkStatus in the gameState
             gameState.checkStatus.direction = directionIndex; // Set the checkDirection in the gameState
+            if (!checkPosition) {
+              checkPosition = gameState.kingPositions[currentPlayerColor as PieceColor];
+            }
             checkPosition = square; // Set the checkPosition in the gameState
             console.log('843checkDirection', gameState.checkStatus.direction)
             console.log('7322isKingInCheck1', isKingInCheck)
@@ -208,7 +270,7 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
             const lastSquare = threateningSquaresCopy[directionIndex][threateningSquaresCopy[directionIndex].length - 1];
             if (Array.isArray(lastSquare)) {
                 const [y, x] = lastSquare;
-                const piece = gameState.board[y][x];
+                const piece = gameState.board[y!][x!];
                 if (!piece || piece.type !== 'knight' || piece.color !== opponentColor) {
                     console.log(`5556Last direction is blank or not an opponent's knight at square ${lastSquare}`);
                     isKingInCheck = false;
@@ -318,7 +380,7 @@ if (piece.type === 'king') {
   }
   if (gameState.threateningPiecesPositions[currentPlayerColor as PieceColor].some(square => square[0] === lastPosition![0] && square[1] === lastPosition![1])) {
     // If the king's move is in the threatening squares and the king is not taking the threatening piece, return false
-    if (!(lastPosition![0] === firstTriggeringOpponentPiece?.position![0] && lastPosition![1] === firstTriggeringOpponentPiece.position[1])) {
+    if (!(lastPosition![0] === firstTriggeringOpponentPiece?.position![0] && lastPosition![1] === firstTriggeringOpponentPiece!.position[1])) {
       isKingInCheck = true;
     }
   } else {
@@ -327,7 +389,7 @@ if (piece.type === 'king') {
 
     // Move the king to the new position
     hypotheticalGameState.board[piece.position![0 as number]][piece.position![1 as number]] = {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false};
-    hypotheticalGameState.board[lastPosition![0]][lastPosition![1]] = piece;
+    hypotheticalGameState.board[lastPosition![0]!][lastPosition![1]!] = piece;
     hypotheticalGameState.threateningPiecesPositions[currentPlayerColor] = calculateThreateningSquares(hypotheticalGameState, currentPlayerColor as PieceColor, piece, lastPosition!);
     console.log('843hypotheticalGameState', hypotheticalGameState)
     // Check if the king would be in check in the new position

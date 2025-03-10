@@ -1,11 +1,3 @@
-//TODO: 
-// in separate files create a function for each piece that will  
-//take in piece and board info and return a list of valid moves
-//take in piece and board info and perform move logic for corresponding piece in switch statement
-//take in piece and board info and perform check logic
-//take in piece and board info and perform checkmate logic
-//take in piece board and info and perform en passant logic
-//take in piece board and info and perform castling logic
 import { useEffect, useContext, useRef } from 'react';
 import { useParams } from "react-router-dom";
 import { SocketContext } from "../context/SocketContext";
@@ -19,6 +11,8 @@ import calculateThreateningSquares from '../gameLogic/calculateThreateningSquare
 import BoardButtons from './BoardButtons';
 import { polyfill } from "mobile-drag-drop";
 import { scrollBehaviourDragImageTranslateOverride } from "mobile-drag-drop/scroll-behaviour";
+// import BoardTimer from './BoardTimer';
+// import resetGameState from '../gameLogic/resetGameState';
 
 
 polyfill({
@@ -28,20 +22,7 @@ polyfill({
 window.addEventListener('touchmove', function(event) {
     event.preventDefault();
 }, { passive: false });
-// import BoardTimer from './BoardTimer';
-// import getMovesForPiece from '../gameLogic/pieceMoves';
-// import moveOutOfCheck from '../gameLogic/validMoves';
-// import isCheckOpponent from '../gameLogic/isCheckOpponent';
-// import resetGameState from '../gameLogic/resetGameState';
 
-// interface HandleDropProps {
-//     gameState: GameStateType;
-//     playerNumber: number;
-//     turnState: number;
-//     setHighlightedTiles: (tiles: Position[]) => void;
-//     setGameState: (gameState: GameStateType) => void;
-//     setGameOver: (gameOver: boolean) => void;
-// }
 
 const Chess: React.FC<Props> = (props) => {
     // if (!props.gameState) {
@@ -72,11 +53,6 @@ const Chess: React.FC<Props> = (props) => {
     const loser: string | null = gameState.turn === 'black' ? 'white' : 'black';
     let newGameState;
     let hasCastled = false;
-    let toX: number, toY: number;
-    // if (props.gameState.history.length > 2) {
-    //     ({ isKingInCheck, isKingInCheckMate, loser } = isCheck(props.gameState, props.playerNumber));
-    // }
-    //let dragOverPiece;
     
     const handleDragStart = (event: React.DragEvent, piece: PieceType, position: Position) => {
         //event.preventDefault();
@@ -121,7 +97,7 @@ const Chess: React.FC<Props> = (props) => {
             console.error('handleDropNo piece data');
             return;
         }
-
+    
         let piece: PieceType;
         try {
             piece = JSON.parse(pieceData);
@@ -129,38 +105,70 @@ const Chess: React.FC<Props> = (props) => {
             console.error('Invalid JSON string:', error);
             return;
         }
+    
+        // Update piece position with the drop coordinates
+        console.log('761piece', piece);
+        console.log('761lastDragOverPosition', lastDragOverPosition.current);
+        if (lastDragOverPosition.current) {
+            piece.position = lastDragOverPosition.current;
+            console.log('761piece', piece);
+        } else {
+            console.error('Error: lastDragOverPosition is null');
+            return;
+        }
+    
         const currentPlayerColor = playerNumber === 1 ? 'black' : 'white';
         const opponentColor = playerNumber === 1 ? 'white' : 'black';
-        console.log('5556opponentColor', opponentColor)
-        if (lastDragOverPosition.current) {
+        console.log('5556opponentColor', opponentColor);
+        
+        let toX: number, toY: number;
+        if (lastDragOverPosition.current && lastDragOverPosition.current.length === 2) {
             [toX, toY] = lastDragOverPosition.current;
+        } else {
+            console.error('Error: lastDragOverPosition is null or invalid');
+            return;
         }
         let fromX: number | undefined, fromY: number | undefined;
         if (piece.position) {
-            [fromX, fromY] = piece.position;
+            // Note: piece.position was updated above to the drop coords
+            // Use startPosition.current (the original coordinates) for "from"
+            if(startPosition.current){
+                [fromX, fromY] = startPosition.current;
+            } else {
+                console.error('Error: startPosition.current is null');
+                return;
+            }
+        } else {
+            console.error('Error: piece.position is null');
+            return;
         }
-        //const didMoveDiagonally = Math.abs(toX - fromX) === 1 && Math.abs(toY - fromY) === 1;
+        
         newGameState = JSON.parse(JSON.stringify(gameState));
         console.log('761validMovesCheck', piece.position, startPosition.current, newGameState, playerNumber, lastDragOverPosition.current, 
-            currentPlayerInCheck, gameState)
-        console.log('761currentPlayerInCheck', currentPlayerInCheck)
-        //this may not need to declare threatening squares with validMoves and instead call calculateThreateningSquares separately
+                currentPlayerInCheck, gameState);
+        console.log('761currentPlayerInCheck', currentPlayerInCheck);
+        
         const validMovesResult = validMoves(piece, startPosition.current!, gameState, playerNumber, lastDragOverPosition.current!);
         if (!validMovesResult) {
             console.error('Error: validMoves returned nothing');
-            return
+            return;
         } 
-        const { moves: pieceValidMoves, threateningSquares, isKingInCheck, checkDirection, isKingInCheckMate, isOpponentKingInCheck, enPassantMove, canCastle } = validMovesResult as ValidMovesResult;
+        const { moves: pieceValidMoves, threateningSquares, isKingInCheck, checkDirection, isKingInCheckMate, isOpponentKingInCheck, enPassantMove, canCastle, canPromote, promotionPosition } = validMovesResult as ValidMovesResult;
         console.log('761pieceValidMoves', pieceValidMoves, isOpponentKingInCheck);
+        
+        // Handle pawn promotion
+        if (canPromote && piece.type === 'pawn') {
+            setShowPromotionDialog(true);
+            setPromotionPosition(promotionPosition!);
+            setPieceToPromote(piece);
+            return; // Exit the function to wait for user selection
+        }
+                
         if (isOpponentKingInCheck) {
             console.log('761isOpponentKingInCheck', isOpponentKingInCheck, opponentColor);
             gameState.checkStatus[opponentColor] = true;
-            console.log('761gameState', gameState, gameState.checkStatus[opponentColor]);
         }
-        
-
         console.log('761pieceValidMoves', pieceValidMoves);
-
         console.log('newGameState', newGameState, gameState);
         // function simulateMove(gameState, piece, move) {
         //     console.log('3333Simulating move for piece:', piece);
@@ -375,10 +383,10 @@ const Chess: React.FC<Props> = (props) => {
             const enPassantDirection = piece.color === 'white' ? -1 : 1;
             //Check if lastDragOverPosition is equal to the enPassantMove if it is then update the board to remove the piece that was taken
             if (enPassantMove && lastDragOverPosition.current![0] === enPassantMove[0] && lastDragOverPosition.current![1] === enPassantMove[1]) {
-                updateBoard(gameState, lastDragOverPosition.current![0] - enPassantDirection, lastDragOverPosition.current![1], {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: -1, position: []});
+                updateBoard(gameState, lastDragOverPosition.current![0] - enPassantDirection, lastDragOverPosition.current![1], {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: -1, id: -1, position: [lastDragOverPosition.current![0] - enPassantDirection, lastDragOverPosition.current![1]] as Position});
             }
             
-            updateBoard(gameState, fromX!, fromY!, {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: -1, position: []});
+            updateBoard(gameState, fromX!, fromY!, {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: -1, id: -1, position: [fromX!, fromY!] as Position});
             console.log('847 gameState updated', gameState);  
             
             console.log('847canCastle', canCastle, piece.type, castlingDirection, piece.hasMoved, piece);
@@ -428,8 +436,89 @@ const Chess: React.FC<Props> = (props) => {
         }
     }
       
-    const { gameOver, playerNumber, turnState, winner, setGameState, setTurnState, setWinner, setGameOver, 
-        setIsPlayerInCheck } = props;
+    const { gameOver, playerNumber, turnState, winner, showPromotionDialog, promotionPosition, pieceToPromote, setShowPromotionDialog, setPromotionPosition, setPieceToPromote, setGameState, setTurnState, setWinner, setGameOver, setIsPlayerInCheck } = props;
+    
+    const handlePromotionSelection = (promoteTo: 'queen' | 'rook' | 'bishop' | 'knight') => {
+        if (!pieceToPromote || !promotionPosition || !gameState) {
+            return;
+        }
+        
+        // Create a deep copy of the game state
+        const updatedGameState = JSON.parse(JSON.stringify(gameState));
+        
+        // Get source position (where the pawn came from)
+        const fromX = startPosition.current ? startPosition.current[0] : 0;
+        const fromY = startPosition.current ? startPosition.current[1] : 0;
+        
+        // Get destination position (where the pawn is being promoted)
+        const toX = promotionPosition[0];
+        const toY = promotionPosition[1];
+        
+        // Update the board with the promoted piece
+        updatedGameState.board[toX!][toY!] = {
+            ...pieceToPromote,
+            type: promoteTo,
+            hasMoved: true,
+            position: promotionPosition
+        };
+        
+        // Clear the original square
+        updatedGameState.board[fromX!][fromY!] = {
+            type: 'empty', 
+            color: 'none', 
+            hasMoved: false, 
+            isHighlighted: false, 
+            index: -1, 
+            position: [fromX, fromY]
+        };
+        
+        // Update piece positions
+        if (updatedGameState.piecePositions && updatedGameState.piecePositions[currentPlayerColor]) {
+            const pieceIndex = updatedGameState.piecePositions[currentPlayerColor].findIndex(
+                (p: PieceType) => p.id === pieceToPromote.index
+            );
+            
+            if (pieceIndex !== -1) {
+                updatedGameState.piecePositions[currentPlayerColor][pieceIndex] = {
+                    ...updatedGameState.piecePositions[currentPlayerColor][pieceIndex],
+                    type: promoteTo,
+                    position: promotionPosition,
+                    hasMoved: true
+                };
+            }
+        }
+        
+        // Add move to history
+        updatedGameState.history.push({
+            piece: { ...pieceToPromote, type: promoteTo, hasMoved: true },
+            from: [fromX, fromY],
+            to: promotionPosition,
+            board: JSON.parse(JSON.stringify(updatedGameState.board)),
+            turnNumber: updatedGameState.history.length,
+            turn: currentPlayerColor,
+            isPromotion: true,
+            promotedTo: promoteTo
+        });
+        
+        // Update game state
+        setGameState(updatedGameState);
+        
+        // Reset promotion dialog
+        setShowPromotionDialog(false);
+        setPromotionPosition(null);
+        setPieceToPromote(null);
+        
+        // Change turn
+        const nextTurn = turnState === 1 ? 2 : 1;
+        setTurnState(nextTurn);
+        
+        // Emit updated game state to other player if multiplayer
+        if (socket) {
+            socket.emit('gameState', updatedGameState, roomCode);
+            socket.emit('turn', nextTurn, roomCode);
+        }
+    };
+    
     useEffect(() => {
         if (gameState.turn !== (turnState === 1 ? 'black' : 'white')) {
             console.log('turnState1', turnState)
@@ -490,13 +579,34 @@ const Chess: React.FC<Props> = (props) => {
     setGameState(props.gameState)
     return (
         <div className='Chess'>
-            {/* <h1>Chess Game</h1> */}
             <h1>Room Code: <br /> {roomCode}</h1>
             <div className='chess-buttons-status'>
                 <h2>{turnState === 0 ? "Waiting for opponent" : (playerNumber === turnState ? "Your Turn" : "Opponent's Turn")}</h2>
                 {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
                 <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} />
             </div>
+            
+            {/* Add Promotion Dialog */}
+            {showPromotionDialog && (
+                <div className="promotion-dialog">
+                    <h3>Choose promotion piece:</h3>
+                    <div className="promotion-options">
+                        {['queen', 'rook', 'bishop', 'knight'].map(piece => (
+                            <div 
+                                key={piece} 
+                                className="promotion-piece"
+                                onClick={() => handlePromotionSelection(piece as 'queen' | 'rook' | 'bishop' | 'knight')}
+                            >
+                                <img 
+                                    src={`/src/assets/${piece}${currentPlayerColor.charAt(0).toUpperCase() + currentPlayerColor.slice(1)}.svg`} 
+                                    alt={piece} 
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+            
             <Board setTurnState={setTurnState} setWinner={setWinner} gameState={props.gameState} handleDragStart={handleDragStart} handleDragEnter={handleDragEnter} handleDragOver={handleDragOver} handleDrop={handleDrop} />
         </div>
     );

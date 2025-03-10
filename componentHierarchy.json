@@ -1,0 +1,30 @@
+{
+  "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/App.tsx": [
+    "Route",
+    "Lobby",
+    "Route",
+    "Chess"
+  ],
+  "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/main.tsx": [
+    "App"
+  ],
+  "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Board.tsx": [
+    "Piece"
+  ],
+  "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/BoardButtons.tsx": [
+    "BoardSaveGameButton"
+  ],
+  "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Chess.tsx": [
+    "GameOver",
+    "BoardButtons",
+    "Board"
+  ],
+  "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/Lobby.tsx": [
+    "LobbySignInSignUpButton",
+    "LobbyGameButtons"
+  ],
+  "/mnt/c/Users/George/Desktop/PracticeProjects/chess/client/src/components/LobbyGameButtons.tsx": [
+    "ConnectionManager",
+    "LobbySavedGames"
+  ]
+}

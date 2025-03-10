@@ -4,13 +4,15 @@ import { SocketContext } from './context/SocketContext';
 import { useEffect, useState } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
-import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
+import { Props, GameStateType, Position, PieceType, PieceNames, TestBoard } from './types/clientTypes';
 import resetGameState from './gameLogic/resetGameState';
+import { knightCheckmateBoard, pawnTestBoard, basicMoveBoard } from './testUtils/testBoards';
+
 //import { API_URL } from './apis/ChessGame';
 //import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
 
-const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
-//const socket = io(`http://localhost:3004/`);
+// const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
+const socket = io(`http://localhost:3004/`);
 
 let index = 0;
 let whitePawnIndex = 24;
@@ -93,38 +95,38 @@ const initialBoard: GameStateType = {
     kingPositions: { black: [0, 4], white: [7, 4] },
     threateningPiecesPositions: {
         black: [
-            // [0, -1] horizontal
+            // [0, -1] horizontal 0
             [[0, 3], [0, 2], [0, 1], [0, 0]],
-            // [0, 1] horizontal
+            // [0, 1] horizontal 1
             [[0, 5], [0, 6], [0, 7]],
-            // [-1, 0] vertical
+            // [-1, 0] vertical 2
             [],
-            // [1, 0] vertical
+            // [1, 0] vertical 3
             [[1, 4], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [7, 4]],
-            // [-1, -1] diagonal
+            // [-1, -1] diagonal 4
             [],
-            // [-1, 1] diagonal
+            // [-1, 1] diagonal 5
             [],
-            // [1, -1] diagonal
+            // [1, -1] diagonal 6
             [[1, 3], [2, 2], [3, 1], [4, 0]],
-            // [1, 1] diagonal
+            // [1, 1] diagonal 7
             [[1, 5], [2, 6], [3, 7]],
             //knight moves
-            // [-2, -1] knight vertical
+            // [-2, -1] knight vertical 8
             [],
-            // [-2, 1] knight vertical
+            // [-2, 1] knight vertical 9
             [],
-            // [2, -1] knight vertical
+            // [2, -1] knight vertical 10
             [[2, 3]],
-            // [2, 1] knight vertical
+            // [2, 1] knight vertical 11
             [[2, 5]],
-            // [-1, -2] knight horizontal
+            // [-1, -2] knight horizontal 12
             [],
-            // [-1, 2] knight horizontal
+            // [-1, 2] knight horizontal 13
             [],
-            // [1, -2] knight horizontal
+            // [1, -2] knight horizontal 14
             [[1, 2]],
-            // [1, 2] knight horizontal
+            // [1, 2] knight horizontal 15
             [[1, 6]]
         ],
         white: [
@@ -242,12 +244,43 @@ function App() {
     const [playerNumber, setPlayerNumber] = useState< 1 | 2 >(1);
     const [gameOver, setGameOver] = useState(false);
     const [turnState, setTurnState] = useState<0 | 1 | 2 | 3>(0);
-    const [gameState, setGameState] = useState<GameStateType>(initialBoard);
+    //const [gameState, setGameState] = useState<GameStateType>(initialBoard);
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
     const [username, setUsername] = useState<string | null>(null);
+    const [showPromotionDialog, setShowPromotionDialog] = useState(false);
+    const [promotionPosition, setPromotionPosition] = useState<Position | null>(null);
+    const [pieceToPromote, setPieceToPromote] = useState<PieceType | null>(null);
     const { roomCode } = useParams()
     //const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
+
+    const testBoards = {
+        none: null,
+        knightCheckmate: knightCheckmateBoard,
+        pawnTest: pawnTestBoard,
+        basicMove: basicMoveBoard
+      };
+    
+      const [selectedTestBoard, setSelectedTestBoard] = useState<TestBoard>('none');
+      const [gameState, setGameState] = useState<GameStateType>(() => testBoards[selectedTestBoard] || /* initial board code */ {
+        board: [],
+        history: [],
+        turn: 'black',
+        kingPositions: { black: [0,0], white: [7,7] },
+        threateningPiecesPositions: { black: [], white: [] },
+        piecePositions: { black: [], white: [] },
+        checkStatus: { black: false, white: false, direction: -1 },
+        checkmateStatus: { black: false, white: false },
+        username1: '',
+        username2: ''
+      });
+      
+      // On test board selection change, update gameState
+      useEffect(() => {
+        if (testBoards[selectedTestBoard]) {
+          setGameState(testBoards[selectedTestBoard]!);
+        }
+      }, [selectedTestBoard]);
 
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
@@ -445,6 +478,9 @@ function App() {
         winner,
         isPlayerInCheck,
         username,
+        showPromotionDialog,
+        promotionPosition,
+        pieceToPromote,
         setPlayerNumber,
         setGameState,
         setGameOver,
@@ -453,18 +489,39 @@ function App() {
         setWinner,
         setIsPlayerInCheck,
         handleReset,
-        setUsername
+        setUsername,
+        setShowPromotionDialog,
+        setPromotionPosition,
+        setPieceToPromote
     };
 
     return (
-        <SocketContext.Provider value={socket}>
-            <Router>
-                <Routes>
-                    <Route path="/lobby?/:username?" element={<Lobby setGameState={ setGameState } setUsername={setUsername} username={username}/>} />
-                    <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
-                </Routes>
-            </Router>
-        </SocketContext.Provider>
+    <SocketContext.Provider value={socket}>
+        <Router>
+            {/* 
+            Optionally, display a test board selector for debugging.
+            In production this component can be removed or hidden.
+            */}
+            <div style={{ padding: '1rem', backgroundColor: '#f0f0f0' }}>
+            <label htmlFor="testBoardSelect">Select test board:</label>
+            <select
+                id="testBoardSelect"
+                value={selectedTestBoard}
+                onChange={(e) => setSelectedTestBoard(e.target.value as TestBoard)}
+                style={{ zIndex: 9999, position: 'relative' }}
+            >
+                <option value="">-- Standard Game --</option>
+                <option value="knightCheckmate">Knight Checkmate</option>
+                <option value="pawnTest">Pawn Test</option>
+                <option value="basicMove">Basic Move</option>
+            </select>
+            </div>
+            <Routes>
+            <Route path="/lobby?/:username?" element={<Lobby setGameState={setGameState} setUsername={setUsername} username={username} />} />
+            <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
+            </Routes>
+        </Router>
+    </SocketContext.Provider>
     );
 }
 
