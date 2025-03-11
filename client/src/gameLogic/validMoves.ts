@@ -99,97 +99,97 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
 
   
 
-  function isSquareUnderAttack(square: Position, gameState: GameStateType, attackingColor: PieceColor): boolean {
-    if (!square || square.length !== 2) return false;
+  // function isSquareUnderAttack(square: Position, gameState: GameStateType, attackingColor: PieceColor): boolean {
+  //   if (!square || square.length !== 2) return false;
     
-    const [y, x] = square;
-    if (y < 0 || y >= 8 || x < 0 || x >= 8) return false;
+  //   const [y, x] = square;
+  //   if (y < 0 || y >= 8 || x < 0 || x >= 8) return false;
     
-    // Check for attacks from pawns
-    const pawnDirections = attackingColor === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
-    for (const [dy, dx] of pawnDirections) {
-      const py = y + dy;
-      const px = x + dx;
-      if (py >= 0 && py < 8 && px >= 0 && px < 8) {
-        const piece = gameState.board[py][px];
-        if (piece.type === 'pawn' && piece.color === attackingColor) {
-          console.log(`Square [${y},${x}] is attacked by a ${attackingColor} pawn at [${py},${px}]`);
-          return true;
-        }
-      }
-    }
+  //   // Check for attacks from pawns
+  //   const pawnDirections = attackingColor === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+  //   for (const [dy, dx] of pawnDirections) {
+  //     const py = y + dy;
+  //     const px = x + dx;
+  //     if (py >= 0 && py < 8 && px >= 0 && px < 8) {
+  //       const piece = gameState.board[py][px];
+  //       if (piece.type === 'pawn' && piece.color === attackingColor) {
+  //         console.log(`Square [${y},${x}] is attacked by a ${attackingColor} pawn at [${py},${px}]`);
+  //         return true;
+  //       }
+  //     }
+  //   }
     
-    // Check for attacks from knights
-    const knightDirections = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
-    for (const [dy, dx] of knightDirections) {
-      const ny = y + dy;
-      const nx = x + dx;
-      if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8) {
-        const piece = gameState.board[ny][nx];
-        if (piece.type === 'knight' && piece.color === attackingColor) {
-          console.log(`Square [${y},${x}] is attacked by a ${attackingColor} knight at [${ny},${nx}]`);
-          return true;
-        }
-      }
-    }
+  //   // Check for attacks from knights
+  //   const knightDirections = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+  //   for (const [dy, dx] of knightDirections) {
+  //     const ny = y + dy;
+  //     const nx = x + dx;
+  //     if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8) {
+  //       const piece = gameState.board[ny][nx];
+  //       if (piece.type === 'knight' && piece.color === attackingColor) {
+  //         console.log(`Square [${y},${x}] is attacked by a ${attackingColor} knight at [${ny},${nx}]`);
+  //         return true;
+  //       }
+  //     }
+  //   }
     
-    // Check for attacks from kings (adjacent squares)
-    const kingDirections = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
-    for (const [dy, dx] of kingDirections) {
-      const ky = y + dy;
-      const kx = x + dx;
-      if (ky >= 0 && ky < 8 && kx >= 0 && kx < 8) {
-        const piece = gameState.board[ky][kx];
-        if (piece.type === 'king' && piece.color === attackingColor) {
-          console.log(`Square [${y},${x}] is attacked by a ${attackingColor} king at [${ky},${kx}]`);
-          return true;
-        }
-      }
-    }
+  //   // Check for attacks from kings (adjacent squares)
+  //   const kingDirections = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+  //   for (const [dy, dx] of kingDirections) {
+  //     const ky = y + dy;
+  //     const kx = x + dx;
+  //     if (ky >= 0 && ky < 8 && kx >= 0 && kx < 8) {
+  //       const piece = gameState.board[ky][kx];
+  //       if (piece.type === 'king' && piece.color === attackingColor) {
+  //         console.log(`Square [${y},${x}] is attacked by a ${attackingColor} king at [${ky},${kx}]`);
+  //         return true;
+  //       }
+  //     }
+  //   }
     
-    // Check for attacks from sliding pieces (rook, bishop, queen)
-    // Rook and Queen: horizontal/vertical
-    const straightDirections = [[0, 1], [1, 0], [0, -1], [-1, 0]];
-    for (const [dy, dx] of straightDirections) {
-      let cy = y + dy;
-      let cx = x + dx;
-      while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
-        const piece = gameState.board[cy][cx];
-        if (piece.type !== 'empty') {
-          if (piece.color === attackingColor && 
-             (piece.type === 'rook' || piece.type === 'queen')) {
-            console.log(`Square [${y},${x}] is attacked by a ${attackingColor} ${piece.type} at [${cy},${cx}]`);
-            return true;
-          }
-          break; // Stop at any piece (can't see through pieces)
-        }
-        cy += dy;
-        cx += dx;
-      }
-    }
+  //   // Check for attacks from sliding pieces (rook, bishop, queen)
+  //   // Rook and Queen: horizontal/vertical
+  //   const straightDirections = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+  //   for (const [dy, dx] of straightDirections) {
+  //     let cy = y + dy;
+  //     let cx = x + dx;
+  //     while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+  //       const piece = gameState.board[cy][cx];
+  //       if (piece.type !== 'empty') {
+  //         if (piece.color === attackingColor && 
+  //            (piece.type === 'rook' || piece.type === 'queen')) {
+  //           console.log(`Square [${y},${x}] is attacked by a ${attackingColor} ${piece.type} at [${cy},${cx}]`);
+  //           return true;
+  //         }
+  //         break; // Stop at any piece (can't see through pieces)
+  //       }
+  //       cy += dy;
+  //       cx += dx;
+  //     }
+  //   }
     
-    // Bishop and Queen: diagonal
-    const diagonalDirections = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-    for (const [dy, dx] of diagonalDirections) {
-      let cy = y + dy;
-      let cx = x + dx;
-      while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
-        const piece = gameState.board[cy][cx];
-        if (piece.type !== 'empty') {
-          if (piece.color === attackingColor && 
-             (piece.type === 'bishop' || piece.type === 'queen')) {
-            console.log(`Square [${y},${x}] is attacked by a ${attackingColor} ${piece.type} at [${cy},${cx}]`);
-            return true;
-          }
-          break; // Stop at any piece (can't see through pieces)
-        }
-        cy += dy;
-        cx += dx;
-      }
-    }
+  //   // Bishop and Queen: diagonal
+  //   const diagonalDirections = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+  //   for (const [dy, dx] of diagonalDirections) {
+  //     let cy = y + dy;
+  //     let cx = x + dx;
+  //     while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+  //       const piece = gameState.board[cy][cx];
+  //       if (piece.type !== 'empty') {
+  //         if (piece.color === attackingColor && 
+  //            (piece.type === 'bishop' || piece.type === 'queen')) {
+  //           console.log(`Square [${y},${x}] is attacked by a ${attackingColor} ${piece.type} at [${cy},${cx}]`);
+  //           return true;
+  //         }
+  //         break; // Stop at any piece (can't see through pieces)
+  //       }
+  //       cy += dy;
+  //       cx += dx;
+  //     }
+  //   }
     
-    return false; // Square is not under attack
-  }
+  //   return false; // Square is not under attack
+  // }
 
   const addMoveIfValid = (position: Position, tempGameState: GameStateType) => {
     if (!position || canEnPassant) {
@@ -362,24 +362,104 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
   }
   
  
-  const normalMoves = getMovesForPiece(piece, position, gameState);
-  console.log('843normalMoves', normalMoves);
+const normalMoves = getMovesForPiece(piece, position, gameState);
+console.log('843normalMoves', normalMoves);
 
-// Special handling for kings in check - process ALL potential escape moves
-if (piece.type === 'king' && gameState.checkStatus[currentColor]) {
-  console.log('King is in check - validating ALL escape moves, not just lastPosition');
+// Filter out moves that would place the king in check
+if (piece.type === 'king') {
+  const opponentColor = piece.color === 'white' ? 'black' : 'white';
+  moves.push(...normalMoves.filter(move => !isSquareUnderAttack(move, gameState, opponentColor)));
+} else {
+  moves.push(...normalMoves);
+}
+
+console.log('843filteredMoves', moves);
+
+// Helper function to check if a square is under attack
+// Replace the existing isSquareUnderAttack function with this implementation:
+
+function isSquareUnderAttack(square: Position, gameState: GameStateType, attackerColor: PieceColor): boolean {
+  // Extract coordinates
+  const [y, x] = square;
   
-  // Clear the moves array to make sure we're only adding valid escape moves
-  moves.length = 0;
-  
-  // Process each potential king move to find all valid escape moves
-  for (const move of normalMoves) {
-    addMoveIfValid(move, tempGameState);
+  // Check for pawn attacks
+  const pawnDirections = attackerColor === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+  for (const [dy, dx] of pawnDirections) {
+    const py = y! + dy;
+    const px = x! + dx;
+    if (py >= 0 && py < 8 && px >= 0 && px < 8) {
+      const piece = gameState.board[py][px];
+      if (piece.type === 'pawn' && piece.color === attackerColor) {
+        return true;
+      }
+    }
   }
-} else if (normalMoves) {
-  // For normal cases, just validate the lastPosition
-  console.log('843normalMoves', lastPosition);
-  addMoveIfValid(lastPosition, tempGameState);
+  
+  // Check for knight attacks
+  const knightOffsets = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+  for (const [dy, dx] of knightOffsets) {
+    const ky = y! + dy;
+    const kx = x! + dx;
+    if (ky >= 0 && ky < 8 && kx >= 0 && kx < 8) {
+      const piece = gameState.board[ky][kx];
+      if (piece.type === 'knight' && piece.color === attackerColor) {
+        return true;
+      }
+    }
+  }
+  
+  // Check for rook/queen attacks (horizontal and vertical)
+  const rookDirections = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+  for (const [dy, dx] of rookDirections) {
+    let cy = y! + dy;
+    let cx = x! + dx;
+    while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+      const piece = gameState.board[cy][cx];
+      if (piece.type !== 'empty') {
+        if (piece.color === attackerColor && 
+           (piece.type === 'rook' || piece.type === 'queen')) {
+          return true;
+        }
+        break; // Stop at first piece encountered in this direction
+      }
+      cy += dy;
+      cx += dx;
+    }
+  }
+  
+  // Check for bishop/queen attacks (diagonal)
+  const bishopDirections = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+  for (const [dy, dx] of bishopDirections) {
+    let cy = y! + dy;
+    let cx = x! + dx;
+    while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+      const piece = gameState.board[cy][cx];
+      if (piece.type !== 'empty') {
+        if (piece.color === attackerColor && 
+           (piece.type === 'bishop' || piece.type === 'queen')) {
+          return true;
+        }
+        break; // Stop at first piece encountered in this direction
+      }
+      cy += dy;
+      cx += dx;
+    }
+  }
+  
+  // Check for king attacks (adjacent squares)
+  const kingOffsets = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+  for (const [dy, dx] of kingOffsets) {
+    const ky = y! + dy;
+    const kx = x! + dx;
+    if (ky >= 0 && ky < 8 && kx >= 0 && kx < 8) {
+      const piece = gameState.board[ky][kx];
+      if (piece.type === 'king' && piece.color === attackerColor) {
+        return true;
+      }
+    }
+  }
+  
+  return false;
 }
 
   let enPassantMove;
