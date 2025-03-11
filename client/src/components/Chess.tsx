@@ -170,76 +170,19 @@ const Chess: React.FC<Props> = (props) => {
         }
         console.log('761pieceValidMoves', pieceValidMoves);
         console.log('newGameState', newGameState, gameState);
-        // function simulateMove(gameState, piece, move) {
-        //     console.log('3333Simulating move for piece:', piece);
-          
-        //     // Create a deep copy of the gameState
-        //     const simulatedGameState = JSON.parse(JSON.stringify(gameState));
-          
-        //     // Get the current position of the piece
-        //     const [currentY, currentX] = piece.position;
-        //     console.log('3333Current position:', [currentY, currentX]);
-          
-        //     // Get the new position of the piece
-        //     const [newY, newX] = move;
-        //     console.log('3333New position:', [newY, newX]);
-          
-        //     // Move the piece in the copied gameState
-        //     simulatedGameState.board[currentY][currentX] = {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false};
-        //     simulatedGameState.board[newY][newX] = piece;
-          
-        //     // Update the position of the piece
-        //     piece.position = [newY, newX];
-          
-        //     console.log('3333Simulated game state:', simulatedGameState);
-        //     return simulatedGameState;
-        //   }
-        //   function isCheckmate(gameState, player): boolean {
-        //     console.log('3333Checking checkmate for player:', player);
-          
-        //     // Iterate over all pieces of the player
-        //     for (let piece of gameState.piecePositions[opponentColor]) {
-        //       console.log('3333Checking piece:', piece, gameState);
-          
-        //       // Get the normal moves for the piece
-        //       const normalMoves = getMovesForPiece(piece, piece.position, gameState); // replace with actual function
-        //       console.log('3333Normal moves:', normalMoves);
-          
-        //       // Iterate over all normal moves
-        //       for (let move of normalMoves) {
-        //         console.log('3333Checking move:', move);
-          
-        //         // Simulate the move
-        //         const simulatedGameState = simulateMove(gameState, piece, move); // replace with actual function
-        //         console.log('3333Simulated game state:', simulatedGameState);
-        //         // If the move would result in the player being able to move out of check, return false
-        //         let checkPosition, matchFoundInDirection;
-        //         const {isKingInCheck} = isCheckOpponent(simulatedGameState, gameState.threateningPiecesPositions[opponentColor], opponentPlayerNumber, checkPosition, piece, piece.position, playerNumber, lastDragOverPosition.current, matchFoundInDirection, currentPlayerColor)
-        //         console.log('3333Is king in check:', isKingInCheck);
-                
-        //         if (!isKingInCheck) { // replace with actual function
-        //           console.log('3333Move out of check found, not a checkmate', simulatedGameState, move);
-        //           return false;
-        //         }
-        //       }
-        //     }
-          
-        //     // If no piece can move out of check, the player is in checkmate
-        //     console.log('3333No move out of check found, it is a checkmate');
-        //     return true;
-        //   }
+
         const updateBoard = (gameState: GameStateType, x: number, y: number, piece: PieceType) => {
             if (hasCastled) {
                 return
             }
             console.log('761updateBoard', x, y, piece, gameState.board[x][y]);
+            piece.hasMoved = true;
             gameState.board[x][y].type = piece.type;
             gameState.board[x][y].color = piece.color;
             gameState.board[x][y].hasMoved = piece.hasMoved;
             gameState.board[x][y].position = piece.position;
             gameState.board[x][y].isHighlighted = false;
             gameState.board[x][y].index = piece.index;
-            piece.hasMoved = true;
             piece.hasMovedTwo && (gameState.board[x][y].hasMovedTwo = true);
 
 
@@ -260,8 +203,8 @@ const Chess: React.FC<Props> = (props) => {
             }
             console.log('866pieceIndex', pieceToUpdate);
             if (pieceToUpdate) {
-                pieceToUpdate.position = lastDragOverPosition.current || [];
                 pieceToUpdate.hasMoved = true;
+                pieceToUpdate.position = lastDragOverPosition.current || [];
                 pieceToUpdate.hasMovedTwo && (pieceToUpdate.hasMovedTwo = true);
                 pieceToUpdate.color = piece.color;
                 const pieceIndex = pieceToUpdate.index;
@@ -356,6 +299,7 @@ const Chess: React.FC<Props> = (props) => {
         if (isPieceValidMove) {
             const tempGameState = JSON.parse(JSON.stringify(gameState));
             tempGameState.board[toX][toY] = piece;
+            tempGameState.board[toX][toY].hasMoved = true;
             tempGameState.board[fromX!][fromY!] = { type: 'empty', color: 'none', hasMoved: false, isHighlighted: false };
             console.log('847tempGameState', tempGameState, gameState);
             let checkPosition;

@@ -52,7 +52,9 @@ export type ValidMoveReturn = {
     isKingInCheckMate: boolean; 
     isOpponentKingInCheck: boolean | undefined; 
     enPassantMove: Position; 
-    canCastle: boolean; 
+    canCastle: boolean;
+    canPromote: boolean;
+    promotionPosition: Position | undefined; 
   }
 
 export type PieceType = {

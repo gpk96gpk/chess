@@ -1,3 +1,4 @@
+//npx jest --preset ts-jest src/__tests__/gameLogic/pieceMoves.test.ts
 import { getMovesForPiece, getPawnMoves, getLinearMoves, getFixedMoves } from '../../gameLogic/pieceMoves';
 import { createEmptyBoard, createPiece } from '../../testUtils/testBoards';
 import calculateThreateningSquares from '../../gameLogic/calculateThreateningSquares';

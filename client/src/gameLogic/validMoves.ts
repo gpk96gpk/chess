@@ -29,33 +29,12 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     return;
   }
 
-  // const currentPieces = gameState.piecePositions[currentColor].map((existingPiece) => {
-  //   console.log(`7778Existing piece id: ${existingPiece.id}`); // Log the id of the existing piece
-
-
-  //   console.log(`7778Piece index: ${pieceIndex}`); // Log the piece index
-
-  //   if (existingPiece.id === pieceIndex) {
-  //       console.log(`7778Matching id found. Updating position to: ${pieceLastPosition}`); // Log the new position
-
-  //       return {
-  //           ...existingPiece,
-  //           position: pieceLastPosition, // Update the position to the lastPosition
-            
-  //       };
-  //   } else {
-  //       return existingPiece;
-  //   }
-  // }); // Get the opponent's pieces
   console.log('7778tempGameState', tempGameState.kingPositions[tempGameState.turn][0], '7778pieceLastPosition', position[0], '7778piece', tempGameState.kingPositions[tempGameState.turn][1], '7778tempKing', position[1], 'tempGameState', tempGameState);
   if (piece.type === 'king' && (tempGameState.kingPositions[tempGameState.turn][0] !== position[0] || tempGameState.kingPositions[tempGameState.turn][1] !== position[1])) {
     threateningSquares = calculateThreateningSquares(tempGameState, currentColor, piece, lastPosition) || [];
   } else {
     threateningSquares = gameState.threateningPiecesPositions[currentColor] || [];
   }
-
-
-
 
   const hypotheticalGameState = JSON.parse(JSON.stringify(gameState));
 
@@ -118,6 +97,100 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
   console.log('843matchFoundInDirection', matchFoundInDirection);
   let canCastle = false;
 
+  
+
+  function isSquareUnderAttack(square: Position, gameState: GameStateType, attackingColor: PieceColor): boolean {
+    if (!square || square.length !== 2) return false;
+    
+    const [y, x] = square;
+    if (y < 0 || y >= 8 || x < 0 || x >= 8) return false;
+    
+    // Check for attacks from pawns
+    const pawnDirections = attackingColor === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+    for (const [dy, dx] of pawnDirections) {
+      const py = y + dy;
+      const px = x + dx;
+      if (py >= 0 && py < 8 && px >= 0 && px < 8) {
+        const piece = gameState.board[py][px];
+        if (piece.type === 'pawn' && piece.color === attackingColor) {
+          console.log(`Square [${y},${x}] is attacked by a ${attackingColor} pawn at [${py},${px}]`);
+          return true;
+        }
+      }
+    }
+    
+    // Check for attacks from knights
+    const knightDirections = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+    for (const [dy, dx] of knightDirections) {
+      const ny = y + dy;
+      const nx = x + dx;
+      if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8) {
+        const piece = gameState.board[ny][nx];
+        if (piece.type === 'knight' && piece.color === attackingColor) {
+          console.log(`Square [${y},${x}] is attacked by a ${attackingColor} knight at [${ny},${nx}]`);
+          return true;
+        }
+      }
+    }
+    
+    // Check for attacks from kings (adjacent squares)
+    const kingDirections = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    for (const [dy, dx] of kingDirections) {
+      const ky = y + dy;
+      const kx = x + dx;
+      if (ky >= 0 && ky < 8 && kx >= 0 && kx < 8) {
+        const piece = gameState.board[ky][kx];
+        if (piece.type === 'king' && piece.color === attackingColor) {
+          console.log(`Square [${y},${x}] is attacked by a ${attackingColor} king at [${ky},${kx}]`);
+          return true;
+        }
+      }
+    }
+    
+    // Check for attacks from sliding pieces (rook, bishop, queen)
+    // Rook and Queen: horizontal/vertical
+    const straightDirections = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+    for (const [dy, dx] of straightDirections) {
+      let cy = y + dy;
+      let cx = x + dx;
+      while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+        const piece = gameState.board[cy][cx];
+        if (piece.type !== 'empty') {
+          if (piece.color === attackingColor && 
+             (piece.type === 'rook' || piece.type === 'queen')) {
+            console.log(`Square [${y},${x}] is attacked by a ${attackingColor} ${piece.type} at [${cy},${cx}]`);
+            return true;
+          }
+          break; // Stop at any piece (can't see through pieces)
+        }
+        cy += dy;
+        cx += dx;
+      }
+    }
+    
+    // Bishop and Queen: diagonal
+    const diagonalDirections = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+    for (const [dy, dx] of diagonalDirections) {
+      let cy = y + dy;
+      let cx = x + dx;
+      while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+        const piece = gameState.board[cy][cx];
+        if (piece.type !== 'empty') {
+          if (piece.color === attackingColor && 
+             (piece.type === 'bishop' || piece.type === 'queen')) {
+            console.log(`Square [${y},${x}] is attacked by a ${attackingColor} ${piece.type} at [${cy},${cx}]`);
+            return true;
+          }
+          break; // Stop at any piece (can't see through pieces)
+        }
+        cy += dy;
+        cx += dx;
+      }
+    }
+    
+    return false; // Square is not under attack
+  }
+
   const addMoveIfValid = (position: Position, tempGameState: GameStateType) => {
     if (!position || canEnPassant) {
       console.log('843position', position);
@@ -125,103 +198,92 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     }
     
     console.log('843position', position, tempGameState);
-    function isSquareUnderAttack(square: Position, threateningSquares: ThreateningSquares): boolean {
-      // Check all directions in the threatening squares
-      for (let direction = 0; direction < threateningSquares.length; direction++) {
-        for (let i = 0; i < threateningSquares[direction].length; i++) {
-          const attackedSquare = threateningSquares[direction][i];
-          if (Array.isArray(attackedSquare) && 
-              attackedSquare[0] === square[0] && 
-              attackedSquare[1] === square[1]) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
     const canKingCastle = () => {
       if (piece && piece.type === 'king') {
-        // 1. Check if king is currently in check - cannot castle while in check
+        console.log(`Checking if king at ${position} can castle to ${lastPosition}`);
+    
+        // First, verify this is a castling move (king moving 2 squares horizontally)
+        if (!piece.position || !lastPosition || 
+            piece.position[0] !== lastPosition[0] || 
+            Math.abs(piece.position[1]! - lastPosition[1]!) !== 2) {
+          console.log(`Not a castling move: king must move 2 squares horizontally`);
+          return;
+        }
+    
+        // Check if king is in check - cannot castle while in check
         if (gameState.checkStatus[currentColor]) {
           console.log(`Cannot castle: King is in check`);
+          canCastle = false;
           return;
         }
     
-        const lastPiece = gameState.board[lastPosition[0]!][lastPosition[1]!];
-        console.log(`Checking if last piece is a rook of the same color`, lastPosition, piece.type, lastPiece.type);
+        // Verify the king has not moved
+        if (piece.hasMoved) {
+          console.log(`Cannot castle: King has already moved`);
+          canCastle = false;
+          return;
+        }
     
-        // Rest of your castling logic setup
-        let castleDirection: number;
-        let rookDirection: number = -1;
-        let rookPosition: number;
+        const rank = piece.position[0]; // The row where king and rook are
+        const kingFile = piece.position[1]; // Current column of king
+        const direction = lastPosition[1]! > kingFile! ? 1 : -1; // 1 for kingside, -1 for queenside
         
-        // Set up castling parameters based on direction
-        if ((lastPosition[1] === 0 || lastPosition[1] === 2) && piece && piece.position) {
-          // Queenside castling
-          castleDirection = piece.position[1]! - 2
-          rookPosition = piece.position[1]! - 1
-          rookDirection = 0
-          console.log('castlingPosition', castleDirection)
-        }
-        if ((lastPosition[1] === 7 || lastPosition[1] === 6) && piece && piece.position) {
-          // Kingside castling
-          castleDirection = piece.position[1]! + 2
-          rookPosition = piece.position[1]! + 1
-          rookDirection = 7;
-          console.log('castlingPosition', castleDirection, rookPosition)
-        }
+        // Determine rook position based on castling direction
+        const rookFile = direction === 1 ? 7 : 0; // Rook is at column 7 (kingside) or 0 (queenside)
+        const rookPosition: Position | undefined = [rank!, rookFile];
         
-        // Check for valid rook and positions
-        console.log('lastPosition and rooks', lastPosition, rookPosition!, piece.position, lastPiece, rookDirection)
-        if (rookDirection === -1) {
+        console.log(`Castling ${direction === 1 ? 'kingside' : 'queenside'}, checking rook at ${rookPosition}`);
+        
+        // Verify there's a rook at the expected position
+        const rookPiece = gameState.board[rank!][rookFile];
+        if (rookPiece.type !== 'rook' || rookPiece.color !== piece.color) {
+          console.log(`Cannot castle: No matching rook found at ${rookPosition}`);
+          canCastle = false;
           return;
         }
         
-        // 2. Check if king's path is under attack
-        const kingStartPosition = piece.position![1];
-        const kingEndPosition = lastPosition[1];
-        const direction = kingEndPosition! > kingStartPosition! ? 1 : -1;
-        let pathUnderAttack = false;
+        // Verify the rook has not moved
+        if (rookPiece.hasMoved) {
+          console.log(`Cannot castle: Rook has already moved`);
+          canCastle = false;
+          return;
+        }
+    
+        // Check if positions between king and rook are empty
+        const startFile = kingFile! + direction;
+        const endFile = rookFile - direction;
         
-        // Check each square the king passes through
-        for (let col = kingStartPosition; col !== kingEndPosition! + direction; col! += direction) {
-          // Skip checking the starting position - we already verified it's not in check
-          if (col === kingStartPosition) continue;
+        for (let file = startFile; direction === 1 ? file <= endFile : file >= endFile; file += direction) {
+          if (gameState.board[rank!][file].type !== 'empty') {
+            console.log(`Cannot castle: Position at [${rank}, ${file}] is not empty`);
+            canCastle = false;
+            return;
+          }
+        }
+        
+        // Check if the king passes through or ends on a square under attack
+        for (let file = kingFile; direction === 1 ? file! <= kingFile! + 2 : file! >= kingFile! - 2; file! += direction) {
+          // Skip the starting position - we already verified it's not in check
+          if (file === kingFile) continue;
           
-          const squareToCheck: Position | undefined= [piece.position![0]!, col!];
+          const squareToCheck: Position | undefined = [rank!, file!];
           
           // Check if square is under attack by opponent
-          const isSquareAttacked = isSquareUnderAttack(squareToCheck, gameState.threateningPiecesPositions[opponentColor]);
+          const isSquareAttacked = isSquareUnderAttack(squareToCheck, gameState, opponentColor);
           if (isSquareAttacked) {
             console.log(`Cannot castle: Path through ${squareToCheck} is under attack`);
-            pathUnderAttack = true;
-            break;
+            canCastle = false;
+            return;
           }
         }
-        
-        if (pathUnderAttack) {
-          return;
-        }
-        
-        // Proceed with regular castling checks
-        if ((lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) || 
-            (gameState.board[lastPosition[0]!][rookDirection!].hasMoved === false && 
-            gameState.board[lastPosition[0]!][rookDirection!].type === 'rook' && 
-            lastPosition[1] === castleDirection! && 
-            (lastPosition[0] === 0 || lastPosition[0] === 7))) {
-          
-          // Check if positions between are empty
-          const positionsBetweenAreEmpty = lastPosition[0] === position[0] 
-            ? checkPositionsBetweenAreEmpty(gameState, position, lastPosition)
-            : checkPositionsBetweenAreEmpty(gameState, position, lastPosition);
     
-          if (positionsBetweenAreEmpty) {
-            canCastle = true;
-            console.log(`Positions between are empty`, canCastle);
-            // Rest of your castling implementation
-            // ...
-          }
-        }
+        // All checks passed, castling is valid
+        console.log(`Castling is valid from ${piece.position} to ${lastPosition}`);
+        canCastle = true;
+        
+        // Add the castling move to valid moves
+        moves.push(lastPosition);
+        return moves;
       }
     }
     
@@ -299,44 +361,27 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     console.log('3333King in checkmate:', isKingInCheckMate);
   }
   
-  //FIX THIS: all this does is update the position in the temp game state, it doesn't actually move the piece
-  // function calculateThreateningSquaresAndCheck() {
-  //   // const currentColor = playerNumber === 1 ? 'black' : 'white';
-    
-  //   const pieceIndex = piece.index;
-  //   // const pieceLastPosition = lastPosition;
-
-    
-  //   // Simulate the move
-  //   const originalPiece = tempGameState.board[lastPosition[0]][lastPosition[1]];
-  //   console.log('843originalPiece', originalPiece, piece, gameState.board);
-  //   //tempGameState.board[position[0]][position[1]] = piece;
-  //   console.log('843tempGameState.board[lastPosition[0]][lastPosition[1]]', tempGameState.board[lastPosition[0]][lastPosition[1]]);
-  //   tempGameState.board[position[0]][position[1]] = {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false};
-    
-  //   // Undo the move
-  //   //tempGameState.board[lastPosition[0]][lastPosition[1]] = originalPiece;
-  //   console.log('843originalPiece', originalPiece, tempGameState.board[lastPosition[0]][lastPosition[1]]);
-  //   //tempGameState.board[position[0]][position[1]] = piece;
-  //   console.log('843isKingInCheck', isKingInCheck);
-  //   console.log('843gameState.checkStatus[currentColor]', gameState.checkStatus[currentColor], lastPosition);
-  //   if (gameState.checkStatus[currentColor] !== true) {
-  //     return position;
-  //   }
-  //   if (gameState.checkStatus[currentColor]) {
-  //     return position;
-  //   }
-
-  //   return null;
-  // }
-  
  
   const normalMoves = getMovesForPiece(piece, position, gameState);
   console.log('843normalMoves', normalMoves);
-  if (normalMoves) {
-    console.log('843normalMoves', lastPosition);
-    addMoveIfValid(lastPosition, tempGameState); // Don't check for check yet
+
+// Special handling for kings in check - process ALL potential escape moves
+if (piece.type === 'king' && gameState.checkStatus[currentColor]) {
+  console.log('King is in check - validating ALL escape moves, not just lastPosition');
+  
+  // Clear the moves array to make sure we're only adding valid escape moves
+  moves.length = 0;
+  
+  // Process each potential king move to find all valid escape moves
+  for (const move of normalMoves) {
+    addMoveIfValid(move, tempGameState);
   }
+} else if (normalMoves) {
+  // For normal cases, just validate the lastPosition
+  console.log('843normalMoves', lastPosition);
+  addMoveIfValid(lastPosition, tempGameState);
+}
+
   let enPassantMove;
   if (piece && piece.type === 'pawn') {
     enPassantMove = enPassant(piece, lastPosition, gameState);
@@ -416,6 +461,7 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
       return allSurroundingAreOpponentsOrOutOfBounds;
   }
 }
+
   function performValidMove(gameState: GameStateType, piece: PieceType | PiecePositions, currentPlayerColor: PieceColor, opponentPlayerNumber: PlayerNumber, playerNumber: PlayerNumber, lastPosition: Position) {
     if (isSurroundedByFriendlies(gameState, piece as PieceType, opponentColor)) {
       return false;
@@ -463,7 +509,7 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
   
   if (errorFound) {
       console.error('Error: Invalid move position');
-      if (moves) {
+      if ( moves) {
         moves.splice(0, moves.length);
       }
   }

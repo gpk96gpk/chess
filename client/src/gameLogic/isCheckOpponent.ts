@@ -41,6 +41,30 @@ function isKnightAttackingPosition(
   return false;
 }
 
+function isPawnAttackingKing(kingPosition: Position, gameState: GameStateType, attackingColor: PieceColor): boolean {
+  const [ky, kx] = kingPosition;
+  
+  // Check diagonal positions from king's perspective
+  // These are the directions where pawns could be attacking from
+  const pawnAttackDirections = attackingColor === 'white' ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]];
+  
+  for (const [dy, dx] of pawnAttackDirections) {
+    const y = ky! + dy;
+    const x = kx! + dx;
+    
+    // Check if position is on board
+    if (y >= 0 && y < 8 && x >= 0 && x < 8) {
+      const piece = gameState.board[y][x];
+      if (piece && piece.type === 'pawn' && piece.color === attackingColor) {
+        console.log(`Pawn at [${y},${x}] is checking king at [${ky},${kx}]`);
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
 function isCheckOpponent(gameState: GameStateType, threateningSquares: ThreateningSquares, opponentPlayerNumber: PlayerNumber, checkPosition: Position, piece: PieceType | PiecePositions, position: Position, playerNumber: PlayerNumber, lastPosition: Position, matchFoundInDirection: number, currentPlayerColor: PieceColor): CheckResult {
   console.log('7322isCheckParams', gameState, threateningSquares, opponentPlayerNumber, checkPosition, piece, position, playerNumber, lastPosition, matchFoundInDirection, currentPlayerColor)
   console.log('7322threateningSquares', threateningSquares)
@@ -68,49 +92,90 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
     };
   }
   if (!gameState || !playerNumber || !gameState.kingPositions) {
-    return { isKingInCheck: false, isKingInCheckMate: false, loser: '' };
+    return { isOpponentKingInCheck: false, isKingInCheckMate: false, loser: '' };
   }
 
-  //const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
-
-  let isKingInCheck = gameState.checkStatus[opponentColor];
-
+  // Initialize check status
+  let isKingInCheck = false;
   const kingPosition: Position = gameState.kingPositions[opponentColor];
-
+  
+  // Check for knight attacks
   if (isKnightAttackingPosition(kingPosition, gameState, currentPlayerColor)) {
+    console.log(`Knight attack detected on king at ${kingPosition}`);
+    isKingInCheck = true;  // Set check flag
+  }
+  
+  // Check for pawn attacks
+  if (isPawnAttackingKing(kingPosition, gameState, currentPlayerColor)) {
+    console.log(`Pawn attack detected on king at ${kingPosition}`);
     isKingInCheck = true;
   }
 
-  // function isKnightAttackingPosition(): boolean {
-  //   // Assuming gameState.board is a 2D array representing the game board
-  //   const threateningSquares = gameState.board.slice(8, 16).map((row, y) =>
-  //     row.length > 0 ? row.map((_, x) => [y + 8, x]) : []
-  //   ).flat();
+  // Check for rook and queen attacks (horizontal and vertical)
+  const rookDirs = [[0, 1], [1, 0], [0, -1], [-1, 0]]; // right, down, left, up
+  for (const [dy, dx] of rookDirs) {
+    let y = kingPosition[0]! + dy;
+    let x = kingPosition[1]! + dx;
+    
+    while (y >= 0 && y < 8 && x >= 0 && x < 8) {
+      if (gameState.board[y][x].type !== 'empty') {
+        if (gameState.board[y][x].color === currentPlayerColor && 
+            (gameState.board[y][x].type === 'rook' || gameState.board[y][x].type === 'queen')) {
+          console.log(`Rook or queen attack detected on king at ${kingPosition}`);
+          isKingInCheck = true;
+        }
+        break; // Stop at first piece
+      }
+      y += dy;
+      x += dx;
+    }
+  }
   
-  //   // Get the positions of the opponent's knights
-  //   console.log('7322gameState', gameState);
-  //   const currentKnights = gameState.piecePositions[currentPlayerColor as 'black' | 'white'].filter(piece => piece.type === 'knight');
+  // Check for bishop and queen attacks (diagonal)
+  const bishopDirs = [[1, 1], [1, -1], [-1, 1], [-1, -1]]; // diagonal directions
+  for (const [dy, dx] of bishopDirs) {
+    let y = kingPosition[0]! + dy;
+    let x = kingPosition[1]! + dx;
+    
+    while (y >= 0 && y < 8 && x >= 0 && x < 8) {
+      if (gameState.board[y][x].type !== 'empty') {
+        if (gameState.board[y][x].color === currentPlayerColor && 
+            (gameState.board[y][x].type === 'bishop' || gameState.board[y][x].type === 'queen')) {
+          console.log(`Bishop or queen attack detected on king at ${kingPosition}`);
+          isKingInCheck = true;
+        }
+        break; // Stop at first piece
+      }
+      y += dy;
+      x += dx;
+    }
+  }
   
-  //   for (const knight of currentKnights) {
-  //     const [knightY, knightX] = knight.position;
-  
-  //     // Check if the knight is in a position that could attack the king
-  //     if (threateningSquares.some(coord => Array.isArray(coord) && coord[0] === knightY && coord[1] === knightX)) {
-  //       isKingInCheck = true;
-  //       return true;
-  //     }
-  //   }
-  
-  //   return false;
-  // }
+  // Check for king attacks (adjacent squares)
+  const kingMoves = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+  for (const [dy, dx] of kingMoves) {
+    const y = kingPosition[0]! + dy;
+    const x = kingPosition[1]! + dx;
+    
+    if (y >= 0 && y < 8 && x >= 0 && x < 8) {
+      if (gameState.board[y][x].color === currentPlayerColor && gameState.board[y][x].type === 'king') {
+        console.log(`King attack detected on king at ${kingPosition}`);
+        isKingInCheck = true;
+      }
+    }
+  }
+
+  // *** CRITICAL FIX: Save the check status BEFORE canBlock modifies it ***
+  let finalCheckStatus = isKingInCheck;
+
+
   function canBlock(gameState: GameStateType, threateningSquares: ThreateningSquares, 
     checkingPiecePosition: Position, currentPlayerColor: string, piece: PieceType): boolean {
-    console.log('7322gameState', gameState);
-    console.log('7322piece', piece, pieceIndex);
-    console.log('7322lastPosition', pieceLastPosition);
-    console.log('7322canBlockParams', gameState, threateningSquares, 
-    checkingPiecePosition, currentPlayerColor); 
-    console.log('7322threateningSquares', threateningSquares)
+    // console.log('7322gameState', gameState);
+    // console.log('7322piece', piece, pieceIndex);
+    // console.log('7322lastPosition', pieceLastPosition);
+     console.log('7322canBlockParams', threateningSquares, checkingPiecePosition, currentPlayerColor); 
+    //console.log('7322threateningSquares', threateningSquares)
     const opponentColor = currentPlayerColor === 'white' ? 'black' : 'white';
     let squarePiece;
 
@@ -147,8 +212,8 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
         if (Array.isArray(square)) {
           const [y, x] = square;
           squarePiece = gameState.board[y][x];
-          console.log('5556squarePiece', square, squarePiece, gameState)
-          console.log(`5556Iterating over square ${square} with squarePiece color ${squarePiece.color}`, gameState, squarePiece); // Log the current square and squarePiece color
+          //console.log('5556squarePiece', square, squarePiece, gameState)
+          //console.log(`5556Iterating over square ${square} with squarePiece color ${squarePiece.color}`, gameState, squarePiece); // Log the current square and squarePiece color
           if (squarePiece.type === 'king' && squarePiece.color === opponentColor) {
             console.log(`5556King found at square ${square}`); // Log the result
             continue; // Skip to the next iteration of the inner loop if the squarePiece is the current player's king
@@ -275,7 +340,7 @@ let firstTriggeringCurrentPieceCoordinates: number[] = [];
 const checkDirection = gameState.checkStatus.direction;
 const opponentThreateningSquares = gameState.threateningPiecesPositions[opponentColor];
 console.log('843firstTriggeringCurrentPiece', firstTriggeringCurrentPiece)
-console.log('843threateningSquares', gameState.threateningPiecesPositions[currentPlayerColor], gameState, checkDirection)
+//console.log('843threateningSquares', gameState.threateningPiecesPositions[currentPlayerColor], gameState, checkDirection)
 let slicedCoordinates: number[] | number[][] = [];
 //firstTriggeringCurrentPieceIndex = checkDirection;
 
@@ -343,23 +408,27 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
   slicedThreateningSquares = slicedCoordinates as number[];
   console.log('843slicedThreateningSquares', slicedThreateningSquares)
 }
-const isKingInCheckMate: boolean = false;
+
+ // === Save our check detection result before canBlock can modify it ===
+ //const isInCheck = isKingInCheck;
+
+// Call canBlock but don't let it override our check detection
+canBlock(gameState, threateningSquares, checkPosition, currentPlayerColor, piece as PieceType);
+  
+
+const isKingInCheckMate: boolean = false; // Checkmate logic is separate
+//const isOpponentKingInCheck = isInCheck;
 
 console.log('7322isKingInCheck', isKingInCheck)
-if (isKingInCheck) {
-  //const isCheckmateResult = isCheckmate(gameState, threateningSquares, currentPlayerColor, checkPosition, piece, position, 
-  //  playerNumber, lastPosition, threatenedSquaresWithOpponentPieces);
-  //isKingInCheckMate = isCheckmateResult.isInCheckmate;
-  if (isKingInCheckMate) {
-    console.log('7322King is in checkmate.');
-  }
-} else {
-  console.log('7322King is not in check or checkmate.');
-}
-  console.log('843checkDirection', checkDirection, gameState)
+
+  //console.log('843checkDirection', checkDirection, gameState)
   const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
-  const isOpponentKingInCheck = isKingInCheck;
-  return { isOpponentKingInCheck, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection, firstTriggeringOpponentPiece };
+  if (piece.type === 'pawn') {
+    finalCheckStatus;
+  } else {
+    finalCheckStatus = isKingInCheck;
+  }
+  return { isOpponentKingInCheck: finalCheckStatus, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection: gameState.checkStatus.direction, firstTriggeringOpponentPiece };
 }
 
 export default isCheckOpponent;
