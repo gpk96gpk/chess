@@ -10,28 +10,28 @@ function getCastlingMove(gameState: GameStateType, piece: PieceType, position: P
         return null;
     }
 
-    const leftRook = gameState.board[kingRow][0] as PieceType;
-    const rightRook = gameState.board[kingRow][7] as PieceType;
+    const leftRook = gameState.board[kingRow!][0] as PieceType;
+    const rightRook = gameState.board[kingRow!][7] as PieceType;
 
     if (leftRook && leftRook.type === 'rook' && !leftRook.hasMoved && 
-        !gameState.board[kingRow][1] && !gameState.board[kingRow][2] && !gameState.board[kingRow][3]) {
+        !gameState.board[kingRow!][1] && !gameState.board[kingRow!][2] && !gameState.board[kingRow!][3]) {
             if (piece.color !== 'none') {
                 castlingMove = {
                     piece,
                     from: position,
-                    to: [kingRow, kingColumn - 2],
+                    to: [kingRow, kingColumn! - 2],
                     board: gameState.board,
                     turn: piece.color!,
                     turnNumber: gameState.history.length
                 };
             }
     } else if (rightRook && rightRook.type === 'rook' && !rightRook.hasMoved && 
-        !gameState.board[kingRow][5] && !gameState.board[kingRow][6]) {
+        !gameState.board[kingRow!][5] && !gameState.board[kingRow!][6]) {
             if (piece.color !== 'none') {
                 castlingMove = {
                     piece,
                     from: position,
-                    to: [kingRow, kingColumn + 2],
+                    to: [kingRow, kingColumn! + 2],
                     board: gameState.board,
                     turn: piece.color!,
                     turnNumber: gameState.history.length
