@@ -100,10 +100,47 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
   const kingPosition: Position = gameState.kingPositions[opponentColor];
   
   // Check for knight attacks
-  if (isKnightAttackingPosition(kingPosition, gameState, currentPlayerColor)) {
-    console.log(`Knight attack detected on king at ${kingPosition}`);
-    isKingInCheck = true;  // Set check flag
+  let threateningSquaresCopy: ThreateningSquares;
+if (isKnightAttackingPosition(gameState.kingPositions[opponentColor], gameState, currentPlayerColor)) {
+  // Special handling for knights - they don't have a linear direction
+  // Create a custom threatening square entry for the knight
+  threateningSquaresCopy = [...threateningSquares] as ThreateningSquares;
+  
+  // Find the knight that's causing check
+  const currentKnights = gameState.piecePositions[currentPlayerColor as PieceColor]
+    .filter(p => p.type === 'knight');
+  
+  for (const knight of currentKnights) {
+    const [ky, kx] = knight.position;
+    const kingPos = gameState.kingPositions[opponentColor];
+    
+    // Check if this knight is attacking the king
+    const knightOffsets = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+    for (const [dy, dx] of knightOffsets) {
+      const newY = ky! + dy;
+      const newX = kx! + dx;
+      if (newY === kingPos[0] && newX === kingPos[1]) {
+        // This knight is causing check - add its position to a special knight direction (8)
+        // Make sure direction 8 exists
+        if (!threateningSquaresCopy[8]) {
+          threateningSquaresCopy[8] = [];
+        }
+        // Add the knight position to this direction
+        threateningSquaresCopy[8].push([ky!, kx!] as number & number[]);
+        
+        // Set check direction to 8 (knight attack)
+        gameState.checkStatus.direction = 8;
+        console.log('Knight causing check at', [ky, kx], 'direction set to 8');
+        break;
+      }
+    }
   }
+} else {
+  // For non-knight checks, use normal threatening squares
+  threateningSquaresCopy = calculateThreateningSquares(gameState, currentPlayerColor, piece as PieceType, lastPosition);
+}
+
+console.log('Updated threateningSquaresCopy for check evaluation:', threateningSquaresCopy);
   
   // Check for pawn attacks
   if (isPawnAttackingKing(kingPosition, gameState, currentPlayerColor)) {
@@ -219,7 +256,7 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
             continue; // Skip to the next iteration of the inner loop if the squarePiece is the current player's king
           }
           if (directionIndex >= 8 && squarePiece.type !== 'knight') {
-            console.log(`5556No opponent's knight at square ${square}`); // Log the result
+            console.log(`5556No opponent's knight at square ${square}`, squarePiece.type); // Log the result
             continue; // Skip to the next iteration of the inner loop if the squarePiece is not an opponent's knight
           }
           if (!squarePiece || squarePiece.color === 'none' || !squarePiece.color) {
@@ -411,7 +448,11 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
 
  // === Save our check detection result before canBlock can modify it ===
  //const isInCheck = isKingInCheck;
+// === Save our check detection result before canBlock can modify it ===
+// let finalCheckStatus = isKingInCheck;
 
+// Store the direction that was found during check detection
+const detectedDirection = gameState.checkStatus.direction;
 // Call canBlock but don't let it override our check detection
 canBlock(gameState, threateningSquares, checkPosition, currentPlayerColor, piece as PieceType);
   
@@ -428,7 +469,7 @@ console.log('7322isKingInCheck', isKingInCheck)
   } else {
     finalCheckStatus = isKingInCheck;
   }
-  return { isOpponentKingInCheck: finalCheckStatus, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection: gameState.checkStatus.direction, firstTriggeringOpponentPiece };
+  return { isOpponentKingInCheck: finalCheckStatus, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection: detectedDirection, firstTriggeringOpponentPiece };
 }
 
 export default isCheckOpponent;

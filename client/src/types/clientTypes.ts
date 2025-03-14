@@ -34,8 +34,10 @@ export type Props = {
     setPromotionPosition: (arg0: Position | null) => void;
     pieceToPromote: PieceType | null;
     setPieceToPromote: (arg0: PieceType | null) => void;
-    // highlightedTiles: Position[];
-    // setHighlightedTiles: (arg0: Position[]) => void;
+    selectedPiece: PieceType | null;
+    setSelectedPiece: (arg0: PieceType | null) => void;
+    highlightedTiles: Position[];
+    setHighlightedTiles: (arg0: Position[]) => void;
 };
 
 export type TestPieceMoveAdapter = PieceMoveType & {
@@ -124,6 +126,7 @@ export type BoardPiece = {
         position: Position,  
         props: Props
     ) => void;
+    handlePieceClick: (event: React.MouseEvent, piece: PieceType, position: Position) => void;
 } 
 
 export interface BoardSaveGameButtonProps {
@@ -184,7 +187,12 @@ export type BoardProps = {
         event: React.DragEvent<HTMLDivElement>, 
         props: Props
     ) => void;
-    playerNumber?: 1 | 2
+    playerNumber?: 1 | 2;
+    isKingInCheck: boolean;
+    handlePieceClick: (event: React.MouseEvent, piece: PieceType, position: Position) => void;
+    handleSquareClick: (event: React.MouseEvent, position: Position) => void;
+    handleBoardClick: (event: React.MouseEvent) => void;
+    highlightedTiles: Position[];
 };
 
 export type GameOverProps = {

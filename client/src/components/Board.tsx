@@ -2,28 +2,73 @@
 //import Piece
 import Square from './Square';
 import Piece from './Piece';
-import { BoardProps, PieceType } from '../types/clientTypes';
-
+import { BoardProps, PieceType, Position } from '../types/clientTypes';
 
 
 // component render
 // div for container of board
 // render chess board as array or Square components mapped from gameState array
 // if the gameState array has a piece in the tile render the piece
-const Board: React.FC<BoardProps> = ({ gameState, handleDragStart, handleDragEnter, handleDragOver, handleDrop, playerNumber }) => {
-    console.log('761gameState', gameState);
-    // console.log(gameState.board)
+// Update the BoardProps interface
+// Add to the existing interface:
+
+
+// Then update the component to pass these props to Square
+const Board: React.FC<BoardProps> = ({ 
+    gameState, 
+    handleDragStart, 
+    handleDragEnter, 
+    handleDragOver, 
+    handleDrop, 
+    playerNumber,
+    isKingInCheck, 
+    handlePieceClick, 
+    handleSquareClick,
+    handleBoardClick, 
+    highlightedTiles 
+}) => {
     return (
-        <div className="board">
+        <div className={`board ${isKingInCheck ? 'king-in-check' : ''}`} onClick={handleBoardClick}>
             {gameState.board.map((row: (PieceType | string)[], i: number) => (
                 <div key={i} className="row">
                     {row.map((piece: PieceType | string, j: number) => {
-                        //let squareStyle = {};
                         const isDark = (i + j) % 2 === 0;
                         const className = isDark ? 'dark-square' : 'light-square';
+                        const position: Position = [i, j];
+                        
+                        // Check if this square should be highlighted
+                        const isHighlighted = highlightedTiles.some(
+                            tile => tile[0] === i && tile[1] === j
+                        );
+                        if (isHighlighted) {
+                            console.log(`HIGHLIGHT: Square at [${i},${j}] is highlighted`);
+                            console.log(`HIGHLIGHT: Square class will be: ${className} highlighted-square`);
+                        }
                         return (
-                            <Square key={j} position={[i, j]} className={className} handleDragStart={handleDragStart} handleDragEnter={handleDragEnter} handleDragOver={handleDragOver} handleDrop={handleDrop}>
-                                {piece !== '' ? <Piece position={[i, j]} piece ={piece as PieceType} handleDragStart={handleDragStart} gameState={gameState} playerNumber={playerNumber!} /> : <div className="empty-square" />}
+                            <Square 
+                                key={j} 
+                                position={position} 
+                                className={`${className} ${isHighlighted ? 'highlighted-square' : ''}`}
+                                handleDragStart={handleDragStart} 
+                                handleDragEnter={handleDragEnter} 
+                                handleDragOver={handleDragOver} 
+                                handleDrop={handleDrop}
+                                handleSquareClick={handleSquareClick}
+                                handlePieceClick={handlePieceClick}
+                                highlightedTiles={highlightedTiles}
+                                isHighlighted={isHighlighted}
+                            >
+                                {piece !== '' ? 
+                                    <Piece 
+                                        position={position} 
+                                        piece={piece as PieceType} 
+                                        handleDragStart={handleDragStart} 
+                                        handlePieceClick={handlePieceClick}
+                                        gameState={gameState} 
+                                        playerNumber={playerNumber!} 
+                                    /> : 
+                                    <div className="empty-square" />
+                                }
                             </Square>
                         );
                     })}
@@ -34,62 +79,3 @@ const Board: React.FC<BoardProps> = ({ gameState, handleDragStart, handleDragEnt
 };
 
 export default Board;
-
-
-
-
-
-
-
-
-
-
-
-
-// const Board = ({ gameState, movePiece }) => {
-//     return (
-//       <div className="board">
-//         {gameState.map((row, i) => (
-//           <div key={i} className="row">
-//             {row.map((piece, j) => (
-//               <Square key={j} position={[i, j]} movePiece={movePiece}>
-//                 {piece && <Piece piece={piece} position={[i, j]} />}
-//               </Square>
-//             ))}
-//           </div>
-//         ))}
-//       </div>
-//     );
-//   };
-  
-//   const Square = ({ position, children, movePiece }) => {
-//     const handleDrop = (event) => {
-//       const piece = JSON.parse(event.dataTransfer.getData('piece'));
-//       movePiece(piece, position);
-//     };
-  
-//     return (
-//       <div onDrop={handleDrop} onDragOver={(event) => event.preventDefault()} className="square">
-//         {children}
-//       </div>
-//     );
-//   };
-  
-//   const Piece = ({ piece, position }) => {
-//     const handleDragStart = (event) => {
-//       event.dataTransfer.setData('piece', JSON.stringify({ piece, position }));
-//     };
-  
-//     return (
-//       <div draggable onDragStart={handleDragStart} className="piece">
-//         {/* Render the piece */}
-//       </div>
-//     );
-//   };
-
-
-
-
-
-
-

@@ -1,0 +1,481 @@
+validMoves.ts:12 302validMoves piece {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} position (2) [1, 4] gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} playerNumber 1 lastPosition (2) [1, 4]
+validMoves.ts:35 7778tempGameState 0 7778pieceLastPosition 1 7778piece 4 7778tempKing 4 tempGameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+validMoves.ts:47 843hypotheticalGameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} 843piece.position (2) [1, 4] 843lastPosition (2) [1, 4]
+validMoves.ts:62 843checkDirection 0 843threateningPieceIndex 0 (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+validMoves.ts:67 843piece {type: 'queen', color: 'black', position: Array(2), hasMoved: false, index: 3} 843piece.color black 843opponentColor white 843currentColor black
+validMoves.ts:62 843checkDirection 1 843threateningPieceIndex 0 (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+validMoves.ts:67 843piece {type: 'bishop', color: 'black', position: Array(2), hasMoved: false, index: 5} 843piece.color black 843opponentColor white 843currentColor black
+validMoves.ts:54 77722piece.position (2) [7, 4]
+validMoves.ts:62 843checkDirection 2 843threateningPieceIndex 0 (16) [Array(7), Array(0), Array(4), Array(3), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(1), Array(1), Array(0), Array(0), Array(0), Array(0)]
+validMoves.ts:67 843piece {type: 'queen', color: 'white', position: Array(2), hasMoved: false, index: 19} 843piece.color white 843opponentColor white 843currentColor black
+validMoves.ts:62 843checkDirection 3 843threateningPieceIndex 0 (16) [Array(7), Array(0), Array(4), Array(3), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(1), Array(1), Array(0), Array(0), Array(0), Array(0)]
+validMoves.ts:67 843piece {type: 'bishop', color: 'white', position: Array(2), hasMoved: false, index: 21} 843piece.color white 843opponentColor white 843currentColor black
+validMoves.ts:62 843checkDirection 4 843threateningPieceIndex 0 (16) [Array(7), Array(0), Array(4), Array(3), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(1), Array(1), Array(0), Array(0), Array(0), Array(0)]
+validMoves.ts:67 843piece {type: 'pawn', color: 'white', position: Array(2), hasMoved: false, index: 27} 843piece.color white 843opponentColor white 843currentColor black
+validMoves.ts:62 843checkDirection 5 843threateningPieceIndex 0 (16) [Array(7), Array(0), Array(4), Array(3), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(1), Array(1), Array(0), Array(0), Array(0), Array(0)]
+validMoves.ts:67 843piece {type: 'pawn', color: 'white', position: Array(2), hasMoved: false, index: 29} 843piece.color white 843opponentColor white 843currentColor black
+validMoves.ts:54 77722piece.position (2) [7, 4]
+validMoves.ts:54 77722piece.position (2) [7, 4]
+validMoves.ts:62 843checkDirection 8 843threateningPieceIndex 0 (16) [Array(7), Array(0), Array(4), Array(3), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(1), Array(1), Array(0), Array(0), Array(0), Array(0)]
+validMoves.ts:67 843piece {type: 'empty', color: 'none', hasMoved: false, position: Array(0), index: 16} 843piece.color none 843opponentColor white 843currentColor black
+validMoves.ts:62 843checkDirection 9 843threateningPieceIndex 0 (16) [Array(7), Array(0), Array(4), Array(3), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(1), Array(1), Array(0), Array(0), Array(0), Array(0)]
+validMoves.ts:67 843piece {type: 'empty', color: 'none', hasMoved: false, position: Array(0), index: 16} 843piece.color none 843opponentColor white 843currentColor black
+validMoves.ts:62 843checkDirection 10 843threateningPieceIndex 0 (16) [Array(7), Array(0), Array(4), Array(3), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(1), Array(1), Array(0), Array(0), Array(0), Array(0)]
+validMoves.ts:67 843piece {type: 'pawn', color: 'white', position: Array(2), hasMoved: false, index: 26} 843piece.color white 843opponentColor white 843currentColor black
+validMoves.ts:62 843checkDirection 11 843threateningPieceIndex 0 (16) [Array(7), Array(0), Array(4), Array(3), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(1), Array(1), Array(0), Array(0), Array(0), Array(0)]
+validMoves.ts:67 843piece {type: 'pawn', color: 'white', position: Array(2), hasMoved: false, index: 30} 843piece.color white 843opponentColor white 843currentColor black
+validMoves.ts:54 77722piece.position (2) [7, 4]
+validMoves.ts:54 77722piece.position (2) [7, 4]
+validMoves.ts:54 77722piece.position (2) [7, 4]
+validMoves.ts:54 77722piece.position (2) [7, 4]
+validMoves.ts:178 843matchFoundInDirection 1
+validMoves.ts:439 847piece.type pawn checkPosition (2) [1, 4] lastPosition (2) [1, 4] gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} piece {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} position (2) [1, 4] playerNumber 1 lastPosition (2) [1, 4] matchFoundInDirection 1 currentColor black
+isCheckOpponent.ts:69 7322isCheckParams {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} (16) [Array(4), Array(3), Array(7), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0)] 2 (2) [1, 4] {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} (2) [1, 4] 1 (2) [1, 4] 1 black
+isCheckOpponent.ts:70 7322threateningSquares (16) [Array(4), Array(3), Array(7), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0)]
+isCheckOpponent.ts:71 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheckOpponent.ts:82 5556pieceLastPosition (2) [1, 4] 12
+calculateThreateningSquares.ts:15 999King position: (2) [0, 4] (2) [1, 4] (2) [0, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [0, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 3]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 2]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [0, -1]
+calculateThreateningSquares.ts:31 999Current direction: (2) [0, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 5]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 6]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 7]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 8]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [5, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [6, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [7, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 3]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 2]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [5, -1]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 5]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 6]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 7]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 8]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-2, -1]
+calculateThreateningSquares.ts:37 999New position: (2) [-2, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-2, 1]
+calculateThreateningSquares.ts:37 999New position: (2) [-2, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [2, -1]
+calculateThreateningSquares.ts:37 999New position: (2) [2, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [2, 1]
+calculateThreateningSquares.ts:37 999New position: (2) [2, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, -2]
+calculateThreateningSquares.ts:37 999New position: (2) [-1, 2]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 2]
+calculateThreateningSquares.ts:37 999New position: (2) [-1, 6]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, -2]
+calculateThreateningSquares.ts:37 999New position: (2) [1, 2]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 2]
+calculateThreateningSquares.ts:37 999New position: (2) [1, 6]
+calculateThreateningSquares.ts:59 999Calculated squares: (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+isCheckOpponent.ts:143 Updated threateningSquaresCopy for check evaluation: (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+isCheckOpponent.ts:371 7322gameState.history.length 6
+isCheckOpponent.ts:214 7322canBlockParams (16) [Array(4), Array(3), Array(7), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0)] (2) [1, 4] black
+isCheckOpponent.ts:226 7322currentPlayerPieces (16) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+isCheckOpponent.ts:227 5556threateningSquares (16) [Array(4), Array(3), Array(7), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0)] white
+isCheckOpponent.ts:230 7322threateningSquaresCopy (16) [Array(4), Array(3), Array(7), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0)]
+isCheckOpponent.ts:240 5556Iterating over direction 0 (4) [Array(2), Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 7,3 black
+isCheckOpponent.ts:240 5556Iterating over direction 1 (3) [Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 7,5 black
+isCheckOpponent.ts:240 5556Iterating over direction 2 (7) [Array(2), Array(2), Array(2), Array(2), Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 6,4 black
+isCheckOpponent.ts:240 5556Iterating over direction 3 []
+isCheckOpponent.ts:243 5556Row 3 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 4 (4) [Array(2), Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 6,3 black
+isCheckOpponent.ts:240 5556Iterating over direction 5 (3) [Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 6,5 black
+isCheckOpponent.ts:240 5556Iterating over direction 6 []
+isCheckOpponent.ts:243 5556Row 6 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 7 []
+isCheckOpponent.ts:243 5556Row 7 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 8 [Array(2)]
+isCheckOpponent.ts:259 5556No opponent's knight at square 5,3 empty
+isCheckOpponent.ts:240 5556Iterating over direction 9 [Array(2)]
+isCheckOpponent.ts:259 5556No opponent's knight at square 5,5 empty
+isCheckOpponent.ts:240 5556Iterating over direction 10 []
+isCheckOpponent.ts:243 5556Row 10 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 11 []
+isCheckOpponent.ts:243 5556Row 11 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 12 [Array(2)]
+isCheckOpponent.ts:259 5556No opponent's knight at square 6,2 pawn
+isCheckOpponent.ts:240 5556Iterating over direction 13 [Array(2)]
+isCheckOpponent.ts:259 5556No opponent's knight at square 6,6 pawn
+isCheckOpponent.ts:240 5556Iterating over direction 14 []
+isCheckOpponent.ts:243 5556Row 14 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 15 []
+isCheckOpponent.ts:243 5556Row 15 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:379 843firstTriggeringCurrentPiece undefined
+isCheckOpponent.ts:416 843firstTriggeringCurrentPieceIndex: -1
+isCheckOpponent.ts:417 843slicedCoordinates: []
+isCheckOpponent.ts:439 843firstTriggeringCurrentPieceIndex -1
+isCheckOpponent.ts:214 7322canBlockParams (16) [Array(4), Array(3), Array(7), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0)] (2) [1, 4] black
+isCheckOpponent.ts:226 7322currentPlayerPieces (16) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+isCheckOpponent.ts:227 5556threateningSquares (16) [Array(4), Array(3), Array(7), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0)] white
+isCheckOpponent.ts:230 7322threateningSquaresCopy (16) [Array(4), Array(3), Array(7), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0)]
+isCheckOpponent.ts:240 5556Iterating over direction 0 (4) [Array(2), Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 7,3 black
+isCheckOpponent.ts:240 5556Iterating over direction 1 (3) [Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 7,5 black
+isCheckOpponent.ts:240 5556Iterating over direction 2 (7) [Array(2), Array(2), Array(2), Array(2), Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 6,4 black
+isCheckOpponent.ts:240 5556Iterating over direction 3 []
+isCheckOpponent.ts:243 5556Row 3 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 4 (4) [Array(2), Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 6,3 black
+isCheckOpponent.ts:240 5556Iterating over direction 5 (3) [Array(2), Array(2), Array(2)]
+isCheckOpponent.ts:268 5556color black white white true
+isCheckOpponent.ts:270 5556Opponent's piece found at square 6,5 black
+isCheckOpponent.ts:240 5556Iterating over direction 6 []
+isCheckOpponent.ts:243 5556Row 6 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 7 []
+isCheckOpponent.ts:243 5556Row 7 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 8 [Array(2)]
+isCheckOpponent.ts:259 5556No opponent's knight at square 5,3 empty
+isCheckOpponent.ts:240 5556Iterating over direction 9 [Array(2)]
+isCheckOpponent.ts:259 5556No opponent's knight at square 5,5 empty
+isCheckOpponent.ts:240 5556Iterating over direction 10 []
+isCheckOpponent.ts:243 5556Row 10 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 11 []
+isCheckOpponent.ts:243 5556Row 11 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 12 [Array(2)]
+isCheckOpponent.ts:259 5556No opponent's knight at square 6,2 pawn
+isCheckOpponent.ts:240 5556Iterating over direction 13 [Array(2)]
+isCheckOpponent.ts:259 5556No opponent's knight at square 6,6 pawn
+isCheckOpponent.ts:240 5556Iterating over direction 14 []
+isCheckOpponent.ts:243 5556Row 14 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:240 5556Iterating over direction 15 []
+isCheckOpponent.ts:243 5556Row 15 is empty {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} []
+isCheckOpponent.ts:463 7322isKingInCheck false
+validMoves.ts:444 843isKingInCheck false 843slicedThreateningSquares undefined 843directionIndex 10
+pieceMoves.ts:37 222getMovesForPiece {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} (2) [1, 4] {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+pieceMoves.ts:58 222PawnMovesCheck {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} (2) [1, 4] {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+pieceMoves.ts:65 222PawnMovesForwards (2) [2, 4] 2 4
+pieceMoves.ts:92 222PawnMovesCheckForwardTwo (2) [Array(2), Array(2)]
+pieceMoves.ts:126 222PawnMovesSent (3) [Array(2), Array(2), Array(2)]
+pieceMoves.ts:43 222getMovesForPieceMoves (3) [Array(2), Array(2), Array(2)]
+pieceMoves.ts:51 Returning moves: (3) [Array(2), Array(2), Array(2)] {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+validMoves.ts:473 843normalMoves (3) [Array(2), Array(2), Array(2)]
+validMoves.ts:485 843filteredMoves []
+validMoves.ts:89 843tempGameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} 843currentColor black 843gameState.threateningPiecesPositions[currentColor] {black: Array(16), white: Array(16)} piece position (2) [2, 4]
+calculateThreateningSquares.ts:15 999King position: (2) [0, 4] (2) [2, 4] (2) [0, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [0, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 3]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 2]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [0, -1]
+calculateThreateningSquares.ts:31 999Current direction: (2) [0, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 5]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 6]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 7]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 8]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [5, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [6, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [7, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 3]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 2]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [5, -1]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 5]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 6]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 7]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 8]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-2, -1]
+calculateThreateningSquares.ts:37 999New position: (2) [-2, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-2, 1]
+calculateThreateningSquares.ts:37 999New position: (2) [-2, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [2, -1]
+calculateThreateningSquares.ts:37 999New position: (2) [2, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [2, 1]
+calculateThreateningSquares.ts:37 999New position: (2) [2, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, -2]
+calculateThreateningSquares.ts:37 999New position: (2) [-1, 2]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 2]
+calculateThreateningSquares.ts:37 999New position: (2) [-1, 6]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, -2]
+calculateThreateningSquares.ts:37 999New position: (2) [1, 2]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 2]
+calculateThreateningSquares.ts:37 999New position: (2) [1, 6]
+calculateThreateningSquares.ts:59 999Calculated squares: (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+validMoves.ts:132 debugging 1: 0,3,0,2,0,1,0,0,0,5,0,6,0,7,,1,4,2,4,3,4,4,4,5,4,6,4,7,4,,,1,3,2,2,3,1,4,0,1,5,2,6,3,7,,,2,3,2,5,,,1,2,1,6
+isCheck.ts:15 Game State: {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} Threatening Squares: (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] Opponent Player Number: 2 Check Position: (2) [0, 4] Piece: {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} Position: (2) [1, 4] Player Number: 1 Last Position: (2) [2, 4] Match Found In Direction: 1 Current Player Color: black
+isCheck.ts:26 7322threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+isCheck.ts:27 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:35 5556pieceLastPosition (2) [2, 4]
+isCheck.ts:320 7322gameState.history.length 6
+isCheck.ts:92 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:93 7322piece {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} 12
+isCheck.ts:94 7322lastPosition (2) [2, 4]
+isCheck.ts:95 7322canBlockParams {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] (2) [0, 4] white
+isCheck.ts:97 7322threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+isCheck.ts:75 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:137 Attacking knight has been destroyed at 2,3
+isCheck.ts:327 843firstTriggeringOpponentPiece {type: 'knight', color: 'white', hasMoved: true, position: Array(2), index: 17, …}
+isCheck.ts:328 843threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} [Array(2)] 10 true
+isCheck.ts:338 843piece {type: 'knight', color: 'white', hasMoved: true, position: Array(2), index: 17, …}
+isCheck.ts:339 843currentPlayerThreateningSquares[checkDirection] [Array(2)]
+isCheck.ts:353 843firstTriggeringOpponentPieceIndex: -1
+isCheck.ts:354 843slicedCoordinates: []
+isCheck.ts:377 843firstTriggeringOpponentPieceIndex -1
+isCheck.ts:433 7322isKingInCheck true
+isCheck.ts:441 843checkDirection 10 {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+validMoves.ts:151 843checkResult {isKingInCheck: true, loser: 'black', slicedThreateningSquares: Array(1), checkDirection: 10, firstTriggeringOpponentPiece: {…}, …} [Array(2)]
+validMoves.ts:153 843moves [Array(1)]
+validMoves.ts:89 843tempGameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} 843currentColor black 843gameState.threateningPiecesPositions[currentColor] {black: Array(16), white: Array(16)} piece position (2) [3, 4]
+calculateThreateningSquares.ts:15 999King position: (2) [0, 4] (2) [3, 4] (2) [0, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [0, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 3]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 2]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [0, -1]
+calculateThreateningSquares.ts:31 999Current direction: (2) [0, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 5]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 6]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 7]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 8]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [5, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [6, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [7, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 3]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 2]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [5, -1]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 5]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 6]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 7]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 8]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-2, -1]
+calculateThreateningSquares.ts:37 999New position: (2) [-2, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-2, 1]
+calculateThreateningSquares.ts:37 999New position: (2) [-2, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [2, -1]
+calculateThreateningSquares.ts:37 999New position: (2) [2, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [2, 1]
+calculateThreateningSquares.ts:37 999New position: (2) [2, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, -2]
+calculateThreateningSquares.ts:37 999New position: (2) [-1, 2]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 2]
+calculateThreateningSquares.ts:37 999New position: (2) [-1, 6]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, -2]
+calculateThreateningSquares.ts:37 999New position: (2) [1, 2]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 2]
+calculateThreateningSquares.ts:37 999New position: (2) [1, 6]
+calculateThreateningSquares.ts:59 999Calculated squares: (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+validMoves.ts:132 debugging 1: 0,3,0,2,0,1,0,0,0,5,0,6,0,7,,1,4,2,4,3,4,4,4,5,4,6,4,7,4,,,1,3,2,2,3,1,4,0,1,5,2,6,3,7,,,2,3,2,5,,,1,2,1,6
+isCheck.ts:15 Game State: {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} Threatening Squares: (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] Opponent Player Number: 2 Check Position: (2) [0, 4] Piece: {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} Position: (2) [1, 4] Player Number: 1 Last Position: (2) [3, 4] Match Found In Direction: 1 Current Player Color: black
+isCheck.ts:26 7322threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+isCheck.ts:27 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:35 5556pieceLastPosition (2) [3, 4]
+isCheck.ts:320 7322gameState.history.length 6
+isCheck.ts:92 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:93 7322piece {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} 12
+isCheck.ts:94 7322lastPosition (2) [3, 4]
+isCheck.ts:95 7322canBlockParams {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] (2) [0, 4] white
+isCheck.ts:97 7322threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+isCheck.ts:75 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:137 Attacking knight has been destroyed at 2,3
+isCheck.ts:327 843firstTriggeringOpponentPiece {type: 'knight', color: 'white', hasMoved: true, position: Array(2), index: 17, …}
+isCheck.ts:328 843threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} [Array(2)] 10 true
+isCheck.ts:338 843piece {type: 'knight', color: 'white', hasMoved: true, position: Array(2), index: 17, …}
+isCheck.ts:339 843currentPlayerThreateningSquares[checkDirection] [Array(2)]
+isCheck.ts:353 843firstTriggeringOpponentPieceIndex: -1
+isCheck.ts:354 843slicedCoordinates: []
+isCheck.ts:377 843firstTriggeringOpponentPieceIndex -1
+isCheck.ts:433 7322isKingInCheck true
+isCheck.ts:441 843checkDirection 10 {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+validMoves.ts:151 843checkResult {isKingInCheck: true, loser: 'black', slicedThreateningSquares: Array(1), checkDirection: 10, firstTriggeringOpponentPiece: {…}, …} [Array(2)]
+validMoves.ts:153 843moves (2) [Array(1), Array(1)]
+validMoves.ts:89 843tempGameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} 843currentColor black 843gameState.threateningPiecesPositions[currentColor] {black: Array(16), white: Array(16)} piece position (2) [2, 3]
+calculateThreateningSquares.ts:15 999King position: (2) [0, 4] (2) [2, 3] (2) [0, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [0, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 3]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 2]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [0, -1]
+calculateThreateningSquares.ts:31 999Current direction: (2) [0, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 5]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 6]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 7]
+calculateThreateningSquares.ts:49 999New position: (2) [0, 8]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [5, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [6, 4]
+calculateThreateningSquares.ts:49 999New position: (2) [7, 4]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [-1, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, -1]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 3]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 2]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 0]
+calculateThreateningSquares.ts:49 999New position: (2) [5, -1]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 1]
+calculateThreateningSquares.ts:49 999New position: (2) [1, 5]
+calculateThreateningSquares.ts:49 999New position: (2) [2, 6]
+calculateThreateningSquares.ts:49 999New position: (2) [3, 7]
+calculateThreateningSquares.ts:49 999New position: (2) [4, 8]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-2, -1]
+calculateThreateningSquares.ts:37 999New position: (2) [-2, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-2, 1]
+calculateThreateningSquares.ts:37 999New position: (2) [-2, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [2, -1]
+calculateThreateningSquares.ts:37 999New position: (2) [2, 3]
+calculateThreateningSquares.ts:31 999Current direction: (2) [2, 1]
+calculateThreateningSquares.ts:37 999New position: (2) [2, 5]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, -2]
+calculateThreateningSquares.ts:37 999New position: (2) [-1, 2]
+calculateThreateningSquares.ts:31 999Current direction: (2) [-1, 2]
+calculateThreateningSquares.ts:37 999New position: (2) [-1, 6]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, -2]
+calculateThreateningSquares.ts:37 999New position: (2) [1, 2]
+calculateThreateningSquares.ts:31 999Current direction: (2) [1, 2]
+calculateThreateningSquares.ts:37 999New position: (2) [1, 6]
+calculateThreateningSquares.ts:59 999Calculated squares: (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+validMoves.ts:132 debugging 1: 0,3,0,2,0,1,0,0,0,5,0,6,0,7,,1,4,2,4,3,4,4,4,5,4,6,4,7,4,,,1,3,2,2,3,1,4,0,1,5,2,6,3,7,,,2,3,2,5,,,1,2,1,6
+isCheck.ts:15 Game State: {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} Threatening Squares: (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] Opponent Player Number: 2 Check Position: (2) [0, 4] Piece: {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} Position: (2) [1, 4] Player Number: 1 Last Position: (2) [2, 3] Match Found In Direction: 1 Current Player Color: black
+isCheck.ts:26 7322threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+isCheck.ts:27 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:35 5556pieceLastPosition (2) [2, 3]
+isCheck.ts:320 7322gameState.history.length 6
+isCheck.ts:92 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:93 7322piece {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} 12
+isCheck.ts:94 7322lastPosition (2) [2, 3]
+isCheck.ts:95 7322canBlockParams {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] (2) [0, 4] white
+isCheck.ts:97 7322threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)]
+isCheck.ts:75 7322gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:148 7322No knight is attacking the king
+isCheck.ts:327 843firstTriggeringOpponentPiece undefined
+isCheck.ts:328 843threateningSquares (16) [Array(4), Array(3), Array(0), Array(7), Array(0), Array(0), Array(4), Array(3), Array(0), Array(0), Array(1), Array(1), Array(0), Array(0), Array(1), Array(1)] {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} [Array(2)] 10 true
+isCheck.ts:338 843piece {type: 'pawn', color: 'black', position: Array(2), hasMoved: true, isHighlighted: false, …}
+isCheck.ts:339 843currentPlayerThreateningSquares[checkDirection] [Array(2)]
+isCheck.ts:343 843firstTriggeringOpponentPiece {type: 'pawn', color: 'black', position: Array(2), hasMoved: true, isHighlighted: false, …}
+isCheck.ts:346 843slicedCoordinates [Array(2)]
+isCheck.ts:353 843firstTriggeringOpponentPieceIndex: 0
+isCheck.ts:354 843slicedCoordinates: [Array(2)]
+isCheck.ts:359 843squares (2) [2, 3]
+isCheck.ts:361 843square (2) [2, 3] firstTriggeringOpponentPiece.position (2) [2, 3]
+isCheck.ts:365 843Match found at index: 0 {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+isCheck.ts:370 843firstTriggeringOpponentPieceIndex 0
+isCheck.ts:377 843firstTriggeringOpponentPieceIndex 0
+isCheck.ts:384 843slicedThreateningSquares [Array(2)]
+isCheck.ts:433 7322isKingInCheck true
+isCheck.ts:441 843checkDirection 10 {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+validMoves.ts:151 843checkResult {isKingInCheck: true, loser: 'black', slicedThreateningSquares: Array(1), checkDirection: 10, firstTriggeringOpponentPiece: {…}, …} [Array(2)]
+validMoves.ts:153 843moves (3) [Array(1), Array(1), Array(1)]
+validMoves.ts:487 843normalMoves [] []
+validMoves.ts:489 843normalMoves [] []
+enPassant.ts:4 Running enPassant function with piece: {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} and lastPosition: (2) [1, 4]
+enPassant.ts:28 enPassantCondition: false enPassantDirection: 1 toX: 1 toY: 4 opponentColor: white
+enPassant.ts:44 Was this the opponent's last move? false
+validMoves.ts:631 843pawnMove (2) [1, 4]
+validMoves.ts:281 843position (2) [1, 4] {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+validMoves.ts:381 843currentIndex 12 {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12} (2) [1, 4]
+validMoves.ts:383 tempGameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} 843tempGameState.turn black {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …} (2) [1, 4] (2) [1, 4] {type: 'pawn', color: 'black', position: Array(2), hasMoved: false, index: 12}
+validMoves.ts:752 843moves (3) [Array(1), Array(1), Array(1)] []
+validMoves.ts:760 Checking move 0: [Array(2)]
+validMoves.ts:788 Move 0 not found in normalMoves, errorFound set to true
+validMoves.ts:794 Error: Invalid move position
+overrideMethod @ hook.js:608
+validMoves @ validMoves.ts:794
+handlePieceClick @ Chess.tsx:416
+onClick @ Piece.tsx:36
+callCallback2 @ chunk-X3B7SAOS.js?v=3151037c:3674
+invokeGuardedCallbackDev @ chunk-X3B7SAOS.js?v=3151037c:3699
+invokeGuardedCallback @ chunk-X3B7SAOS.js?v=3151037c:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-X3B7SAOS.js?v=3151037c:3736
+executeDispatch @ chunk-X3B7SAOS.js?v=3151037c:7016
+processDispatchQueueItemsInOrder @ chunk-X3B7SAOS.js?v=3151037c:7036
+processDispatchQueue @ chunk-X3B7SAOS.js?v=3151037c:7045
+dispatchEventsForPlugins @ chunk-X3B7SAOS.js?v=3151037c:7053
+(anonymous) @ chunk-X3B7SAOS.js?v=3151037c:7177
+batchedUpdates$1 @ chunk-X3B7SAOS.js?v=3151037c:18909
+batchedUpdates @ chunk-X3B7SAOS.js?v=3151037c:3579
+dispatchEventForPluginEventSystem @ chunk-X3B7SAOS.js?v=3151037c:7176
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-X3B7SAOS.js?v=3151037c:5478
+dispatchEvent @ chunk-X3B7SAOS.js?v=3151037c:5472
+dispatchDiscreteEvent @ chunk-X3B7SAOS.js?v=3151037c:5449
+Chess.tsx:417 Debug: Valid moves with piece: {piece: {…}, position: Array(2), validMoves: Array(0), checkStatus: false, isOpponentKingInCheck: false, …}
+Chess.tsx:445 No valid moves for this piece
+Chess.tsx:41 roomCode 2386 props object
+Chess.tsx:47 761currentPlayerColor black {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+Chess.tsx:50 761isKingInCheck true true
+Chess.tsx:51 761props.gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+Chess.tsx:664 loser white
+Chess.tsx:665 turnState2 1
+Chess.tsx:667 761props.gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+Chess.tsx:41 roomCode 2386 props object
+Chess.tsx:47 761currentPlayerColor black {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+Chess.tsx:50 761isKingInCheck true true
+Chess.tsx:51 761props.gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}
+Chess.tsx:664 loser white
+Chess.tsx:665 turnState2 1
+Chess.tsx:667 761props.gameState {board: Array(8), history: Array(6), turn: 'black', kingPositions: {…}, threateningPiecesPositions: {…}, …}

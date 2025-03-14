@@ -382,6 +382,135 @@ const Chess: React.FC<Props> = (props) => {
       
     const { gameOver, playerNumber, turnState, winner, showPromotionDialog, promotionPosition, pieceToPromote, setShowPromotionDialog, setPromotionPosition, setPieceToPromote, setGameState, setTurnState, setWinner, setGameOver, setIsPlayerInCheck } = props;
     
+    // Add a click handler for the board itself to clear selection when clicking empty areas
+    // Modify the existing handleBoardClick function
+    const handleBoardClick = () => {
+        console.log("Board clicked - deselecting any selected piece");
+        
+        // If clicked on the board background (not a piece or valid move square)
+        if (props.selectedPiece) {
+            props.setSelectedPiece(null);
+            props.setHighlightedTiles([]);
+        }
+    };
+
+    const handlePieceClick = (event: React.MouseEvent, piece: PieceType, position: Position) => {
+        // Stop event propagation to prevent immediate deselection
+        event.stopPropagation();
+        
+        // Only allow clicking pieces if it's the player's turn
+        if (currentPlayerColor !== (playerNumber === 1 ? 'black' : 'white') || turnState !== playerNumber) {
+            return;
+        }
+        
+        // If the same piece is clicked again, deselect it
+        if (props.selectedPiece && props.selectedPiece.index === piece.index) {
+            props.setSelectedPiece(null);
+            props.setHighlightedTiles([]);
+            return;
+        }
+        
+        // If the piece belongs to the current player, select it and show valid moves
+        if (piece.color === currentPlayerColor) {
+            // Get valid moves for this piece
+            const validMovesResult = validMoves(piece, position, gameState, playerNumber, position) as ValidMovesResult;
+            console.log("Debug: Valid moves with piece:", {
+                piece,
+                position,
+                validMoves: validMovesResult?.moves,
+                checkStatus: validMovesResult?.isKingInCheck,
+                isOpponentKingInCheck: validMovesResult?.isOpponentKingInCheck,
+                // If capturing a threatening piece, it should be in this array
+                threateningSquaresBeforeMove: gameState.threateningPiecesPositions[piece.color === 'white' ? 'black' : 'white'],
+                kingPosition: gameState.kingPositions[piece.color]
+              });
+            if (validMovesResult && validMovesResult.moves && validMovesResult.moves.length > 0) {
+                // Clear any previous selection first
+                props.setSelectedPiece(null);
+                props.setHighlightedTiles([]);
+                
+                // Then set the new selection after a small delay to ensure clean re-render
+                setTimeout(() => {
+                    props.setSelectedPiece(piece);
+                    props.setHighlightedTiles(validMovesResult.moves!);
+                    
+                    console.log("HIGHLIGHTED: Piece clicked:", piece);
+                    console.log("HIGHLIGHTED: Valid moves:", validMovesResult.moves);
+                    console.log("HIGHLIGHTED: Setting highlighted tiles:", validMovesResult.moves);
+                }, 10);
+            } else {
+                // If no valid moves, deselect
+                props.setSelectedPiece(null);
+                props.setHighlightedTiles([]);
+                console.log("No valid moves for this piece");
+            }
+        }
+    };
+
+    const handleSquareClick = (event: React.MouseEvent, position: Position) => {
+        event.stopPropagation(); // Prevent bubbling
+        
+        console.log("Square clicked at:", position);
+        console.log("Selected piece:", props.selectedPiece);
+        console.log("Current highlighted tiles:", props.highlightedTiles);
+        
+        // If no piece is selected or it's not the player's turn, do nothing
+        if (!props.selectedPiece || currentPlayerColor !== (playerNumber === 1 ? 'black' : 'white') || turnState !== playerNumber) {
+            return;
+        }
+        
+        // Check if the clicked position is a valid move
+        const isValidMove = props.highlightedTiles.some(move => 
+            move[0] === position[0] && move[1] === position[1]
+        );
+        console.log("Is valid move:", isValidMove);
+        
+        if (isValidMove) {
+            // Store the original piece position
+            const piecePosition = props.selectedPiece.position as Position;
+            console.log("Moving piece from:", piecePosition, "to:", position);
+            
+            // Make sure we're not trying to castle onto our own rook
+            if (props.selectedPiece.type === 'king') {
+                const targetPiece = gameState.board[position[0]!][position[1]!];
+                if (targetPiece && targetPiece.type === 'rook' && targetPiece.color === props.selectedPiece.color) {
+                    console.log("Castling detected - handling through normal move logic");
+                    // Continue with move - castling will be handled by move logic
+                }
+            }
+            
+            // Update the refs used by the drag and drop functionality
+            startPosition.current = piecePosition;
+            lastDragOverPosition.current = position;
+            
+            // Execute the same move logic as in handleDrop
+            const fakeEvent = {
+                preventDefault: () => {},
+                dataTransfer: {
+                    getData: (key: string) => {
+                        if (key === 'piece') return JSON.stringify(props.selectedPiece);
+                        if (key === 'position') return JSON.stringify(piecePosition);
+                        return '';
+                    }
+                }
+            } as unknown as React.DragEvent;
+            
+            // Clear selection and highlights BEFORE calling handleDrop
+            // to avoid race conditions
+            //const selectedPieceCopy = props.selectedPiece;
+            props.setSelectedPiece(null);
+            props.setHighlightedTiles([]);
+            
+            // Call the existing handleDrop function with our synthetic event
+            handleDrop(fakeEvent);
+        } else {
+            // If clicked on an invalid move square, just deselect
+            props.setSelectedPiece(null);
+            props.setHighlightedTiles([]);
+            console.log("Deselecting piece - invalid move");
+        }
+    };
+
     const handlePromotionSelection = (promoteTo: 'queen' | 'rook' | 'bishop' | 'knight') => {
         if (!pieceToPromote || !promotionPosition || !gameState) {
             return;
@@ -479,7 +608,23 @@ const Chess: React.FC<Props> = (props) => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState, turnState, handleDrop]);
-
+    useEffect(() => {
+        const handleGlobalClick = (e: MouseEvent) => {
+            // Check if the click was outside the board
+            const boardElement = document.querySelector('.board');
+            if (boardElement && !boardElement.contains(e.target as Node) && props.selectedPiece) {
+                props.setSelectedPiece(null);
+                props.setHighlightedTiles([]);
+            }
+        };
+        
+        document.addEventListener('mousedown', handleGlobalClick);
+        
+        return () => {
+            document.removeEventListener('mousedown', handleGlobalClick);
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.selectedPiece, props.setSelectedPiece, props.setHighlightedTiles]);
     useEffect(() => {
         // Check for game over and winner
         console.log('gameOver', gameOver);
@@ -527,6 +672,7 @@ const Chess: React.FC<Props> = (props) => {
             <div className='chess-buttons-status'>
                 <h2>{turnState === 0 ? "Waiting for opponent" : (playerNumber === turnState ? "Your Turn" : "Opponent's Turn")}</h2>
                 {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
+                {isKingInCheck && <h2>{currentPlayerColor.charAt(0).toUpperCase() + currentPlayerColor.slice(1)} is in check!</h2>}
                 <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} />
             </div>
             
@@ -551,8 +697,21 @@ const Chess: React.FC<Props> = (props) => {
                 </div>
             )}
             
-            <Board setTurnState={setTurnState} setWinner={setWinner} gameState={props.gameState} handleDragStart={handleDragStart} handleDragEnter={handleDragEnter} handleDragOver={handleDragOver} handleDrop={handleDrop} />
-        </div>
+            <Board 
+                setTurnState={setTurnState} 
+                setWinner={setWinner} 
+                gameState={props.gameState} 
+                handleDragStart={handleDragStart} 
+                handleDragEnter={handleDragEnter} 
+                handleDragOver={handleDragOver} 
+                handleDrop={handleDrop}
+                isKingInCheck={isKingInCheck}
+                handlePieceClick={handlePieceClick}
+                handleSquareClick={handleSquareClick}
+                handleBoardClick={handleBoardClick}
+                highlightedTiles={props.highlightedTiles}
+                playerNumber={playerNumber} 
+/>        </div>
     );
 }
 export default Chess;

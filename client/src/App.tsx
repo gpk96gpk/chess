@@ -251,6 +251,8 @@ function App() {
     const [showPromotionDialog, setShowPromotionDialog] = useState(false);
     const [promotionPosition, setPromotionPosition] = useState<Position | null>(null);
     const [pieceToPromote, setPieceToPromote] = useState<PieceType | null>(null);
+    const [selectedPiece, setSelectedPiece] = useState<PieceType | null>(null);
+    const [highlightedTiles, setHighlightedTiles] = useState<Position[]>([]);
     const { roomCode } = useParams()
     //const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
 
@@ -474,25 +476,27 @@ function App() {
         gameOver,
         gameState: gameState || initialBoard,
         turnState,
-        //highlightedTiles,
         winner,
         isPlayerInCheck,
         username,
         showPromotionDialog,
         promotionPosition,
         pieceToPromote,
+        selectedPiece,
+        highlightedTiles,
         setPlayerNumber,
         setGameState,
         setGameOver,
         setTurnState,
-        //setHighlightedTiles,
         setWinner,
         setIsPlayerInCheck,
         handleReset,
         setUsername,
         setShowPromotionDialog,
         setPromotionPosition,
-        setPieceToPromote
+        setPieceToPromote,
+        setSelectedPiece,
+        setHighlightedTiles,
     };
 
     return (

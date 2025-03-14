@@ -278,6 +278,58 @@ form>input {
   background-color: #fff !important;
 }
 
+.highlighted-square {
+  position: relative;
+  /* Remove box-shadow - no more border */
+  box-shadow: none !important;
+  z-index: 5;
+}
+
+/* This will be used as our visual indicator inside highlighted squares */
+.highlighted-square::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(255, 225, 0, 0.866); /* Semi-transparent green */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* Make the original move-indicator invisible but keep it in DOM for functionality */
+.move-indicator {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Special styling for highlighted squares that contain pieces */
+.highlighted-square:has(img)::after {
+  /* For squares with pieces, show a different indicator */
+  background-color: rgba(76, 175, 80, 0.4);
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+/* Ensure pieces have a lower z-index than the highlight */
+.piece, .square img {
+  position: relative;
+  z-index: 50; /* Lower than the highlight's z-index */
+}
+
+/* Special styling for check situations */
+.king-in-check .highlighted-square::after {
+  animation: pulse 0.8s infinite alternate;
+  box-shadow: 0 0 10px 2px rgba(255, 0, 0, 0.7);
+}
+
+
 @media (prefers-color-scheme: light) {
   :root {
       color:#000 !important;
