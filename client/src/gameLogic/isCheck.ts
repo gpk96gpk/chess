@@ -114,39 +114,12 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
           console.log('7322Stored attacking knight is no longer alive.');
         }
       } else {
-        // Check for knights directly using the appropriate part of threateningSquares
-        // For knights, use direction 10
-        const knightDirection = gameState.checkStatus.direction; // Knight direction index
-        
-        // Make sure we have the king position
-        if (!checkPosition) {
-          checkPosition = gameState.kingPositions[currentPlayerColor as PieceColor];
+        // Fallback: if no stored attacker, check for any alive knights.
+        const aliveAttackingKnights = gameState.piecePositions[opponentColor].filter(piece => piece.type === 'knight');
+        if (aliveAttackingKnights.length > 0) {
+          console.log('7322At least one attacking knight is alive.');
+          return true;
         }
-        
-        // Get the threatening squares for knights
-        if (threateningSquares[knightDirection] && Array.isArray(threateningSquares[knightDirection])) {
-          // Iterate through each potential knight position
-          for (const square of threateningSquares[knightDirection]) {
-            if (Array.isArray(square)) {
-              const [y, x] = square;
-              if (y! >= 0 && y! < 8 && x! >= 0 && x! < 8) {
-                squarePiece = gameState.board[y!][x!];
-                
-                // Check if attacking square still has attacker on it
-                if (squarePiece && squarePiece.color === currentPlayerColor) {
-                  console.log(`Attacking knight has been destroyed at ${square}`);
-                  firstTriggeringOpponentPiece = squarePiece;
-                  gameState.checkStatus.direction = knightDirection;
-                  slicedThreateningSquares = [square];
-                  return true;
-                }
-              }
-            }
-          }
-        }
-        
-        console.log('7322No knight is attacking the king');
-        return false;
       }
     }
 
