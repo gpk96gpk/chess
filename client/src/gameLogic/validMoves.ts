@@ -837,7 +837,7 @@ for (const move of moves) {
   const exists = filteredMoves.some(m => m[0] === move[0] && m[1] === move[1]);
   if (!exists) {
     // Add to filteredMoves if it's not there (like castling moves)
-    filteredMoves.push(move);
+    //filteredMoves.push(move);
   }
 }
 
