@@ -520,8 +520,32 @@ console.log('843normalMoves', normalMoves);
 console.log('843filteredMoves', moves);
 normalMoves = normalMoves.filter(move => !wouldExposeKingToCheck(piece, position, move, gameState));
 console.log('843normalMoves', normalMoves, captureMoves);
-normalMoves.push(...captureMoves);
+//normalMoves.push(...captureMoves);
 console.log('843normalMoves', normalMoves, captureMoves);
+// Include capture moves in normalMoves, especially for knight checks
+// Replace lines 526-535 with this improved code:
+if (gameState.checkStatus[currentColor] && checkDirection === 10) {
+  // For knight checks, make sure captureMoves are merged into normalMoves - but only if valid
+  for (const captureMove of captureMoves) {
+    // Get all possible legal moves for this piece (according to piece movement rules)
+    const allLegalMoves = getMovesForPiece(piece, position, gameState);
+    
+    // Check if this piece can legally capture the knight (according to its movement rules)
+    const canCaptureKnight = allLegalMoves.some(move => 
+      move[0] === captureMove[0] && move[1] === captureMove[1]
+    );
+    
+    // Only add if it's a legal capture and not already in normalMoves
+    if (canCaptureKnight && !normalMoves.some(move => 
+        move[0] === captureMove[0] && move[1] === captureMove[1]
+      )) {
+      normalMoves.push(captureMove);
+      console.log('Added valid knight capture move to normalMoves:', captureMove);
+    } else if (!canCaptureKnight) {
+      console.log('Piece cannot legally capture knight:', piece.type, position);
+    }
+  }
+}
 // This is the critical part - filter normalMoves to remove invalid ones
 const filteredMoves = normalMoves.filter(move => {
   // Create a temporary board state
@@ -562,6 +586,30 @@ const filteredMoves = normalMoves.filter(move => {
     opponentColor
   );
 });
+
+// In validMoves function where filtering happens during check
+if (gameState.checkStatus[currentColor]) {
+  // If king is in check, only allow moves that resolve the check
+  normalMoves = normalMoves.filter(move => {
+    // Only allow moves that:
+    // 1. Capture the checking piece (already in captureMoves)
+    // 2. Block the line of attack (for non-knight checks)
+    // 3. Move the king out of check (handled separately)
+    
+    // For a knight check (direction 10), only allow capturing the knight
+    if (checkDirection === 10) {
+      // Check if this move captures the knight
+      return captureMoves.some(captureMove => 
+        captureMove[0] === move[0] && captureMove[1] === move[1]
+      );
+    }
+    
+    // For other checks, allow moves that capture or block
+    // (existing logic for other check types)
+    
+    return false; // Default to disallowing moves during check
+  });
+}
 
 // Helper function to check if a square is under attack
 function isSquareUnderAttack(square: Position, gameState: GameStateType, attackerColor: PieceColor): boolean {
@@ -771,7 +819,7 @@ function isCheckmate(gameState: GameStateType, piece: PieceType, position: Posit
       console.log('843slicedThreateningSquares', slicedThreateningSquares);
       if (slicedThreateningSquares && slicedThreateningSquares.length > 0) {
         console.log('843slicedThreateningSquares', slicedThreateningSquares);
-        filteredMoves.push(slicedThreateningSquares as Position);
+        //filteredMoves.push(slicedThreateningSquares as Position);
       }
 
       // If any move gets the king out of check, it's not checkmate
@@ -826,8 +874,16 @@ function isCheckmate(gameState: GameStateType, piece: PieceType, position: Posit
 }
 
 if (errorFound) {
-    console.error('Error: Invalid move position');
-    moves.splice(0, moves.length);
+  console.warn('Some moves may have inconsistent format, but proceeding anyway');
+  // Filter out invalid moves instead of clearing everything
+  const validMoves = moves.filter(move => 
+      normalMoves.some(normalMove => 
+          Array.isArray(move) && Array.isArray(normalMove) && 
+          move[0] === normalMove[0] && move[1] === normalMove[1]
+      )
+  );
+  // Replace moves array with filtered valid moves
+  moves.splice(0, moves.length, ...validMoves);
 }
 
 // Check each move is in the filtered list

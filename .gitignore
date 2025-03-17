@@ -7,3 +7,7 @@ Untitled Diagram.drawio
 docker-compose.yml
 
 node_modules/
+client/blackPlayerClientLogs.txt
+client/testLogs.txt
+.gitignore
+client/testLogHighlights.txt

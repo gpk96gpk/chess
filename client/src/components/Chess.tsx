@@ -398,6 +398,16 @@ const Chess: React.FC<Props> = (props) => {
         // Stop event propagation to prevent immediate deselection
         event.stopPropagation();
         
+        // Check if we're trying to capture an opponent's piece
+        if (props.selectedPiece && props.highlightedTiles.some(tile => 
+            tile[0] === position[0] && tile[1] === position[1]
+        )) {
+            // We're clicking on a highlighted square with a piece - handle as capture
+            console.log("Capturing piece at:", position);
+            handleSquareClick(event, position);
+            return;
+        }
+
         // Only allow clicking pieces if it's the player's turn
         if (currentPlayerColor !== (playerNumber === 1 ? 'black' : 'white') || turnState !== playerNumber) {
             return;
@@ -411,42 +421,58 @@ const Chess: React.FC<Props> = (props) => {
         }
         
         // If the piece belongs to the current player, select it and show valid moves
+        // If the piece belongs to the current player, create a synthetic drag event
         if (piece.color === currentPlayerColor) {
-            // Get valid moves for this piece
-            const validMovesResult = validMoves(piece, position, gameState, playerNumber, position) as ValidMovesResult;
-            console.log("Debug: Valid moves with piece:", {
-                piece,
-                position,
-                validMoves: validMovesResult?.moves,
-                checkStatus: validMovesResult?.isKingInCheck,
-                isOpponentKingInCheck: validMovesResult?.isOpponentKingInCheck,
-                // If capturing a threatening piece, it should be in this array
-                threateningSquaresBeforeMove: gameState.threateningPiecesPositions[piece.color === 'white' ? 'black' : 'white'],
-                kingPosition: gameState.kingPositions[piece.color]
-              });
-            if (validMovesResult && validMovesResult.moves && validMovesResult.moves.length > 0) {
-                // Clear any previous selection first
-                props.setSelectedPiece(null);
-                props.setHighlightedTiles([]);
-                
-                // Then set the new selection after a small delay to ensure clean re-render
-                setTimeout(() => {
-                    props.setSelectedPiece(piece);
-                    props.setHighlightedTiles(validMovesResult.moves!);
-                    
-                    console.log("HIGHLIGHTED: Piece clicked:", piece);
-                    console.log("HIGHLIGHTED: Valid moves:", validMovesResult.moves);
-                    console.log("HIGHLIGHTED: Setting highlighted tiles:", validMovesResult.moves);
-                }, 10);
+            startPosition.current = position;
+            
+            // Instead of trying to filter moves ourselves, just check if this
+            // piece has any valid moves in the current game state
+            const fakeEvent = {
+                preventDefault: () => {},
+                dataTransfer: {
+                    getData: (key: string) => {
+                        if (key === 'piece') return JSON.stringify(piece);
+                        if (key === 'position') return JSON.stringify(position);
+                        return '';
+                    }
+                }
+            } as unknown as React.DragEvent;
+            
+            // Get the valid moves using handleDrop's internal logic
+            lastDragOverPosition.current = null; // Reset this to force handleDrop to calculate all valid moves
+            const validPositions = getValidPositions(fakeEvent);
+            
+            if (validPositions && validPositions.length > 0) {
+                props.setSelectedPiece(piece);
+                props.setHighlightedTiles(validPositions);
             } else {
-                // If no valid moves, deselect
                 props.setSelectedPiece(null);
                 props.setHighlightedTiles([]);
                 console.log("No valid moves for this piece");
             }
         }
+        
     };
-
+    // Helper function to get valid positions
+    const getValidPositions = (event: React.DragEvent): Position[] => {
+        // Extract piece and position from the event
+        const pieceString = event.dataTransfer.getData('piece');
+        const positionString = event.dataTransfer.getData('position');
+        
+        if (!pieceString || !positionString) return [];
+        
+        const piece: PieceType = JSON.parse(pieceString);
+        const position: Position = JSON.parse(positionString);
+        
+        // Get valid moves using the same code path as handleDrop
+        const result = validMoves(piece, position, gameState, playerNumber, position);
+        
+        // Handle different possible return types from validMoves
+        if (!result) return [];
+        if (Array.isArray(result)) return result; // Handle Position[] return type
+        if ('moves' in result) return result.moves; // Handle ValidMovesResult return type
+        return []; // Fallback for any other case
+    };
     const handleSquareClick = (event: React.MouseEvent, position: Position) => {
         event.stopPropagation(); // Prevent bubbling
         
