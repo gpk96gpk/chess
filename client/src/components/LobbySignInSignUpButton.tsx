@@ -87,24 +87,55 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
       document.querySelector('.continue-as-guest-button')!.addEventListener('click', function() {
         const element: HTMLElement | null = document.querySelector('.ConnectionManager');
         const showSavedGames = document.querySelector('.show-saved-games-button') as HTMLElement;
+        const availableRooms = document.querySelector('.OpenRoomsList') as HTMLElement;
         if (element) {
           element.style.visibility = 'visible';
           showSavedGames.style.visibility = 'visible';
+          availableRooms.style.visibility = 'visible';
         }
       });
     //}
   };
+  
+  // useEffect to check for token on component mount
+  useEffect(() => {
+    // Check if there's a token in localStorage when component mounts
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      setIsSignedIn(true);
+      setIsGuest(true);
+      
+      // Short timeout to ensure DOM elements are ready
+      setTimeout(() => {
+        const element = document.querySelector('.ConnectionManager');
+        const showSavedGames = document.querySelector('.show-saved-games-button');
+        const availableRooms = document.querySelector('.OpenRoomsList');
+
+        if (element) {
+          (element as HTMLElement).style.visibility = 'visible';
+        }
+        if (showSavedGames) {
+          (showSavedGames as HTMLElement).style.visibility = 'visible';
+        }
+        if (availableRooms) {
+          (availableRooms as HTMLElement).style.visibility = 'visible';
+        }
+      }, 100);
+    }
+  }, []); // Empty dependency array to run only once on mount
 
   useEffect(() => {
     const button = document.querySelector('.continue-as-guest-button');
     const element = document.querySelector('.ConnectionManager');
     const showSavedGames = document.querySelector('.show-saved-games-button');
+    const availableRooms = document.querySelector('.OpenRoomsList');
   
     const handleClick = () => {
       setIsGuest(true);
-      if (element && showSavedGames) {
+      if (element && showSavedGames && availableRooms) {
         element.classList.add('visible');
         showSavedGames.classList.add('visible');
+        availableRooms.classList.add('visible');
       }
     };
   
@@ -113,9 +144,10 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
     }
   
     // If the user is signed in, update the visibility
-    if (isSignedIn && element && showSavedGames) {
+    if (isSignedIn && element && showSavedGames && availableRooms) {
       element.classList.add('visible');
       showSavedGames.classList.add('visible');
+      availableRooms.classList.add('visible');
     }
   
     // Clean up the event listener when the component is unmounted

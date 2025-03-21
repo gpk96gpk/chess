@@ -20,6 +20,8 @@ function resetGameState() {
         ],
         history: [],
         turn: 'black',
+        username1: '',
+        username2: '',
         kingPositions: { black: [0, 4], white: [7, 4] },
         threateningPiecesPositions: {
             black: [

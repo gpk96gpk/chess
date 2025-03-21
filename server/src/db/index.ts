@@ -1,25 +1,25 @@
-//set up pool connection to database
 import { Pool, QueryResult } from 'pg';
+import { execSync } from 'child_process';
+
+// Get Windows host IP from WSL
+let host = 'localhost';
+if (process.platform === 'linux') {
+  try {
+    host = execSync("cat /etc/resolv.conf | grep nameserver | awk '{print $2}'").toString().trim();
+    console.log(`Using Windows host: ${host}`);
+  } catch (e) {
+    console.error('Could not determine Windows host IP');
+  }
+}
 
 const pool = new Pool({
-     host: process.env.POSTGRES_HOST || 'db',
-     port: Number(process.env.POSTGRES_PORT) || 5432,
-     user: process.env.POSTGRES_USER || 'postgres',
-     password: process.env.POSTGRES_PASSWORD || 'password',
-     database: process.env.POSTGRES_DB || 'chess',
-});
-
-pool.on('error', (err, client) => {
-     console.error('Unexpected error on idle client', err);
+  user: 'chessapp',
+  host: 'localhost',
+  database: 'chess',
+  password: 'chessapp',
+  port: 5432
 });
 
 module.exports = {
-     query: (text: string, params: any[]) => {
-          return pool
-               .query(text, params)
-               .catch(e => {
-                    console.error('Error executing query', e.stack);
-                    throw e;
-               }) as Promise<QueryResult<any>>;
-     },
+  query: (text: string, params: any[] = []): Promise<QueryResult<any>> => pool.query(text, params),
 };

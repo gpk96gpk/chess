@@ -9,6 +9,7 @@ interface ServerToClientEvents {
     leaveRoom: () => void;
     joinRoom: () => void;
     loadSaveGame: (roomCode: string | number, gameState: any) => void;
+    availableRooms: (rooms: any) => void;
 }
 
 interface ClientToServerEvents {

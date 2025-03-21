@@ -11,7 +11,6 @@ const ConnectionManager = () => {
     const [errorClass, setErrorClass] = useState<string>('');
     const navigate = useNavigate();
 
-
     //const { initialBoard } = resetGameState();
     const createRoom = () => {
         const newRoomId = Math.floor(1000 + Math.random() * 9000);
@@ -62,7 +61,9 @@ const ConnectionManager = () => {
             return Number(roomId);
         }
     }
-    
+    if (error){
+        console.error('error', error);
+    }
     // Revert the error class after a delay
     useEffect(() => {
         if (errorClass === 'error') {

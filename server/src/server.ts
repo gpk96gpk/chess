@@ -34,7 +34,16 @@ declare global {
     }
   }
 
-
+//   import * as dotenv from 'dotenv';
+//   dotenv.config();
+  
+//   console.log('===== DB CONNECTION DETAILS =====');
+//   console.log('PGHOST:', process.env.PGHOST);
+//   console.log('PGUSER:', process.env.PGUSER);
+//   console.log('PGPASSWORD:', process.env.PGPASSWORD);
+//   console.log('PGDATABASE:', process.env.PGDATABASE);
+//   console.log('PGPORT:', process.env.PGPORT);
+//   console.log('================================');
 import 'dotenv/config'
 import express from 'express';
 import cors from 'cors';
@@ -358,8 +367,46 @@ let players: { [socketId: string]: PlayerInfo } = {};
 let rooms: { [key: string]: string[] } = {};
 let roomStates: { [roomCode: string]: GameStateType } = {};
 
+
+
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket: Socket) => {
+    // Clean up empty rooms periodically
+    setInterval(() => {
+        Object.keys(rooms).forEach(roomCode => {
+            // Filter out empty strings
+            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+            
+            // Delete truly empty rooms
+            if (rooms[roomCode].length === 0) {
+                console.log(`Cleanup: Deleting empty room ${roomCode}`);
+                delete rooms[roomCode];
+                delete roomStates[roomCode];
+            }
+        });
+        
+        // Optional: broadcast updated room list after cleanup
+        io.emit('availableRooms', Object.keys(rooms).map(roomCode => {
+            return {
+                roomCode,
+                players: rooms[roomCode].filter(id => id !== '').length,
+                maxPlayers: 2
+            };
+        }));
+    }, 60000); // Run every minute
+    // Broadcast available rooms
+    const broadcastAvailableRooms = () => {
+        const availableRooms = Object.keys(rooms).map(roomCode => {
+            return {
+                roomCode,
+                players: rooms[roomCode].filter(id => id !== '').length,
+                maxPlayers: 2
+            };
+        });
+        
+        // Broadcast to everyone in the lobby
+        io.emit('availableRooms', availableRooms);
+    };
     //Create a room
     socket.on('createRoom', (roomCode:string, gameState?:GameStateType) => {
         rooms[roomCode] = [socket.id];
@@ -370,6 +417,9 @@ io.on('connection', (socket: Socket) => {
         socket.emit('gameState', gameState)
         socket.emit('createRoom', roomCode)
         roomStates[roomCode] = gameState!;
+
+        // Broadcast updated room list
+        broadcastAvailableRooms();
     });
     //Join a room
     socket.on('joinRoom', (roomCode:string) => {
@@ -381,6 +431,11 @@ io.on('connection', (socket: Socket) => {
             return;
         }
         socket.join(roomCode);
+
+        // Clean up empty slots
+        if (rooms[roomCode]) {
+            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+        }
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
             //players[socket.id] = { roomCode, playerNumber: 1 };
@@ -389,15 +444,39 @@ io.on('connection', (socket: Socket) => {
             const indexOfPlayer = rooms[roomCode].indexOf(socket.id);
             players[socket.id] = { roomCode, playerNumber: indexOfPlayer === 0 ? 2 : 1};
         }
+        // Determine player number BEFORE pushing to the room
+        let playerNumber: number;
+        
+        if (rooms[roomCode].length === 0) {
+            playerNumber = 1;
+        } else if (rooms[roomCode].length === 1) {
+            const existingPlayer = rooms[roomCode][0];
+            if (players[existingPlayer]) {
+                playerNumber = players[existingPlayer].playerNumber === 1 ? 2 : 1;
+            } else {
+                playerNumber = 1;
+            }
+        } else {
+            socket.emit('roomError', 'Room is full.');
+            return;
+        }
         if (rooms[roomCode].length === 1) {
             const otherPlayerSocketId = rooms[roomCode][0];
-            players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1};
+            
+            // Check if the otherPlayerSocketId is valid and exists in players
+            if (otherPlayerSocketId && otherPlayerSocketId !== '' && players[otherPlayerSocketId]) {
+                players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1 };
+            } else {
+                // If no valid player exists in the room, assign as player 1
+                players[socket.id] = { roomCode, playerNumber: 1 };
+            }
         } 
         console.log('players', players, roomCode)
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id)
         rooms[roomCode].push(socket.id);
+        broadcastAvailableRooms();
         const player = players[socket.id];
-        let playerNumber: number;
+        //let playerNumber: number;
         if (player) {
             player.roomCode = roomCode;
             playerNumber = player.playerNumber;
@@ -448,6 +527,7 @@ io.on('connection', (socket: Socket) => {
             }
         }
         delete players[socket.id];
+        broadcastAvailableRooms();
     });
     //Error handling
     socket.on('error', (error: Error) => {
@@ -488,15 +568,34 @@ io.on('connection', (socket: Socket) => {
         if (player) {
             const roomCode = player.roomCode;
             socket.broadcast.to(roomCode).emit('turn', 0);
-            const playerIndex = rooms[roomCode].indexOf(socket.id);
-            if (playerIndex !== -1) {
-                rooms[roomCode][playerIndex] = '';
+            
+            // Replace the problematic code with this:
+            if (rooms[roomCode]) {
+                // Actually remove the player from the array instead of setting to empty string
+                const playerIndex = rooms[roomCode].indexOf(socket.id);
+                if (playerIndex !== -1) {
+                    rooms[roomCode].splice(playerIndex, 1); // Remove completely instead of setting to ''
+                }
+                
+                // Clean up any remaining empty strings (from previous disconnects)
+                rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+                
+                // Delete room if truly empty
+                if (rooms[roomCode].length === 0) {
+                    delete rooms[roomCode];
+                    delete roomStates[roomCode];
+                    console.log(`Room ${roomCode} deleted because it's empty`);
+                }
             }
-            if (rooms[roomCode].length === 0) {
-                delete rooms[roomCode];
-                delete roomStates[roomCode];
-            }
+            
+            // Remove the player from players object
+            delete players[socket.id];
+            broadcastAvailableRooms();
         }
+    });
+    //Request available rooms
+    socket.on('requestAvailableRooms', () => {
+        broadcastAvailableRooms();
     });
 });
 

@@ -4,9 +4,9 @@ import { SocketContext } from './context/SocketContext';
 import { useEffect, useState } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
-import { Props, GameStateType, Position, PieceType, PieceNames, TestBoard } from './types/clientTypes';
+import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
 import resetGameState from './gameLogic/resetGameState';
-import { knightCheckmateBoard, pawnTestBoard, basicMoveBoard } from './testUtils/testBoards';
+//import { knightCheckmateBoard, pawnTestBoard, basicMoveBoard } from './testUtils/testBoards';
 
 //import { API_URL } from './apis/ChessGame';
 //import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
@@ -256,15 +256,15 @@ function App() {
     const { roomCode } = useParams()
     //const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
 
-    const testBoards = {
-        none: null,
-        knightCheckmate: knightCheckmateBoard,
-        pawnTest: pawnTestBoard,
-        basicMove: basicMoveBoard
-      };
+    // const testBoards = {
+    //     none: null,
+    //     knightCheckmate: knightCheckmateBoard,
+    //     pawnTest: pawnTestBoard,
+    //     basicMove: basicMoveBoard
+    //   };
     
-      const [selectedTestBoard, setSelectedTestBoard] = useState<TestBoard>('none');
-      const [gameState, setGameState] = useState<GameStateType>(() => testBoards[selectedTestBoard] || /* initial board code */ {
+      //const [selectedTestBoard, setSelectedTestBoard] = useState<TestBoard>('none');
+      const [gameState, setGameState] = useState<GameStateType>( {
         board: [],
         history: [],
         turn: 'black',
@@ -278,11 +278,13 @@ function App() {
       });
       
       // On test board selection change, update gameState
-      useEffect(() => {
-        if (testBoards[selectedTestBoard]) {
-          setGameState(testBoards[selectedTestBoard]!);
-        }
-      }, [selectedTestBoard]);
+    //   useEffect(() => {
+    //     if (testBoards[selectedTestBoard]) {
+    //       setGameState(testBoards[selectedTestBoard]!);
+    //     }
+      
+    //   // eslint-disable-next-line react-hooks/exhaustive-deps
+    //   }, [selectedTestBoard]);
 
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
@@ -503,11 +505,11 @@ function App() {
     <SocketContext.Provider value={socket}>
         <Router>
             {/* 
-            Optionally, display a test board selector for debugging.
-            In production this component can be removed or hidden.
+            Display a test board selector for debugging.
+            In production this component remove or hide.
             */}
-            <div style={{ padding: '1rem', backgroundColor: '#f0f0f0' }}>
-            <label htmlFor="testBoardSelect">Select test board:</label>
+            {/* <div style={{ padding: '1rem', backgroundColor: '#f0f0f0' }}> */}
+            {/* <label htmlFor="testBoardSelect">Select test board:</label>
             <select
                 id="testBoardSelect"
                 value={selectedTestBoard}
@@ -518,8 +520,8 @@ function App() {
                 <option value="knightCheckmate">Knight Checkmate</option>
                 <option value="pawnTest">Pawn Test</option>
                 <option value="basicMove">Basic Move</option>
-            </select>
-            </div>
+            </select> */}
+            {/* </div> */}
             <Routes>
             <Route path="/lobby?/:username?" element={<Lobby setGameState={setGameState} setUsername={setUsername} username={username} />} />
             <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
