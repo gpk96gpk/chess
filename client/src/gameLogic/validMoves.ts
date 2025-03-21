@@ -448,8 +448,53 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     gameState.checkStatus.direction = checkDirection;
   }
   if (gameState.checkStatus[currentColor]) {
+    normalMoves = normalMoves.filter(move => {
+      // Create a temporary board state to simulate this move
+      const tempBoard = JSON.parse(JSON.stringify(gameState.board));
+      
+      // Make the hypothetical move on the temporary board
+      tempBoard[position[0]!][position[1]!] = { 
+        type: 'empty', 
+        color: 'none', 
+        hasMoved: false, 
+        position: [position[0], position[1]] 
+      };
+      
+      // Move the piece to its new position (potentially capturing an opponent's piece)
+      tempBoard[move[0]!][move[1]!] = {
+        ...piece,
+        position: move,
+        hasMoved: true
+      };
+      
+      // Create a complete temp game state with the updated board
+      const tempGameState = {
+        ...gameState,
+        board: tempBoard,
+        kingPositions: {
+          ...gameState.kingPositions,
+          // Update king position if the king is moving
+          [currentColor]: piece.type === 'king' ? move : gameState.kingPositions[currentColor]
+        }
+      };
+      
+      // The key part: recalculate threatening squares after the move
+      // This is crucial to properly detect if the king is still in check
+      tempGameState.threateningPiecesPositions[opponentColor] = 
+      calculateThreateningSquares(
+        tempGameState, 
+        opponentColor as PieceColor,
+        piece,  // Only pass the piece if it's the king
+        move    // Only pass the position if it's the king
+      );
+      // Get the king's position after the move
+      const kingPos = tempGameState.kingPositions[currentColor];
+      
+      // Check if the king would still be in check after the move
+      return !isSquareUnderAttack(kingPos, tempGameState, opponentColor);
+    });
     // Try to get attacking knight position  
-    if (checkDirection === 10) { // Knight direction
+    if (checkDirection && checkDirection >= 8 && checkDirection <= 15)  { // Knight direction
       console.log('843Knight is checking king, looking for position:', firstTriggeringOpponentPiece);
       
       // If we have the firstTriggeringOpponentPiece, use its position directly
@@ -523,8 +568,7 @@ console.log('843normalMoves', normalMoves, captureMoves);
 //normalMoves.push(...captureMoves);
 console.log('843normalMoves', normalMoves, captureMoves);
 // Include capture moves in normalMoves, especially for knight checks
-// Replace lines 526-535 with this improved code:
-if (gameState.checkStatus[currentColor] && checkDirection === 10) {
+if (gameState.checkStatus[currentColor] && (checkDirection && checkDirection >= 8 && checkDirection <= 15)) {
   // For knight checks, make sure captureMoves are merged into normalMoves - but only if valid
   for (const captureMove of captureMoves) {
     // Get all possible legal moves for this piece (according to piece movement rules)
@@ -597,7 +641,7 @@ if (gameState.checkStatus[currentColor]) {
     // 3. Move the king out of check (handled separately)
     
     // For a knight check (direction 10), only allow capturing the knight
-    if (checkDirection === 10) {
+    if (checkDirection && checkDirection >= 8 && checkDirection <= 15) {
       // Check if this move captures the knight
       return captureMoves.some(captureMove => 
         captureMove[0] === move[0] && captureMove[1] === move[1]

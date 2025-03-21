@@ -692,13 +692,16 @@ const Chess: React.FC<Props> = (props) => {
     gameState.turn = turnState === 1 ? 'black' : 'white';
     console.log('761props.gameState', props.gameState)
     setGameState(props.gameState)
+    const isCurrentPlayerInCheck = isKingInCheck && gameState.checkStatus[opponentPlayerNumber === 1 ? 'black' : 'white'];
+    console.log('761isCurrentPlayerInCheck', isCurrentPlayerInCheck, gameState.checkStatus);
     return (
         <div className='Chess'>
             <h1>Room Code: <br /> {roomCode}</h1>
             <div className='chess-buttons-status'>
                 <h2>{turnState === 0 ? "Waiting for opponent" : (playerNumber === turnState ? "Your Turn" : "Opponent's Turn")}</h2>
                 {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
-                {isKingInCheck && <h2>{currentPlayerColor.charAt(0).toUpperCase() + currentPlayerColor.slice(1)} is in check!</h2>}
+                {gameState.checkStatus.white && <h2>White in check!</h2>}
+                {gameState.checkStatus.black && <h2>Black in check!</h2>}
                 <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} />
             </div>
             
