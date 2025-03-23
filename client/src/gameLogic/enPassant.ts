@@ -1,11 +1,9 @@
 import { GameStateType, Move, PieceType, Position } from "../types/clientTypes";
 
 function enPassant(piece: PieceType, lastPosition: Position, gameState: GameStateType) {
-    console.log("Running enPassant function with piece:", piece, "and lastPosition:", lastPosition);
 
     // If not a pawn, return null (not undefined)
     if (piece.type !== 'pawn') {
-        console.log("Piece is not a pawn, returning null");
         return null;
     }
 
@@ -25,9 +23,6 @@ function enPassant(piece: PieceType, lastPosition: Position, gameState: GameStat
         // The pawn must have just moved two squares
         gameState.board[toX! - enPassantDirection][toY!].hasMovedTwo === true;
 
-    console.log("enPassantCondition:", enPassantCondition, "enPassantDirection:", enPassantDirection, 
-                "toX:", toX, "toY:", toY, "opponentColor:", opponentColor);
-
     // Additional check to verify this was the last move
     let wasLastMove = false;
     if (gameState.history.length > 0) {
@@ -41,8 +36,6 @@ function enPassant(piece: PieceType, lastPosition: Position, gameState: GameStat
         }
     }
 
-    console.log("Was this the opponent's last move?", wasLastMove);
-
     // Only create an en passant move if all conditions are met
     if (enPassantCondition && wasLastMove) {
         const move: Move = {
@@ -53,7 +46,6 @@ function enPassant(piece: PieceType, lastPosition: Position, gameState: GameStat
             turn: piece.color!,
             turnNumber: gameState.history[gameState.history.length - 1]?.turnNumber + 1,
         };
-        console.log("En passant move:", move);
         return move.to;
     }
 

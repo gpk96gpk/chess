@@ -784,7 +784,7 @@ function isCheckmate(gameState: GameStateType, piece: PieceType, position: Posit
 }
 
 if (errorFound) {
-  console.warn('Some moves may have inconsistent format, but proceeding anyway');
+  console.debug('Some moves may have inconsistent format, but proceeding anyway');
   // Filter out invalid moves instead of clearing everything
   const validMoves = moves.filter(move => 
       normalMoves.some(normalMove => 

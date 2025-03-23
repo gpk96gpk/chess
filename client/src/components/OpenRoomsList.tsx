@@ -21,7 +21,6 @@ const OpenRoomsList = () => {
             
             // Listen for room updates
             socket.on('availableRooms', (rooms: Room[]) => {
-                console.debug('Received available rooms:', rooms);
                 setAvailableRooms(rooms);
             });
             
@@ -73,7 +72,6 @@ const OpenRoomsList = () => {
             
             if (!errorMessage || (errorMessage !== 'Room ID cannot be null' && 
                 errorMessage !== 'The room is empty.')) {
-                console.debug('Joining room:', roomCode);
                 navigate(`/game/${roomCode}`);
             } else {
                 setErrorClass('error');

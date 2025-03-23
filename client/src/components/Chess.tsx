@@ -655,7 +655,7 @@ const Chess: React.FC<Props> = (props) => {
     }, []);
     //render
     gameState.turn = turnState === 1 ? 'black' : 'white';
-    setGameState(props.gameState)
+    // setGameState(props.gameState)
     
     return (
         <div className='Chess'>
