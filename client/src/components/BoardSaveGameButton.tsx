@@ -9,19 +9,35 @@ import { BoardSaveGameButtonProps } from '../types/clientTypes';
 
 const BoardSaveGameButton: React.FC<BoardSaveGameButtonProps> = ({ gameState }) => {
     const [saveStatus, setSaveStatus] = useState<string | null>(null);
+    const [buttonClass, setButtonClass] = useState<string>('');    
+    
     const handleSave = async () => {
-        const success = await saveGame(gameState);
-        if (success) {
-            setSaveStatus('Game saved successfully');
-        } else {
-            setSaveStatus('Failed to save game');
+        try {
+            const success = await saveGame(gameState);
+            if (success) {
+                setButtonClass('success');
+            } else {
+                setButtonClass('error');
+            }
+            
+            // Reset class after animation/display
+            setTimeout(() => {
+                setButtonClass('');
+            }, 2000);
+        } catch (err) {
+            setSaveStatus('Error saving game');
+            setButtonClass('error');
+            
+            // Reset class after animation/display
+            setTimeout(() => {
+                setButtonClass('');
+            }, 2000);
         }
     };
-
     return (
         <div>
-            <button onClick={handleSave}>Save</button>
-            {saveStatus && <p>{saveStatus}</p>}
+            <button onClick={handleSave} className={buttonClass}>Save</button>
+            {saveStatus && <p className={buttonClass}>{saveStatus}</p>}
         </div>
     );
 };

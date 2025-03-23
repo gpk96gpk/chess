@@ -41,8 +41,8 @@ const Board: React.FC<BoardProps> = ({
                             tile => tile[0] === i && tile[1] === j
                         );
                         if (isHighlighted) {
-                            console.log(`HIGHLIGHT: Square at [${i},${j}] is highlighted`);
-                            console.log(`HIGHLIGHT: Square class will be: ${className} highlighted-square`);
+                            console.debug(`HIGHLIGHT: Square at [${i},${j}] is highlighted`);
+                            console.debug(`HIGHLIGHT: Square class will be: ${className} highlighted-square`);
                         }
                         return (
                             <Square 

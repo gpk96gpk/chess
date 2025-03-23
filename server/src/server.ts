@@ -1,31 +1,3 @@
-// set up cors socket and express
-
-//initialize cors socket  and express
-
-//initialize players and rooms
-
-//set up socket io connection
-
-//set up event listeners get other players socket id 
-//store in otherPlayersSocketId const
-//emit to otherPlayersSocketId the following using io.to
-//create room
-//join room
-//leave room
-//error handling
-//gameState
-//gameOver
-//reset
-
-//set up database routes
-//POST the input username from form to server and check if the username exists in the database
-//if username exists, check if the password matches and if it does, send back a token
-//if username does not exist send error message
-//POST for creating a new user and password
-//POST for saving a game to a user
-//GET for the list of saved games for a user
-//GET selected saved game for a user
-//DELETE for deleting a saved game for a user
 declare global {
     namespace Express {
       interface Request {
@@ -34,16 +6,7 @@ declare global {
     }
   }
 
-//   import * as dotenv from 'dotenv';
-//   dotenv.config();
-  
-//   console.log('===== DB CONNECTION DETAILS =====');
-//   console.log('PGHOST:', process.env.PGHOST);
-//   console.log('PGUSER:', process.env.PGUSER);
-//   console.log('PGPASSWORD:', process.env.PGPASSWORD);
-//   console.log('PGDATABASE:', process.env.PGDATABASE);
-//   console.log('PGPORT:', process.env.PGPORT);
-//   console.log('================================');
+
 import 'dotenv/config'
 import express from 'express';
 import cors from 'cors';

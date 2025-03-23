@@ -21,14 +21,14 @@ const OpenRoomsList = () => {
             
             // Listen for room updates
             socket.on('availableRooms', (rooms: Room[]) => {
-                console.log('Received available rooms:', rooms);
+                console.debug('Received available rooms:', rooms);
                 setAvailableRooms(rooms);
             });
             
             // Handle room errors
             socket.on('roomError', (errorMsg) => {
                 setErrorClass('error');
-                console.log('roomError', errorMsg);
+                console.error('roomError', errorMsg);
             });
         }
         
@@ -56,7 +56,7 @@ const OpenRoomsList = () => {
                 socket.emit('joinRoom', roomCode);
                 
                 const handleRoomError = (errorMsg: string) => {
-                    console.log('roomError', errorMsg);
+                    console.error('roomError', errorMsg);
                     resolve(errorMsg);
                     // Important: Remove the listener after receiving the error
                     socket.off('roomError', handleRoomError);
@@ -73,11 +73,11 @@ const OpenRoomsList = () => {
             
             if (!errorMessage || (errorMessage !== 'Room ID cannot be null' && 
                 errorMessage !== 'The room is empty.')) {
-                console.log('Joining room:', roomCode);
+                console.debug('Joining room:', roomCode);
                 navigate(`/game/${roomCode}`);
             } else {
                 setErrorClass('error');
-                console.log('Error joining room:', errorMessage);
+                console.error('Error joining room:', errorMessage);
             }
         }
     };

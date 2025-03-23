@@ -21,14 +21,14 @@ export const saveGame = async (gameState: GameStateType) => {
         });
 
         if (response.data.status === 'success') {
-            console.log('Game saved successfully');
+            console.debug('Game saved successfully');
             return true;
         } else {
-            console.log('Failed to save game');
+            console.debug('Failed to save game');
             return false;
         }
     } catch (error) {
-        console.log('An error occurred while saving the game', error);
+        console.error('An error occurred while saving the game', error);
         return false;
     }
 };
@@ -49,17 +49,17 @@ export const signIn = async (username: string, password: string) => {
         });
 
         if (response.data.status === 'success') {
-            console.log('User signed in successfully');
+            console.debug('User signed in successfully');
             const token = response.data.data.token;
             localStorage.setItem('jwt', token);
             return token;
         } else {
-            console.log('Failed to sign in');
+            console.debug('Failed to sign in');
             return null;
         }
     } catch (error) {
         if (error instanceof Error) {
-            console.log('An error occurred while signing in', error.message);
+            console.error('An error occurred while signing in', error.message);
           }
         return null;
     }
@@ -97,7 +97,7 @@ export const deleteGame = async (gameId: number) => {
         return response.data.data.game;
     } catch (error) {
         if (error instanceof Error) {
-            console.log('An error occurred while signing in', error.message);
+            console.error('An error occurred while signing in', error.message);
         }
         return null;
     }

@@ -447,7 +447,24 @@ form>input {
   100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-1.5px);
+  }
+}
+
 .error {
   animation: shake 0.5s;
   border-color: red !important;
+}
+.success {
+  animation: bounce 0.5s;
+  border-color: #4CAF50 !important; /* Green border */
+  color: #4CAF50 !important;
 }

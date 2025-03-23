@@ -25,11 +25,6 @@ window.addEventListener('touchmove', function(event) {
 
 
 const Chess: React.FC<Props> = (props) => {
-    // if (!props.gameState) {
-    //     const { initialBoard } = resetGameState();
-    //     props.gameState = initialBoard
-    //     console.log('props.gameState', props.gameState)
-    // }
     const gameState = props.gameState;
     if (props.playerNumber === 1) {
         gameState.username1 = props.username;
@@ -38,26 +33,21 @@ const Chess: React.FC<Props> = (props) => {
         gameState.username2 = props.username;
     }
     const { roomCode } = useParams();
-    console.log('roomCode', roomCode, 'props', typeof props.gameState);
+    
     const socket = useContext(SocketContext);
     const lastDragOverPosition = useRef<Position | null>(null);
     const startPosition = useRef<Position | null>(null);
     const currentPlayerColor = props.playerNumber === 1 ? 'black' : 'white';
     const opponentPlayerNumber = props.playerNumber === 1 ? 2 : 1;
-    console.log('761currentPlayerColor', currentPlayerColor, props.gameState);
-    const currentPlayerInCheck = props.gameState.checkStatus[currentPlayerColor];
+    
     const isKingInCheck = props.gameState.checkStatus[currentPlayerColor];
-    console.log('761isKingInCheck', isKingInCheck, currentPlayerInCheck);
-    console.log('761props.gameState', props.gameState);
+    
+    
     const isKingInCheckMate = false;
     const loser: string | null = gameState.turn === 'black' ? 'white' : 'black';
-    let newGameState;
     let hasCastled = false;
     
     const handleDragStart = (event: React.DragEvent, piece: PieceType, position: Position) => {
-        //event.preventDefault();
-        console.log('handleDragStart');
-        console.log('turnState', turnState, 'playerNumber', playerNumber)
         if (currentPlayerColor !== (playerNumber === 1 ? 'black' : 'white')) {
             return;
         }
@@ -67,32 +57,30 @@ const Chess: React.FC<Props> = (props) => {
         event.dataTransfer.setData('piece', JSON.stringify(piece));
         event.dataTransfer.setData('position', JSON.stringify(position));
         startPosition.current = position;
-        // dragOverPiece = piece;
-        console.log('StartPosition', position);
-        console.log('StartPiece', currentPlayerColor, gameState);
+        
     };
     
-    const handleDragEnter = (event: React.DragEvent<HTMLDivElement>, position: Position) => {
+    const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        console.log('handleDragEnter');
-        console.log('DragEnterPosition', position, gameState);
+        
+        
     };
 
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>, position: Position | null) => {
         event.preventDefault();
-        console.log('handleDragOver');
+        
         lastDragOverPosition.current = position;
 
 
-        console.log('DragOverPosition', position, gameState);
+        
     };
 
     const handleDrop = (event: React.DragEvent) => {
         event.preventDefault();
-        console.log('761handleDropProps.gameState', gameState);
-        console.log('handleDrop');
+        
+        
         const pieceData = event.dataTransfer.getData('piece');
-        console.log('handleDropPieceData', pieceData);
+        
         if (!pieceData) {
             console.error('handleDropNo piece data');
             return;
@@ -107,11 +95,9 @@ const Chess: React.FC<Props> = (props) => {
         }
     
         // Update piece position with the drop coordinates
-        console.log('761piece', piece);
-        console.log('761lastDragOverPosition', lastDragOverPosition.current);
         if (lastDragOverPosition.current) {
             piece.position = lastDragOverPosition.current;
-            console.log('761piece', piece);
+            
         } else {
             console.error('Error: lastDragOverPosition is null');
             return;
@@ -119,7 +105,7 @@ const Chess: React.FC<Props> = (props) => {
     
         const currentPlayerColor = playerNumber === 1 ? 'black' : 'white';
         const opponentColor = playerNumber === 1 ? 'white' : 'black';
-        console.log('5556opponentColor', opponentColor);
+        
         
         let toX: number, toY: number;
         if (lastDragOverPosition.current && lastDragOverPosition.current.length === 2) {
@@ -142,19 +128,15 @@ const Chess: React.FC<Props> = (props) => {
             console.error('Error: piece.position is null');
             return;
         }
-        
-        newGameState = JSON.parse(JSON.stringify(gameState));
-        console.log('761validMovesCheck', piece.position, startPosition.current, newGameState, playerNumber, lastDragOverPosition.current, 
-                currentPlayerInCheck, gameState);
-        console.log('761currentPlayerInCheck', currentPlayerInCheck);
+                
         
         const validMovesResult = validMoves(piece, startPosition.current!, gameState, playerNumber, lastDragOverPosition.current!);
         if (!validMovesResult) {
             console.error('Error: validMoves returned nothing');
             return;
         } 
-        const { moves: pieceValidMoves, threateningSquares, isKingInCheck, checkDirection, isKingInCheckMate, isOpponentKingInCheck, enPassantMove, canCastle, canPromote, promotionPosition } = validMovesResult as ValidMovesResult;
-        console.log('761pieceValidMoves', pieceValidMoves, isOpponentKingInCheck);
+        const { moves: pieceValidMoves, isKingInCheck, checkDirection, isKingInCheckMate, isOpponentKingInCheck, enPassantMove, canCastle, canPromote, promotionPosition } = validMovesResult as ValidMovesResult;
+        
         
         // Handle pawn promotion
         if (canPromote && piece.type === 'pawn') {
@@ -165,17 +147,17 @@ const Chess: React.FC<Props> = (props) => {
         }
                 
         if (isOpponentKingInCheck) {
-            console.log('761isOpponentKingInCheck', isOpponentKingInCheck, opponentColor);
+            
             gameState.checkStatus[opponentColor] = true;
         }
-        console.log('761pieceValidMoves', pieceValidMoves);
-        console.log('newGameState', newGameState, gameState);
+        
+        
 
         const updateBoard = (gameState: GameStateType, x: number, y: number, piece: PieceType) => {
             if (hasCastled) {
                 return
             }
-            console.log('761updateBoard', x, y, piece, gameState.board[x][y]);
+            
             piece.hasMoved = true;
             gameState.board[x][y].type = piece.type;
             gameState.board[x][y].color = piece.color;
@@ -189,19 +171,17 @@ const Chess: React.FC<Props> = (props) => {
             // Update piecePositions
             let pieceToUpdate;
             if (gameState.piecePositions && gameState.piecePositions[currentPlayerColor]) {
-                console.log('866Current game state:', gameState.piecePositions);
-                console.log('866Current player color:', currentPlayerColor, piece, gameState.piecePositions[currentPlayerColor]);
+                
+                
                 pieceToUpdate = gameState.piecePositions[currentPlayerColor].find(
                     pos => {
-                        console.log('866Position id:', pos.id);
+                        
                         return pos.id === piece.index;
                     }
                 );
-                console.log('866Piece to update:', pieceToUpdate);
-            } else {
-                console.log('866gameState.piecePositions or gameState.piecePositions[currentPlayerColor] is undefined');
+                
             }
-            console.log('866pieceIndex', pieceToUpdate);
+            
             if (pieceToUpdate) {
                 pieceToUpdate.hasMoved = true;
                 pieceToUpdate.position = lastDragOverPosition.current || [];
@@ -209,18 +189,16 @@ const Chess: React.FC<Props> = (props) => {
                 pieceToUpdate.color = piece.color;
                 const pieceIndex = pieceToUpdate.index;
                 gameState.piecePositions[currentPlayerColor][pieceIndex!] = pieceToUpdate;
-                console.log('866pieceToUpdate', pieceToUpdate, gameState.piecePositions[currentPlayerColor]);
+                
             }
             //Update check status
             if (isKingInCheck && gameState.checkStatus[currentPlayerColor] === true) {
-                console.log('761isKingInCheck', isKingInCheck, opponentColor, gameState);
+                
                 gameState.checkStatus[opponentColor] = true;
                 gameState.checkStatus.direction = checkDirection!;
             }
         }
         
-        const castlingDirection = piece.type === 'king' && toY! - fromY! === 2 ? 1 : -1;
-
         const handleCastling = (gameState: GameStateType, toX: number, toY: number, piece: PieceType) => {
             let castleDirection : number;
             let rookDirection : number;
@@ -229,13 +207,11 @@ const Chess: React.FC<Props> = (props) => {
                 castleDirection = fromY! - 2
                 rookPosition = fromY! - 1
                 rookDirection = 0
-                console.log('castlingPosition', castleDirection)
               }
               if ((toY === 7 || toY === 6) && piece && piece.position) {
                 castleDirection = fromY! + 2
                 rookPosition = fromY! + 1
                 rookDirection = 7;
-                console.log('castlingPosition', castleDirection)
               }
  
             gameState.board[fromX!][rookPosition!].color = currentPlayerColor;
@@ -269,7 +245,6 @@ const Chess: React.FC<Props> = (props) => {
             console.error('No piece');
             return;
         }
-        console.log('lastDragOverPosition', lastDragOverPosition.current)
         if (!pieceValidMoves) {
             console.error('Error: no valid moves made for piece');
             return;
@@ -277,52 +252,45 @@ const Chess: React.FC<Props> = (props) => {
         if (canCastle) {
             pieceValidMoves.push([toX, toY]);
         }
-        console.log('761pieceValidMoves', pieceValidMoves);
+        
         const isPieceValidMove = pieceValidMoves && pieceValidMoves.some(move => {
             const isStartPosEqual = move.every((value, index) => value === startPosition.current![index]);
             const isLastDragPosEqual = move.every((value, index) => value === lastDragOverPosition.current![index]);
             return isStartPosEqual || isLastDragPosEqual;
         });
-        console.log('isPieceValidMove', isPieceValidMove);
+        
         if (!isPieceValidMove || turnState !== playerNumber) {
             return;
         }
         
-        console.log('761threateningSquares', threateningSquares, gameState);
-        gameState.threateningPiecesPositions[currentPlayerColor] = calculateThreateningSquares(gameState, currentPlayerColor, piece, lastDragOverPosition.current!);
-        //const didKingCastle = piece.type === 'king' && Math.abs(toY - fromY) === 2;
         
-        console.log('isPieceValidMove', isPieceValidMove, gameState, castlingDirection)
+        gameState.threateningPiecesPositions[currentPlayerColor] = calculateThreateningSquares(gameState, currentPlayerColor, piece, lastDragOverPosition.current!);
         //This if Statement handles moving out of check
-        // FIX: this needs to be converted to function probably and probably duplicated and edited to 
         //handle move out of check in the checkMate
         if (isPieceValidMove) {
             const tempGameState = JSON.parse(JSON.stringify(gameState));
             tempGameState.board[toX][toY] = piece;
             tempGameState.board[toX][toY].hasMoved = true;
             tempGameState.board[fromX!][fromY!] = { type: 'empty', color: 'none', hasMoved: false, isHighlighted: false };
-            console.log('847tempGameState', tempGameState, gameState);
+            
             let checkPosition;
             let matchFoundInDirection;
             //add a check to see if piece is moving into threatening square array from game state 
             const moveIntoCheck = isCheck(tempGameState, gameState.threateningPiecesPositions[currentPlayerColor], opponentPlayerNumber, checkPosition!, piece, piece.position!, playerNumber, lastDragOverPosition.current, matchFoundInDirection!, currentPlayerColor);
-            console.log('847moveIntoCheck', moveIntoCheck.isKingInCheck, gameState, isOpponentKingInCheck);
+            
             if (moveIntoCheck.isKingInCheck) {
-                console.log('847moveIntoCheck', moveIntoCheck);
+                
                 //const isKingInCheckMate = isCheckmate(gameState, currentPlayerColor);
-                console.log('847isKingInCheckMate', isKingInCheckMate);
+                
                 return;
             } else {
-                //isKingInCheck = false;
-                gameState.checkStatus[currentPlayerColor] = false;
-                //gameState.checkStatus[opponentColor] = false;
-                console.log('847gameState that moves out of check', gameState);
-                console.log('847moveIntoCheck', moveIntoCheck);
+                gameState.checkStatus[currentPlayerColor] = false;                
+                
             }
-            console.log('toX', toX, 'toY', toY, 'fromX', fromX, 'fromY', fromY, 'piece', piece, 'gameState', gameState);
+            
             if (piece.type === 'pawn' && Math.abs(toX - fromX!) === 2) {
                 piece.hasMovedTwo = true;
-                console.log('847piece.hasMovedTwo', piece.hasMovedTwo, piece);
+                
             }
             const enPassantDirection = piece.color === 'white' ? -1 : 1;
             //Check if lastDragOverPosition is equal to the enPassantMove if it is then update the board to remove the piece that was taken
@@ -331,27 +299,27 @@ const Chess: React.FC<Props> = (props) => {
             }
             
             updateBoard(gameState, fromX!, fromY!, {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: -1, id: -1, position: [fromX!, fromY!] as Position});
-            console.log('847 gameState updated', gameState);  
+              
             
-            console.log('847canCastle', canCastle, piece.type, castlingDirection, piece.hasMoved, piece);
+            
             if (piece.type === 'king' && canCastle) {
-                console.log('847Castling king:', currentPlayerColor, toX, toY);
+                
                 handleCastling(gameState, toX, toY, piece);
             }
 
             piece.hasMoved = true;
-            console.log('847piece.hasMoved', piece.hasMoved, piece);
+            
             updateBoard(gameState, toX, toY, piece);
-            console.log('847 gameState updated', gameState);   
+               
         }
 
         //maybe should use gameState instead of newGameState because the emit is sending gameState
         
         if (piece.type === 'king') {
-            console.log('556Moving king:', currentPlayerColor, toX, toY);
+            
             gameState.kingPositions[currentPlayerColor] = [toX, toY];
             gameState.turn = gameState.history.length % 2 === 0 ? 'black' : 'white';
-            console.log('556gameState', gameState);
+            
         }
 
 
@@ -385,7 +353,7 @@ const Chess: React.FC<Props> = (props) => {
     // Add a click handler for the board itself to clear selection when clicking empty areas
     // Modify the existing handleBoardClick function
     const handleBoardClick = () => {
-        console.log("Board clicked - deselecting any selected piece");
+        
         
         // If clicked on the board background (not a piece or valid move square)
         if (props.selectedPiece) {
@@ -403,7 +371,7 @@ const Chess: React.FC<Props> = (props) => {
             tile[0] === position[0] && tile[1] === position[1]
         )) {
             // We're clicking on a highlighted square with a piece - handle as capture
-            console.log("Capturing piece at:", position);
+            
             handleSquareClick(event, position);
             return;
         }
@@ -448,7 +416,7 @@ const Chess: React.FC<Props> = (props) => {
             } else {
                 props.setSelectedPiece(null);
                 props.setHighlightedTiles([]);
-                console.log("No valid moves for this piece");
+                
             }
         }
         
@@ -476,9 +444,9 @@ const Chess: React.FC<Props> = (props) => {
     const handleSquareClick = (event: React.MouseEvent, position: Position) => {
         event.stopPropagation(); // Prevent bubbling
         
-        console.log("Square clicked at:", position);
-        console.log("Selected piece:", props.selectedPiece);
-        console.log("Current highlighted tiles:", props.highlightedTiles);
+        
+        
+        
         
         // If no piece is selected or it's not the player's turn, do nothing
         if (!props.selectedPiece || currentPlayerColor !== (playerNumber === 1 ? 'black' : 'white') || turnState !== playerNumber) {
@@ -489,18 +457,18 @@ const Chess: React.FC<Props> = (props) => {
         const isValidMove = props.highlightedTiles.some(move => 
             move[0] === position[0] && move[1] === position[1]
         );
-        console.log("Is valid move:", isValidMove);
+        
         
         if (isValidMove) {
             // Store the original piece position
             const piecePosition = props.selectedPiece.position as Position;
-            console.log("Moving piece from:", piecePosition, "to:", position);
+            
             
             // Make sure we're not trying to castle onto our own rook
             if (props.selectedPiece.type === 'king') {
                 const targetPiece = gameState.board[position[0]!][position[1]!];
                 if (targetPiece && targetPiece.type === 'rook' && targetPiece.color === props.selectedPiece.color) {
-                    console.log("Castling detected - handling through normal move logic");
+                    
                     // Continue with move - castling will be handled by move logic
                 }
             }
@@ -533,7 +501,7 @@ const Chess: React.FC<Props> = (props) => {
             // If clicked on an invalid move square, just deselect
             props.setSelectedPiece(null);
             props.setHighlightedTiles([]);
-            console.log("Deselecting piece - invalid move");
+            
         }
     };
 
@@ -620,7 +588,6 @@ const Chess: React.FC<Props> = (props) => {
     
     useEffect(() => {
         if (gameState.turn !== (turnState === 1 ? 'black' : 'white')) {
-            console.log('turnState1', turnState)
             setGameState(prevState => {
                 // Create a copy of the previous game state
                 const gameState = { ...prevState };
@@ -653,11 +620,11 @@ const Chess: React.FC<Props> = (props) => {
     }, [props.selectedPiece, props.setSelectedPiece, props.setHighlightedTiles]);
     useEffect(() => {
         // Check for game over and winner
-        console.log('gameOver', gameOver);
+        
 
         if (gameOver || isKingInCheckMate) {
-            console.log('gameOver', gameOver);
-            console.log('loser1', loser);
+            
+            
             setWinner(loser);
             setGameOver(true);
         }
@@ -675,7 +642,7 @@ const Chess: React.FC<Props> = (props) => {
     // Check for stalemate and draw
     useEffect(() => {
         if (isDraw(gameState, playerNumber) && turnState !== 0 && !isKingInCheck) {
-            console.log('Draw');
+            
             setGameOver(true);
             setWinner('Draw');
             setTurnState(3);
@@ -687,13 +654,9 @@ const Chess: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     //render
-    console.log('loser', loser)
-    console.log('turnState2', turnState)
     gameState.turn = turnState === 1 ? 'black' : 'white';
-    console.log('761props.gameState', props.gameState)
     setGameState(props.gameState)
-    const isCurrentPlayerInCheck = isKingInCheck && gameState.checkStatus[opponentPlayerNumber === 1 ? 'black' : 'white'];
-    console.log('761isCurrentPlayerInCheck', isCurrentPlayerInCheck, gameState.checkStatus);
+    
     return (
         <div className='Chess'>
             <h1>Room Code: <br /> {roomCode}</h1>

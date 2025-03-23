@@ -11,19 +11,19 @@ function isDraw(gameState: GameStateType, currentPlayer: number) {
   }
   // Check for stalemate (no legal moves for the current player)
   if (isStalemate(gameState, currentPlayer)) {
-      console.log('Game is in stalemate');
+      
       return true;
   }
   if (isInsufficientMaterial(gameState)) {
-      console.log('Game has insufficient material');
+      
       return true;
   }
   if (isThreefoldRepetition(gameState.history)) {
-      console.log('Game has threefold repetition');
+      
       return true;
   }
   if (isFivefoldRepetition(gameState.history)) {
-      console.log('Game has fivefold repetition');
+      
       return true;
   }
 

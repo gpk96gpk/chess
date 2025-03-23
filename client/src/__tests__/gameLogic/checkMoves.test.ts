@@ -407,7 +407,7 @@ describe('Chess Check and Checkmate Tests', () => {
         // Verify king cannot move into a checked position
         expect(result.moves).not.toContainEqual([1, 3]);
         expect(result.moves).not.toContainEqual([0, 3]);
-        console.log(result.moves);
+        console.debug(result.moves);
         
         // But can move to safe squares
         expect(result.moves).toContainEqual([1, 5]);
@@ -477,8 +477,8 @@ describe('Chess Check and Checkmate Tests', () => {
         const result = validMoves(whiteRook, position, gameState, 2, targetPosition) as ValidMoveReturn;
         
         // Check result structure and isOpponentKingInCheck first to debug
-        console.log('Move result structure:', Object.keys(result));
-        console.log('Is opponent in check:', result.isOpponentKingInCheck);
+        console.debug('Move result structure:', Object.keys(result));
+        console.debug('Is opponent in check:', result.isOpponentKingInCheck);
         
         // Verify checkmate is detected
         expect(result.isOpponentKingInCheck).toBe(true);
@@ -550,10 +550,10 @@ describe('Chess Check and Checkmate Tests', () => {
       const position = blackRook.position as Position;
       
       // Debug info before getting moves
-      console.log("Board setup:");
-      console.log("- Black king at:", blackKing.position);
-      console.log("- Black rook at:", blackRook.position);
-      console.log("- White queen at:", whiteQueen.position);
+      console.debug("Board setup:");
+      console.debug("- Black king at:", blackKing.position);
+      console.debug("- Black rook at:", blackRook.position);
+      console.debug("- White queen at:", whiteQueen.position);
       
       // Get moves for the pinned rook
       const targetPosition: Position = [2, 4]; // Provide a valid target position
@@ -561,14 +561,14 @@ describe('Chess Check and Checkmate Tests', () => {
       
       // The rook should only be able to move along the pin line (e-file)
       // It cannot move horizontally as that would expose the king to check
-      console.log("Rook's available moves:", result.moves);
+      console.debug("Rook's available moves:", result.moves);
       
       // Verify the rook can only move along the pin line (vertically)
       const allowedMoves = result.moves.filter(move => move[1] === 4); // Same column (e-file)
       const disallowedMoves = result.moves.filter(move => move[1] !== 4); // Different column
       
-      console.log("Allowed moves (along pin line):", allowedMoves);
-      console.log("Disallowed moves (would expose king):", disallowedMoves);
+      console.debug("Allowed moves (along pin line):", allowedMoves);
+      console.debug("Disallowed moves (would expose king):", disallowedMoves);
       
       // Verify the rook is properly pinned
       expect(disallowedMoves.length).toBe(0); // No moves that would expose the king
@@ -608,19 +608,19 @@ describe('Chess Check and Checkmate Tests', () => {
       };
       
       // Debug info
-      console.log("Board setup:");
-      console.log("- Black king at:", blackKing.position);
-      console.log("- Black rook at:", blackRook.position);
-      console.log("- White queen at:", whiteQueen.position);
-      console.log("- Black pawns at:", blackPawn1.position, blackPawn2.position, blackPawn3.position);
+      console.debug("Board setup:");
+      console.debug("- Black king at:", blackKing.position);
+      console.debug("- Black rook at:", blackRook.position);
+      console.debug("- White queen at:", whiteQueen.position);
+      console.debug("- Black pawns at:", blackPawn1.position, blackPawn2.position, blackPawn3.position);
       
       // Get king's moves first - should have none due to pawns and queen's check
       const kingMoves = validMoves(blackKing, blackKing.position as Position, gameState, 1, [0, 5] as Position) as ValidMoveReturn;
-      console.log("King's available moves:", kingMoves.moves);
+      console.debug("King's available moves:", kingMoves.moves);
       
       // Get rook's moves - should only be able to capture the queen
       const rookMoves = validMoves(blackRook, blackRook.position as Position, gameState, 1, [0, 7] as Position) as ValidMoveReturn;
-      console.log("Rook's available moves:", rookMoves?.moves);
+      console.debug("Rook's available moves:", rookMoves?.moves);
       
       // Check if capturing the queen is a valid move
       const canCaptureQueen = rookMoves?.moves?.some(move => 

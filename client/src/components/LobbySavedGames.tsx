@@ -1,10 +1,3 @@
-// take username from LobbySignInSignUpButton
-// render button component
-//on button click display overlay with list of saved games
-//list of saved games with columns (username1 and username2's game), date, load button, delete button 
-//load button will trigger db query from the database and render the game page with the 
-//saved game state using react router link gameState from server passed to game page
-
 import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { getSavedGames, deleteGame } from '../apis/ChessGame';

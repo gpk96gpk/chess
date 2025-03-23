@@ -6,12 +6,7 @@ import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
 import resetGameState from './gameLogic/resetGameState';
-//import { knightCheckmateBoard, pawnTestBoard, basicMoveBoard } from './testUtils/testBoards';
 
-//import { API_URL } from './apis/ChessGame';
-//import calculateThreateningSquares from './gameLogic/calculateThreateningSquares';
-
-// const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
 const socket = io(`http://localhost:3004/`);
 
 let index = 0;
@@ -21,64 +16,6 @@ let whiteMajorIndex = 16;
 const createPiece = (type: PieceNames, color: 'black' | 'white' | 'none', position: Position, index: number): PieceType => ({ type, color, position, hasMoved: false, index });
 
 const majorPieces: PieceNames[] = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
-
-// const testBoard: GameStateType = {
-//     board: [
-//         majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
-//         Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [1, i], hasMoved: false, isHighlighted: false, index: index++ })),
-//         ...Array(4).fill(null).map((_, rowIndex) =>
-//             Array(8).fill(null).map((_, colIndex) => ({ type: 'empty', color: 'none', position: [2 + rowIndex, colIndex], hasMoved: false, isHighlighted: false, index: index++ }))
-//         ),
-//         Array(8).fill(null).map((_, i) => ({ type: 'empty', color: 'none', position: [6, i], hasMoved: false, isHighlighted: false, index: index++ })),
-//         majorPieces.map((type, i) => i === 4 ? createPiece('king', 'white', [7, 4], index++) : { type: 'empty', color: 'none', position: [7, i], hasMoved: false, isHighlighted: false, index: index++ }),
-//     ],
-//     history: [],
-//     turn: 'black',
-//     kingPositions: {black: [0, 4], white: [7, 4]}, 
-//     threateningPiecesPositions: {
-//          black: [],
-//          white: [],
-//      },
-//      piecePositions: {
-//         black: [
-//             { id: 1, type: 'rook', position: [0, 0] },
-//             { id: 2, type: 'knight', position: [0, 1] },
-//             { id: 3, type: 'bishop', position: [0, 2] },
-//             { id: 4, type: 'queen', position: [0, 3] },
-//             { id: 5, type: 'king', position: [0, 4] },
-//             { id: 6, type: 'bishop', position: [0, 5] },
-//             { id: 7, type: 'knight', position: [0, 6] },
-//             { id: 8, type: 'rook', position: [0, 7] },
-//             { id: 9, type: 'pawn', position: [1, 0] },
-//             { id: 10, type: 'pawn', position: [1, 1] },
-//             { id: 11, type: 'pawn', position: [1, 2] },
-//             { id: 12, type: 'pawn', position: [1, 3] },
-//             { id: 13, type: 'pawn', position: [1, 4] },
-//             { id: 14, type: 'pawn', position: [1, 5] },
-//             { id: 15, type: 'pawn', position: [1, 6] },
-//             { id: 16, type: 'pawn', position: [1, 7] },
-//         ],
-//         white: [
-//             { id: 17, type: 'rook', position: [7, 0] },
-//             { id: 18, type: 'knight', position: [7, 1] },
-//             { id: 19, type: 'bishop', position: [7, 2] },
-//             { id: 20, type: 'queen', position: [7, 3] },
-//             { id: 21, type: 'king', position: [7, 4] },
-//             { id: 22, type: 'bishop', position: [7, 5] },
-//             { id: 23, type: 'knight', position: [7, 6] },
-//             { id: 24, type: 'rook', position: [7, 7] },
-//             { id: 25, type: 'pawn', position: [6, 0] },
-//             { id: 26, type: 'pawn', position: [6, 1] },
-//             { id: 27, type: 'pawn', position: [6, 2] },
-//             { id: 28, type: 'pawn', position: [6, 3] },
-//             { id: 29, type: 'pawn', position: [6, 4] },
-//             { id: 30, type: 'pawn', position: [6, 5] },
-//             { id: 31, type: 'pawn', position: [6, 6] },
-//             { id: 32, type: 'pawn', position: [6, 7] },
-//         ],
-//     },
-// };
-
 
 const initialBoard: GameStateType = {
     board: [
@@ -216,35 +153,10 @@ const initialBoard: GameStateType = {
 };
 
 
-
-
-
-// const initialBoard: GameStateType = {
-//     board: [
-//         majorPieces.map((type, i) => createPiece(type, 'black', [0, i], index++)),
-//         Array(8).fill(null).map((_, i) => createPiece('pawn', 'black', [1, i], index++)),
-//         ...Array(4).fill(null).map(() =>
-//             Array(8).fill(null).map(() => ({ type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: index++ }))
-//         ),
-//         Array(8).fill(null).map((_, i) => createPiece('pawn', 'white', [6, i], index++)),
-//         majorPieces.map((type, i) => createPiece(type, 'white', [7, i], index++)),
-//     ],
-//     history: [],
-//     turn: 'black',
-//     kingPositions: {black: [0, 4], white: [7, 4]}, 
-//     threateningPiecesPositions: {
-//          black: [[0, 1], [0, 6], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7]],
-//          white: [[7, 1], [7, 6], [6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 7]],
-//      },
-
-// };
-
-
 function App() {
     const [playerNumber, setPlayerNumber] = useState< 1 | 2 >(1);
     const [gameOver, setGameOver] = useState(false);
     const [turnState, setTurnState] = useState<0 | 1 | 2 | 3>(0);
-    //const [gameState, setGameState] = useState<GameStateType>(initialBoard);
     const [winner, setWinner] = useState<string | null>(null);
     const [isPlayerInCheck, setIsPlayerInCheck] = useState(false);
     const [username, setUsername] = useState<string | null>(null);
@@ -254,16 +166,7 @@ function App() {
     const [selectedPiece, setSelectedPiece] = useState<PieceType | null>(null);
     const [highlightedTiles, setHighlightedTiles] = useState<Position[]>([]);
     const { roomCode } = useParams()
-    //const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
 
-    // const testBoards = {
-    //     none: null,
-    //     knightCheckmate: knightCheckmateBoard,
-    //     pawnTest: pawnTestBoard,
-    //     basicMove: basicMoveBoard
-    //   };
-    
-      //const [selectedTestBoard, setSelectedTestBoard] = useState<TestBoard>('none');
       const [gameState, setGameState] = useState<GameStateType>( {
         board: [],
         history: [],
@@ -277,23 +180,13 @@ function App() {
         username2: ''
       });
       
-      // On test board selection change, update gameState
-    //   useEffect(() => {
-    //     if (testBoards[selectedTestBoard]) {
-    //       setGameState(testBoards[selectedTestBoard]!);
-    //     }
-      
-    //   // eslint-disable-next-line react-hooks/exhaustive-deps
-    //   }, [selectedTestBoard]);
 
     useEffect(() => {
         socket.on('createRoom', (roomId) => {
-            console.log(`Socket Created room ${roomId}`);
-            // const {initialBoard} = resetGameState();
-            // setGameState(initialBoard);
+            console.debug(`Socket Created room ${roomId}`);
             setWinner(null);
             setGameOver(false);
-            console.log('createRoom gameState', gameState, winner, gameOver)
+            console.debug('createRoom gameState', gameState, winner, gameOver)
         });
 
         return () => {
@@ -304,7 +197,7 @@ function App() {
 
     useEffect(() => {
         socket.on('joinRoom', (roomId) => {
-            console.log(`Socket Joined room ${roomId}`);
+            console.debug(`Socket Joined room ${roomId}`);
             socket.emit('turn', turnState, roomId)
         });
 
@@ -320,7 +213,7 @@ function App() {
             setWinner(null);
             socket.emit('turn', 0, roomId);
             setTurnState(0)
-            console.log(`Socket Left room ${roomId}`);
+            console.debug(`Socket Left room ${roomId}`);
         });
 
         return () => {
@@ -330,7 +223,7 @@ function App() {
 
     useEffect(() => {
         socket.on('connect', () => {
-            console.log('Socket Connected to the server');
+            console.debug('Socket Connected to the server');
         });
 
         socket.on('connect_error', (error: Error) => {
@@ -345,7 +238,7 @@ function App() {
 
     useEffect(() => {
         socket.on('Socket disconnect', (reason) => {
-            console.log('Disconnected:', reason);
+            console.debug('Disconnected:', reason);
         });
 
         return () => {
@@ -355,7 +248,7 @@ function App() {
 
     useEffect(() => {
         socket.on('playerNumber', (number: 1) => {
-            console.log(`Socket Player number: ${number}`);
+            console.debug(`Socket Player number: ${number}`);
             setPlayerNumber(number);
         });
 
@@ -366,11 +259,10 @@ function App() {
 
     useEffect(() => {
         const handleGameState = (arg:React.SetStateAction<GameStateType>) => {
-            //arg.turn === 1 ? arg.turn = 'black' : arg.turn = 'white'; 
             if (arg === null) {
                 arg = resetGameState()
             }
-            console.log('gameState', arg)
+            console.debug('gameState', arg)
             setGameState(arg);
         }
 
@@ -383,11 +275,11 @@ function App() {
 
     useEffect(() => {
         const handleGameOver = (arg: { isGameOver: boolean, winner: string | null }) => {
-            console.log('gameOver00', arg)
+            console.debug('gameOver00', arg)
             setGameOver(arg.isGameOver);
             setWinner(arg.winner);
         }
-        console.log('winner', winner)
+        console.debug('winner', winner)
         socket.on("gameOver", handleGameOver);
     
         return () => {
@@ -402,30 +294,25 @@ function App() {
 
             if (gameStateParameter && gameStateParameter.turn) {
                 turnNumber = gameStateParameter.turn === 'black' ? 1 : 2;
-                console.log('turnNumber', turnNumber)
+                console.debug('turnNumber', turnNumber)
             } else {
                 // Handle the case where gameStateParameter or gameStateParameter.turn is null
-                //console.log('turnNumber', turnNumber)
                 turnNumber = 2;
             }            
             if (!gameStateParameter && gameState && gameState.history.length === 0) {
-                console.log('turnState change initial', turnNumber)
+                console.debug('turnState change initial', turnNumber)
                 turnNumber = 1
             } 
-            console.log('roomCode', roomCode, roomId)
-            console.log('emitting to guest client', gameStateParameter, gameState)
+            console.debug('roomCode', roomCode, roomId)
+            console.debug('emitting to guest client', gameStateParameter, gameState)
             socket.emit('gameState', gameStateParameter || gameState, roomId );
-            console.log('loadSave turn state management', turnNumber)
+            console.debug('loadSave turn state management', turnNumber)
             
             setTurnState(turnNumber);
             
             socket.emit('turn', turnNumber, roomId)
 
-        });
-        // const handleLoadSaveGame = () => {
-        //     // Emit the current game state
-        // }
-    
+        });    
     
         // Clean up the effect
         return () => {
@@ -437,8 +324,8 @@ function App() {
     useEffect(() => {
         const turnStateChange = (arg:React.SetStateAction< 0 | 1 | 2 | 3>) => {
             setTurnState(arg);
-            console.log('turnState', turnState)
-            console.log(`Socket Turn state: ${arg}`);
+            console.debug('turnState', turnState)
+            console.debug(`Socket Turn state: ${arg}`);
         }
 
         socket.on('turn', turnStateChange);
@@ -504,24 +391,6 @@ function App() {
     return (
     <SocketContext.Provider value={socket}>
         <Router>
-            {/* 
-            Display a test board selector for debugging.
-            In production this component remove or hide.
-            */}
-            {/* <div style={{ padding: '1rem', backgroundColor: '#f0f0f0' }}> */}
-            {/* <label htmlFor="testBoardSelect">Select test board:</label>
-            <select
-                id="testBoardSelect"
-                value={selectedTestBoard}
-                onChange={(e) => setSelectedTestBoard(e.target.value as TestBoard)}
-                style={{ zIndex: 9999, position: 'relative' }}
-            >
-                <option value="">-- Standard Game --</option>
-                <option value="knightCheckmate">Knight Checkmate</option>
-                <option value="pawnTest">Pawn Test</option>
-                <option value="basicMove">Basic Move</option>
-            </select> */}
-            {/* </div> */}
             <Routes>
             <Route path="/lobby?/:username?" element={<Lobby setGameState={setGameState} setUsername={setUsername} username={username} />} />
             <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />

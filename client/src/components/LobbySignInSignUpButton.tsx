@@ -1,14 +1,3 @@
-//render overlay with sign in form
-//in overlay have a sign in form with username and password inputs
-//in overlay have submit button and an exit button to close the overlay
-//send api request to server with username and password from api saves in ChessGame in api folder
-//if sign in button click and username and password are correct reload page with 
-//username in corner and a new button from the LobbySavedGames component for loading saved games
-//and username will be params of the react router link to the lobby page
-//if not correct display error message
-//pass username to LobbyGameButtons component
-//pass username to LobbySavedGames component
-
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signUp, signIn } from '../apis/ChessGame';
@@ -23,7 +12,6 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
   const [showSignIn, setShowSignIn] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
-  //const [hide, setHide] = useState(false);
   const [inputUsername, setInputUsername] = useState('');
   const [password, setPassword] = useState('');
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -70,7 +58,6 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
       setShowSignUp(false);
       setShowSignIn(false);
       setIsGuest(true);
-      // navigate(`/lobby/${inputUsername}`);
       console.log('username', inputUsername); 
       setIsSignedIn(true); // Update the sign-in status
       handleContinueAsGuest();
@@ -82,8 +69,6 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
 
   const handleContinueAsGuest = () => {
     setIsGuest(true);
-    //setTimeout(() => setHide(true), 500);
-    //if (document.querySelector('.continue-as-guest-button')) {
       document.querySelector('.continue-as-guest-button')!.addEventListener('click', function() {
         const element: HTMLElement | null = document.querySelector('.ConnectionManager');
         const showSavedGames = document.querySelector('.show-saved-games-button') as HTMLElement;
@@ -96,7 +81,7 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
       });
     //}
   };
-  
+
   // useEffect to check for token on component mount
   useEffect(() => {
     // Check if there's a token in localStorage when component mounts
@@ -158,9 +143,6 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
     };
   }, [isSignedIn]);
 
-  // if (hide) {
-  //   return null;
-  // }
 
   return (
     <div className={`LobbySignInSignUpButton ${isGuest ? 'hide' : ''}`}>
@@ -169,9 +151,7 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
           <input type="text" className={errorMessage ? 'error' : ''} value={inputUsername} onChange={e => setInputUsername(e.target.value)} onAnimationEnd={e => e.currentTarget.classList.remove('error')}
  placeholder="Enter Username" />
           <input type="password" className={errorMessage ? 'error' : ''} ref={passwordRef} placeholder="Enter Password" />
-          <br />
-          
-          {/* <button onClick={() => setShowSignUp(false)}>Exit</button> */}
+          <br />    
           {errorMessage && <p>{errorMessage}</p>}
         </div>
       ): <div>
@@ -179,7 +159,6 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
  placeholder="Enter Username" />
         <input type="password" className={errorMessage ? 'error' : ''} value={password} onChange={e => setPassword(e.target.value)} onAnimationEnd={e => e.currentTarget.classList.remove('error')}
  placeholder="Enter Password" />  
-        {/* <button onClick={() => setShowSignIn(false)}>Exit</button> */}
       </div>
       }
       {showSignIn ? (
@@ -190,7 +169,6 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
  placeholder="Password" />
           <br />
           
-          {/* <button onClick={() => setShowSignIn(false)}>Exit</button> */}
           {errorMessage && <p>{errorMessage}</p>}
         </div>
       ) : (

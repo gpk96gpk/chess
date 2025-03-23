@@ -17,14 +17,7 @@ const pieceMoveFunctions = {
     'queen': getLinearMoves,
     'king': getFixedMoves,
 };
-// type PieceMoveType = {
-//     piece: PieceType 
-//     position: Position
-//     gameState: GameStateType
-//     type: PieceNameWithoutNone
-//     hasMoved?: boolean
-//     color?: PieceColor
-// };
+
 
 const linearDirections = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
 const knightDirections = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
@@ -33,14 +26,11 @@ const bishopDirections = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 
 
 function getMovesForPiece(piece: PieceMoveType | PieceType | PiecePositions, position: Position, gameState: GameStateType): Position[] {
-  if (piece?.type && piece.type in pieceMoveFunctions) {
-      console.log('222getMovesForPiece', piece, position, gameState);
-      
+  if (piece?.type && piece.type in pieceMoveFunctions) {      
       // Ensure position is a valid [number, number] tuple
       const validPosition = ensureValidPosition(position);
       
       const moves: Position[] = pieceMoveFunctions[piece.type as PieceNameWithoutNone](piece as PieceMoveType, validPosition, gameState).filter((move): move is Position => move !== null);
-      console.log('222getMovesForPieceMoves', moves);
       
       if (piece.type === 'king') {
           const opponentColor = gameState.playerNumber === 1 ? 'white' : 'black';
