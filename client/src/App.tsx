@@ -7,7 +7,24 @@ import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
 import resetGameState from './gameLogic/resetGameState';
 
-const socket = io(`http://localhost:3004/`);
+
+const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:3004'
+  : 'https://api.chessbygeorge.com'; // Use your API subdomain
+
+console.debug('Connecting to socket server at:', API_URL);
+const socket = io(API_URL, {
+  transports: ['polling', 'websocket'],  
+  reconnectionAttempts: 5,
+  timeout: 20000,
+  withCredentials: false
+});
+
+// Debug connection issues
+socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', error.message);
+    console.log('Current transport:', socket.io.engine.transport.name);
+});
 
 let index = 0;
 let whitePawnIndex = 24;

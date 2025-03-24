@@ -31,10 +31,15 @@ interface PlayerInfo {
 const app = express();
 
 const corsOptions = {
-    origin: '*',
-    optionsSuccessStatus: 200,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: [
+        'http://www.chessbygeorge.com.s3-website-us-east-1.amazonaws.com',
+        'https://www.chessbygeorge.com',
+        'http://localhost:5173'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions))
 
@@ -312,14 +317,35 @@ app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
 
 
 
-const io = new Server<SocketTypes>(httpServer, {
+// const io = new Server<SocketTypes>(httpServer, {
+//     cors: {
+//       origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com', 'http://localhost:5173'],
+//       methods: ["GET", "POST"]
+//     }
+// });
+const io = require('socket.io')(httpServer, {
     cors: {
-      origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com', 'http://localhost:5173'],
-      methods: ["GET", "POST"]
-    }
+        origin: '*',  // More permissive for testing
+        methods: ["GET", "POST", "OPTIONS"],
+        credentials: true
+    },
+    pingTimeout: 60000,
+    pingInterval: 25000
 });
 //httpServer.listen(3004);
+// In the Route 53 console, locate the hosted zone for chessbygeorge.com.
 
+// Look for an A record or ALIAS record for api.chessbygeorge.com. This record should point to your API Gateway endpoint or the ALB (Application Load Balancer) that's handling your API traffic.
+
+// If you're using API Gateway, the record should be an A record with ALIAS set to Yes, pointing to the API Gateway endpoint.
+
+// If you're using an ALB, the record should be an A record with ALIAS set to Yes, pointing to the ALB DNS name.
+
+// Ensure that the record doesn't have any typos in the subdomain (api) or the main domain (chessbygeorge.com).
+
+// Check that the TTL (Time to Live) is set appropriately. For frequently changing records, a lower TTL (e.g., 300 seconds) is recommended.
+
+// If you're using HTTPS, make sure there's a valid SSL/TLS certificate associated with api.chessbygeorge.com in AWS Certificate Manager.
 
 
 // app.use(authenticateJWT);
@@ -566,18 +592,21 @@ io.on('connection', (socket: Socket) => {
 
 // process.env.PORT is used to get the port from the .env file 
 // or 3001 if it doesn't exist
-const PORT = process.env.PORT || 3005
-// app.listen is used to start the server on the port from the .env file
-app.listen(PORT, () => {
-    console.log(`Authentication server running on PORT ${PORT}`)
-})
+// const PORT = process.env.PORT || 3005
+// // app.listen is used to start the server on the port from the .env file
+// app.listen(PORT, () => {
+//     console.log(`Authentication server running on PORT ${PORT}`)
+// })
 
-httpServer.listen(3004, () => {
-    console.log('socket server running at localhost/:3004');
-  });
-// httpServer.listen(3004, '0.0.0.0', () => {
-//     console.log('socket server running at http://34.224.30.160/:3004');
-// });
+// httpServer.listen(3004, () => {
+//     console.log('socket server running at localhost/:3004');
+//   });
+
+const PORT = process.env.PORT || 3004;
+httpServer.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} with both API and sockets`);
+});
+
   
 httpServer.on('error', (err) => {
     process.exit(1);

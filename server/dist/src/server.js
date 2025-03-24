@@ -1,5 +1,4 @@
 "use strict";
-// set up cors socket and express
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -10,14 +9,18 @@ const cors_1 = __importDefault(require("cors"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const http_1 = require("http");
-const socket_io_1 = require("socket.io");
 const db = require('./db');
 const app = (0, express_1.default)();
 const corsOptions = {
-    origin: '*',
-    optionsSuccessStatus: 200,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: [
+        'http://www.chessbygeorge.com.s3-website-us-east-1.amazonaws.com',
+        'https://www.chessbygeorge.com',
+        'http://localhost:5173'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
 };
 app.use((0, cors_1.default)(corsOptions));
 const httpServer = (0, http_1.createServer)(app);
@@ -249,13 +252,29 @@ app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
         });
     }
 });
-const io = new socket_io_1.Server(httpServer, {
+// const io = new Server<SocketTypes>(httpServer, {
+//     cors: {
+//       origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com', 'http://localhost:5173'],
+//       methods: ["GET", "POST"]
+//     }
+// });
+const io = require('socket.io')(httpServer, {
     cors: {
-        origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com'],
-        methods: ["GET", "POST"]
-    }
+        origin: '*', // More permissive for testing
+        methods: ["GET", "POST", "OPTIONS"],
+        credentials: true
+    },
+    pingTimeout: 60000,
+    pingInterval: 25000
 });
 //httpServer.listen(3004);
+// In the Route 53 console, locate the hosted zone for chessbygeorge.com.
+// Look for an A record or ALIAS record for api.chessbygeorge.com. This record should point to your API Gateway endpoint or the ALB (Application Load Balancer) that's handling your API traffic.
+// If you're using API Gateway, the record should be an A record with ALIAS set to Yes, pointing to the API Gateway endpoint.
+// If you're using an ALB, the record should be an A record with ALIAS set to Yes, pointing to the ALB DNS name.
+// Ensure that the record doesn't have any typos in the subdomain (api) or the main domain (chessbygeorge.com).
+// Check that the TTL (Time to Live) is set appropriately. For frequently changing records, a lower TTL (e.g., 300 seconds) is recommended.
+// If you're using HTTPS, make sure there's a valid SSL/TLS certificate associated with api.chessbygeorge.com in AWS Certificate Manager.
 // app.use(authenticateJWT);
 //app.use(express.json())
 let players = {};
@@ -263,6 +282,39 @@ let rooms = {};
 let roomStates = {};
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket) => {
+    // Clean up empty rooms periodically
+    setInterval(() => {
+        Object.keys(rooms).forEach(roomCode => {
+            // Filter out empty strings
+            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+            // Delete truly empty rooms
+            if (rooms[roomCode].length === 0) {
+                console.log(`Cleanup: Deleting empty room ${roomCode}`);
+                delete rooms[roomCode];
+                delete roomStates[roomCode];
+            }
+        });
+        // Optional: broadcast updated room list after cleanup
+        io.emit('availableRooms', Object.keys(rooms).map(roomCode => {
+            return {
+                roomCode,
+                players: rooms[roomCode].filter(id => id !== '').length,
+                maxPlayers: 2
+            };
+        }));
+    }, 60000); // Run every minute
+    // Broadcast available rooms
+    const broadcastAvailableRooms = () => {
+        const availableRooms = Object.keys(rooms).map(roomCode => {
+            return {
+                roomCode,
+                players: rooms[roomCode].filter(id => id !== '').length,
+                maxPlayers: 2
+            };
+        });
+        // Broadcast to everyone in the lobby
+        io.emit('availableRooms', availableRooms);
+    };
     //Create a room
     socket.on('createRoom', (roomCode, gameState) => {
         rooms[roomCode] = [socket.id];
@@ -273,6 +325,8 @@ io.on('connection', (socket) => {
         socket.emit('gameState', gameState);
         socket.emit('createRoom', roomCode);
         roomStates[roomCode] = gameState;
+        // Broadcast updated room list
+        broadcastAvailableRooms();
     });
     //Join a room
     socket.on('joinRoom', (roomCode) => {
@@ -284,6 +338,10 @@ io.on('connection', (socket) => {
             return;
         }
         socket.join(roomCode);
+        // Clean up empty slots
+        if (rooms[roomCode]) {
+            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+        }
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
             //players[socket.id] = { roomCode, playerNumber: 1 };
@@ -292,15 +350,41 @@ io.on('connection', (socket) => {
             const indexOfPlayer = rooms[roomCode].indexOf(socket.id);
             players[socket.id] = { roomCode, playerNumber: indexOfPlayer === 0 ? 2 : 1 };
         }
+        // Determine player number BEFORE pushing to the room
+        let playerNumber;
+        if (rooms[roomCode].length === 0) {
+            playerNumber = 1;
+        }
+        else if (rooms[roomCode].length === 1) {
+            const existingPlayer = rooms[roomCode][0];
+            if (players[existingPlayer]) {
+                playerNumber = players[existingPlayer].playerNumber === 1 ? 2 : 1;
+            }
+            else {
+                playerNumber = 1;
+            }
+        }
+        else {
+            socket.emit('roomError', 'Room is full.');
+            return;
+        }
         if (rooms[roomCode].length === 1) {
             const otherPlayerSocketId = rooms[roomCode][0];
-            players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1 };
+            // Check if the otherPlayerSocketId is valid and exists in players
+            if (otherPlayerSocketId && otherPlayerSocketId !== '' && players[otherPlayerSocketId]) {
+                players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1 };
+            }
+            else {
+                // If no valid player exists in the room, assign as player 1
+                players[socket.id] = { roomCode, playerNumber: 1 };
+            }
         }
         console.log('players', players, roomCode);
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
         rooms[roomCode].push(socket.id);
+        broadcastAvailableRooms();
         const player = players[socket.id];
-        let playerNumber;
+        //let playerNumber: number;
         if (player) {
             player.roomCode = roomCode;
             playerNumber = player.playerNumber;
@@ -353,6 +437,7 @@ io.on('connection', (socket) => {
             }
         }
         delete players[socket.id];
+        broadcastAvailableRooms();
     });
     //Error handling
     socket.on('error', (error) => {
@@ -392,29 +477,45 @@ io.on('connection', (socket) => {
         if (player) {
             const roomCode = player.roomCode;
             socket.broadcast.to(roomCode).emit('turn', 0);
-            const playerIndex = rooms[roomCode].indexOf(socket.id);
-            if (playerIndex !== -1) {
-                rooms[roomCode][playerIndex] = '';
+            // Replace the problematic code with this:
+            if (rooms[roomCode]) {
+                // Actually remove the player from the array instead of setting to empty string
+                const playerIndex = rooms[roomCode].indexOf(socket.id);
+                if (playerIndex !== -1) {
+                    rooms[roomCode].splice(playerIndex, 1); // Remove completely instead of setting to ''
+                }
+                // Clean up any remaining empty strings (from previous disconnects)
+                rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+                // Delete room if truly empty
+                if (rooms[roomCode].length === 0) {
+                    delete rooms[roomCode];
+                    delete roomStates[roomCode];
+                    console.log(`Room ${roomCode} deleted because it's empty`);
+                }
             }
-            if (rooms[roomCode].length === 0) {
-                delete rooms[roomCode];
-                delete roomStates[roomCode];
-            }
+            // Remove the player from players object
+            delete players[socket.id];
+            broadcastAvailableRooms();
         }
+    });
+    //Request available rooms
+    socket.on('requestAvailableRooms', () => {
+        broadcastAvailableRooms();
     });
 });
 // process.env.PORT is used to get the port from the .env file 
 // or 3001 if it doesn't exist
-const PORT = process.env.PORT || 3005;
-// app.listen is used to start the server on the port from the .env file
-app.listen(PORT, () => {
-    console.log(`Authentication server running on PORT ${PORT}`);
-});
+// const PORT = process.env.PORT || 3005
+// // app.listen is used to start the server on the port from the .env file
+// app.listen(PORT, () => {
+//     console.log(`Authentication server running on PORT ${PORT}`)
+// })
 // httpServer.listen(3004, () => {
 //     console.log('socket server running at localhost/:3004');
 //   });
-httpServer.listen(3004, '0.0.0.0', () => {
-    console.log('socket server running at http://34.224.30.160/:3004');
+const PORT = process.env.PORT || 3004;
+httpServer.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} with both API and sockets`);
 });
 httpServer.on('error', (err) => {
     process.exit(1);
