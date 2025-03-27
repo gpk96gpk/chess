@@ -8,6 +8,7 @@ const pool = new pg_1.Pool({
     user: process.env.POSTGRES_USER || 'chessapp',
     password: process.env.POSTGRES_PASSWORD || 'chessapp',
     database: process.env.POSTGRES_DB || 'chess',
+    ssl: { rejectUnauthorized: false } // Required for AWS RDS
 });
 pool.on('error', (err, client) => {
     console.error('Unexpected error on idle client', err);

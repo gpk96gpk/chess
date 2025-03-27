@@ -34,7 +34,9 @@ const corsOptions = {
     origin: [
         'http://www.chessbygeorge.com.s3-website-us-east-1.amazonaws.com',
         'https://www.chessbygeorge.com',
-        'http://localhost:5173'
+        'http://localhost:5173',
+        'https://api.chessbygeorge.com'
+
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -47,6 +49,31 @@ const httpServer = createServer(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Health check endpoints for Elastic Beanstalk
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Database health check
+app.get('/health/db', async (req, res) => {
+    try {
+        const result = await db.query('SELECT NOW()', []);
+        res.status(200).json({
+            status: 'healthy',
+            database: true
+        });
+    } catch (err) {
+        console.error('Database health check error:', err);
+        res.status(500).json({
+            status: 'error',
+            database: false
+        });
+    }
+});
 
 const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
@@ -317,11 +344,14 @@ app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
 
 
 
-// const io = new Server<SocketTypes>(httpServer, {
+// const io = require('socket.io')(httpServer, {
 //     cors: {
 //       origin: ['https://api.chessbygeorge.com', 'https://www.chessbygeorge.com', 'http://localhost:5173'],
-//       methods: ["GET", "POST"]
-//     }
+//       methods: ["GET", "POST", "OPTIONS"],
+//       credentials: true
+//     },
+//     pingTimeout: 60000,
+//     pingInterval: 25000
 // });
 const io = require('socket.io')(httpServer, {
     cors: {
@@ -609,9 +639,9 @@ httpServer.listen(PORT, () => {
 
   
 httpServer.on('error', (err) => {
-    process.exit(1);
+    //process.exit(1);
     console.error(`Server error: ${err}`);
-    httpServer.close(() => {
-        console.log('Socket Server stopped due to an error');
-    });
+    // httpServer.close(() => {
+    //     console.log('Socket Server stopped due to an error');
+    // });
 });
