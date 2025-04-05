@@ -1,11 +1,12 @@
 import { io } from 'socket.io-client';
 import { BrowserRouter as Router, Route, Routes, useParams } from 'react-router-dom';
 import { SocketContext } from './context/SocketContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
 import resetGameState from './gameLogic/resetGameState';
+import { getAIMove } from "./ai/aiEngine";
 //import { knightCheckmateBoard, pawnTestBoard, basicMoveBoard } from './testUtils/testBoards';
 
 //import { API_URL } from './apis/ChessGame';
@@ -13,6 +14,7 @@ import resetGameState from './gameLogic/resetGameState';
 
 // const socket = io(`wss://api.chessbygeorge.com:3004/`, { secure: true, rejectUnauthorized: true});
 const socket = io(`http://localhost:3004/`);
+
 
 let index = 0;
 let whitePawnIndex = 24;
@@ -241,6 +243,7 @@ const initialBoard: GameStateType = {
 
 
 function App() {
+    const aiMoveInProgress = useRef(false);
     const [playerNumber, setPlayerNumber] = useState< 1 | 2 >(1);
     const [gameOver, setGameOver] = useState(false);
     const [turnState, setTurnState] = useState<0 | 1 | 2 | 3>(0);
@@ -255,6 +258,143 @@ function App() {
     const [highlightedTiles, setHighlightedTiles] = useState<Position[]>([]);
     const { roomCode } = useParams()
     //const [highlightedTiles, setHighlightedTiles] = useState<HighlightedTile[]>([]);
+
+    // Add state for AI settings
+    const [playingAgainstAI, setPlayingAgainstAI] = useState(false);
+    const [aiDifficulty, setAIDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+    const [aiThinking, setAIThinking] = useState(false);
+
+    // AI move function
+    // Replace your makeAIMove function with this complete implementation:
+    const makeAIMove = async () => {
+        // Prevent concurrent AI moves
+        if (aiMoveInProgress.current) {
+          console.log("AI move already in progress, skipping");
+          return;
+        }
+        
+        // Set flag to block additional moves
+        aiMoveInProgress.current = true;
+        setAIThinking(true);
+        
+        try {
+          console.log("Calculating AI move...");
+          
+          // Calculate the AI's move
+          const aiMove = await getAIMove(gameState, aiDifficulty);
+          console.log("AI selected move:", aiMove);
+          
+          if (aiMove) {
+            console.log("Executing AI move from", aiMove.from, "to", aiMove.to);
+            
+            // Create a deep copy of the current game state
+            const updatedGameState = JSON.parse(JSON.stringify(gameState));
+            
+            // Get piece from the board
+            const [fromX, fromY] = aiMove.from;
+            const [toX, toY] = aiMove.to;
+            const movingPiece = {...updatedGameState.board[fromX][fromY]};
+            
+            // Get target piece BEFORE updating the board
+            const targetPiece = {...updatedGameState.board[toX][toY]};
+            const isCapturingMove = targetPiece.type !== 'empty' && targetPiece.color !== movingPiece.color;
+
+            if (isCapturingMove) {
+            console.log("About to capture:", targetPiece);
+            
+            // Only remove opponent's pieces from their piece array
+            if (targetPiece.color === 'black') {
+                updatedGameState.piecePositions.black = updatedGameState.piecePositions.black.filter(
+                p => !(p.position && p.position[0] === toX && p.position[1] === toY)
+                );
+            }
+            }
+            
+            // Update piece properties
+            movingPiece.hasMoved = true;
+            movingPiece.position = [toX, toY];
+            
+            // Clear the original position
+            updatedGameState.board[fromX][fromY] = {
+              type: 'empty',
+              color: 'none',
+              hasMoved: false,
+              position: [fromX, fromY],
+              index: -1
+            };
+            
+            // Set the new position
+            updatedGameState.board[toX][toY] = movingPiece;
+            
+            // Update piecePositions arrays
+            if (updatedGameState.piecePositions) {
+                // First, properly update the piece ID before updating positions
+                if (!movingPiece.id) {
+                console.log("Missing piece ID for moving piece:", movingPiece);
+                // Set ID based on index if missing
+                movingPiece.id = movingPiece.index;
+                }
+                
+                // Update AI piece position with safer id-based lookup
+                const pieceIdx = updatedGameState.piecePositions.white.findIndex(
+                p => p.id === movingPiece.id || 
+                    (p.position && 
+                        p.position[0] === fromX && 
+                        p.position[1] === fromY &&
+                        p.type === movingPiece.type)
+                );
+                
+                if (pieceIdx !== -1) {
+                // Update position
+                updatedGameState.piecePositions.white[pieceIdx].position = [toX, toY];
+                // Mark as moved
+                updatedGameState.piecePositions.white[pieceIdx].hasMoved = true;
+                console.log("Updated piece position:", updatedGameState.piecePositions.white[pieceIdx]);
+                } else {
+                console.warn("Could not find piece in piecePositions array:", movingPiece);
+                }
+                
+                // If capturing, log and remove the captured piece from player's pieces
+                if (isCapturingMove) {
+                const capturedPiece = updatedGameState.board[toX][toY];
+                console.log("Capturing piece:", capturedPiece);
+                
+                // Remove captured piece from pieces array
+                updatedGameState.piecePositions.black = updatedGameState.piecePositions.black.filter(
+                    p => !(p.position && p.position[0] === toX && p.position[1] === toY)
+                );
+                }
+            }
+            
+            // Special handling for king moves (update king position)
+            if (movingPiece.type === 'king') {
+              updatedGameState.kingPositions.white = [toX, toY];
+            }
+            
+            // Change turn to player
+            updatedGameState.turn = 'black';
+            
+            // Update game state
+            setGameState(updatedGameState);
+            // After AI move completes, manually set turn back to player
+            setTurnState(1); // Set to player's turn
+          } else {
+            console.warn("AI couldn't find a move!");
+          }
+        } catch (error) {
+          console.error("Error in AI move:", error);
+        } finally {
+          setAIThinking(false);
+          
+          // Release the lock with a delay
+          setTimeout(() => {
+            aiMoveInProgress.current = false;
+          }, 500);
+        }
+    };
+
+    // Call AI move when it's AI's turn
+    
 
     // const testBoards = {
     //     none: null,
@@ -295,13 +435,11 @@ function App() {
             setGameOver(false);
             console.log('createRoom gameState', gameState, winner, gameOver)
         });
-
+    
         return () => {
-            socket.off('createRoom');
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        socket.off('createRoom');
+        };
     }, []);
-
     useEffect(() => {
         socket.on('joinRoom', (roomId) => {
             console.log(`Socket Joined room ${roomId}`);
@@ -433,7 +571,27 @@ function App() {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState]);
-
+    useEffect(() => {
+        // Don't attempt another AI move if one is already in progress
+        if (aiMoveInProgress.current) return;
+      
+        const isAIGame = roomCode && roomCode.startsWith('ai-');
+        const isAITurn = playingAgainstAI && 
+            ((playerNumber === 1 && gameState.turn === 'white') || 
+             (playerNumber === 2 && gameState.turn === 'black') ||
+             (isAIGame && gameState.turn === 'white'));
+        
+        if (isAITurn && !gameOver && gameState.board.length > 0) {
+            console.log("AI turn detected, triggering move...");
+            
+            // Use longer delay to ensure state updates have settled
+            const timer = setTimeout(() => {
+                makeAIMove();
+            }, 800);
+            
+            return () => clearTimeout(timer);
+        }
+    }, [gameState.turn, playerNumber, playingAgainstAI, roomCode, gameOver]); 
     useEffect(() => {
         const turnStateChange = (arg:React.SetStateAction< 0 | 1 | 2 | 3>) => {
             setTurnState(arg);
@@ -523,8 +681,23 @@ function App() {
             </select> */}
             {/* </div> */}
             <Routes>
-            <Route path="/lobby?/:username?" element={<Lobby setGameState={setGameState} setUsername={setUsername} username={username} />} />
-            <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
+                <Route 
+                    path="/lobby?/:username?" 
+                    element={
+                    <Lobby 
+                        setGameState={setGameState} 
+                        setUsername={setUsername} 
+                        username={username}
+                        playingAgainstAI={playingAgainstAI}
+                        setPlayingAgainstAI={setPlayingAgainstAI}
+                        aiDifficulty={aiDifficulty}
+                        setAIDifficulty={setAIDifficulty}
+                        turnState={turnState}
+                        setTurnState={setTurnState}
+                    />
+                    } 
+                />
+                <Route path="/game/:roomCode" element={<Chess {...chessProps} />} />
             </Routes>
         </Router>
     </SocketContext.Provider>
@@ -532,4 +705,3 @@ function App() {
 }
 
 export default App;
-

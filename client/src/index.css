@@ -371,6 +371,47 @@ form>input {
   font-weight: bold;
 }
 
+.ai-settings {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.setting-group {
+  margin-bottom: 10px;
+}
+
+.ai-settings label {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.ai-settings select {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-left: 10px;
+}
+.ai-action {
+  margin-top: 15px;
+}
+
+.play-ai-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.play-ai-button:hover {
+  background-color: #45a049;
+}
+
 /* .join-room-button {
   padding: 6px 12px;
   cursor: pointer;

@@ -345,7 +345,39 @@ const Chess: React.FC<Props> = (props) => {
             console.log('847 gameState updated', gameState);   
         }
 
-        //maybe should use gameState instead of newGameState because the emit is sending gameState
+        //maybe everything above should be gameState instead of newGameState or should just change everything to be either gameState or newGameState
+        const isAIGame = roomCode && roomCode.startsWith('ai-');
+        if (isAIGame && props.playingAgainstAI) {
+        // For AI games, always allow player moves when it's their turn regardless of turnState
+        const isPlayerTurn = 
+            (props.playerNumber === 1 && gameState.turn === 'black') || 
+            (props.playerNumber === 2 && gameState.turn === 'white');
+        
+        console.log("AI game move check:", { 
+            isPlayerTurn,
+            playerNumber: props.playerNumber,
+            turn: gameState.turn
+        });
+        
+        // Only block moves when it's not the player's turn
+        if (!isPlayerTurn) {
+            console.log('Cannot move - AI is currently thinking');
+            return false;
+        }
+        
+        // Continue with the move for player's turn in AI games
+        console.log("AI game: Player's turn, allowing move");
+        } else if (props.playerNumber !== props.turnState) {
+        // For standard multiplayer games, enforce turn state
+        console.log('Not your turn in multiplayer game');
+        return false;
+        }
+
+        // Then continue with your existing turn checks
+        if (props.playerNumber !== props.turnState) {
+            console.log('Not your turn');
+            return false;
+        }
         
         if (piece.type === 'king') {
             console.log('556Moving king:', currentPlayerColor, toX, toY);
