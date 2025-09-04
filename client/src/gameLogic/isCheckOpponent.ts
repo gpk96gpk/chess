@@ -375,12 +375,15 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
 
 const isKingInCheckMate: boolean = false; // Checkmate logic is separate
   const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
-  if (piece.type === 'pawn') {
-    finalCheckStatus;
-  } else {
-    finalCheckStatus = isKingInCheck;
-  }
-  return { isOpponentKingInCheck: finalCheckStatus, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection: detectedDirection, firstTriggeringOpponentPiece };
+  // finalCheckStatus already captures the check state before canBlock potentially modifies it
+  return {
+    isOpponentKingInCheck: finalCheckStatus,
+    isKingInCheckMate,
+    loser: opponentColor,
+    slicedThreateningSquares,
+    checkDirection: detectedDirection,
+    firstTriggeringOpponentPiece,
+  };
 }
 
 export default isCheckOpponent;

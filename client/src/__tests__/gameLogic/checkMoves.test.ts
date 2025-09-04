@@ -80,6 +80,21 @@ describe('Chess Check and Checkmate Tests', () => {
       expect(result.isOpponentKingInCheck).toBe(true);
     });
 
+    test('Black queen puts white king in check', () => {
+      // Create a black queen that can check the white king
+      const blackQueen = createPiece('queen', 'black', [3, 4], 2);
+      const gameState = createCheckTestBoard([blackQueen]);
+      gameState.turn = 'black';
+
+      // From this position, the queen can check the white king vertically
+      const position = blackQueen.position as Position;
+      const targetPosition: Position = [6, 4]; // Move queen closer to white king
+      const result = validMoves(blackQueen, position, gameState, 1, targetPosition) as ValidMoveReturn;
+
+      // Verify check is detected
+      expect(result.isOpponentKingInCheck).toBe(true);
+    });
+
     test('Rook puts king in check', () => {
       // Create a white rook that can check the black king
       const whiteRook = createPiece('rook', 'white', [3, 4], 2);
