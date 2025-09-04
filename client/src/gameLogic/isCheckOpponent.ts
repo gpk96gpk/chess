@@ -194,11 +194,7 @@ if (isKnightAttackingPosition(gameState.kingPositions[opponentColor], gameState,
     }
   }
 
-  // *** CRITICAL FIX: Save the check status BEFORE canBlock modifies it ***
-  let finalCheckStatus = isKingInCheck;
-
-
-  function canBlock(gameState: GameStateType, threateningSquares: ThreateningSquares, 
+  function canBlock(gameState: GameStateType, threateningSquares: ThreateningSquares,
     checkingPiecePosition: Position, currentPlayerColor: string, piece: PieceType): boolean {
     if (!gameState){
       console.error('7322canBlockParams', threateningSquares, checkingPiecePosition, currentPlayerColor); 
@@ -365,25 +361,14 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
   slicedThreateningSquares = slicedCoordinates as number[];
 }
 
- // === Save our check detection result before canBlock can modify it ===
- //const isInCheck = isKingInCheck;
-// === Save our check detection result before canBlock can modify it ===
-// let finalCheckStatus = isKingInCheck;
-
 // Store the direction that was found during check detection
 const detectedDirection = gameState.checkStatus.direction;
 // Call canBlock but don't let it override our check detection
 canBlock(gameState, threateningSquares, checkPosition, currentPlayerColor, piece as PieceType);
-  
-
 const isKingInCheckMate: boolean = false; // Checkmate logic is separate
-  const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
-  if (piece.type === 'pawn') {
-    finalCheckStatus;
-  } else {
-    finalCheckStatus = isKingInCheck;
-  }
-  return { isOpponentKingInCheck: finalCheckStatus, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection: detectedDirection, firstTriggeringOpponentPiece };
+const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
+const finalCheckStatus = isKingInCheck;
+return { isOpponentKingInCheck: finalCheckStatus, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection: detectedDirection, firstTriggeringOpponentPiece };
 }
 
 export default isCheckOpponent;
