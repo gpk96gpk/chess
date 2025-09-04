@@ -349,25 +349,19 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
   slicedThreateningSquares = slicedCoordinates as number[];
 }
 
- // === Save our check detection result before canBlock can modify it ===
- //const isInCheck = isKingInCheck;
-// === Save our check detection result before canBlock can modify it ===
+  const detectedDirection = gameState.checkStatus.direction;
+  const isKingInCheckMate = false; // Checkmate logic is handled elsewhere
+  const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
 
- // Store the direction that was found during check detection
- const detectedDirection = gameState.checkStatus.direction;
+  return {
+    isOpponentKingInCheck: finalCheckStatus,
+    isKingInCheckMate,
+    loser: opponentColor,
+    slicedThreateningSquares,
+    checkDirection: detectedDirection,
+    firstTriggeringOpponentPiece,
+  };
 
-const isKingInCheckMate: boolean = false; // Checkmate logic is separate
-const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
-
-// Return the original check status captured before calling canBlock
-return {
-  isOpponentKingInCheck: finalCheckStatus,
-  isKingInCheckMate,
-  loser: opponentColor,
-  slicedThreateningSquares,
-  checkDirection: detectedDirection,
-  firstTriggeringOpponentPiece
-};
 }
 
 export default isCheckOpponent;
