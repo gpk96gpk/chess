@@ -586,7 +586,10 @@ io.on('connection', (socket: Socket) => {
         console.log('disconnected player', player)
         if (player) {
             const roomCode = player.roomCode;
-            socket.broadcast.to(roomCode).emit('turn', 0);
+            // Ensure remaining players in the room receive the turn reset
+            // Using io.to ensures the message is delivered even if the
+            // disconnecting socket has already left the room
+            io.to(roomCode).emit('turn', 0 as any);
             
             // Replace the problematic code with this:
             if (rooms[roomCode]) {
