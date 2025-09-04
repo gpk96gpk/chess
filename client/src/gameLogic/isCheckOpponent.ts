@@ -178,11 +178,9 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
     }
   }
 
-  // Save the check status before canBlock potentially modifies it
-  const finalCheckStatus = isKingInCheck;
 
+  function canBlock(gameState: GameStateType, threateningSquares: ThreateningSquares,
 
-  function canBlock(gameState: GameStateType, threateningSquares: ThreateningSquares, 
     checkingPiecePosition: Position, currentPlayerColor: string, piece: PieceType): boolean {
     if (!gameState){
       console.error('7322canBlockParams', threateningSquares, checkingPiecePosition, currentPlayerColor); 
@@ -349,18 +347,17 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
   slicedThreateningSquares = slicedCoordinates as number[];
 }
 
-  const detectedDirection = gameState.checkStatus.direction;
-  const isKingInCheckMate = false; // Checkmate logic is handled elsewhere
-  const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
 
-  return {
-    isOpponentKingInCheck: finalCheckStatus,
-    isKingInCheckMate,
-    loser: opponentColor,
-    slicedThreateningSquares,
-    checkDirection: detectedDirection,
-    firstTriggeringOpponentPiece,
-  };
+// Store the direction that was found during check detection
+const detectedDirection = gameState.checkStatus.direction;
+// Call canBlock but don't let it override our check detection
+canBlock(gameState, threateningSquares, checkPosition, currentPlayerColor, piece as PieceType);
+  
+
+const isKingInCheckMate: boolean = false; // Checkmate logic is separate
+const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
+const finalCheckStatus = isKingInCheck;
+return { isOpponentKingInCheck: finalCheckStatus, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection: detectedDirection, firstTriggeringOpponentPiece };
 
 }
 
