@@ -386,46 +386,39 @@ let players: { [socketId: string]: PlayerInfo } = {};
 let rooms: { [key: string]: string[] } = {};
 let roomStates: { [roomCode: string]: GameStateType } = {};
 
+const getAvailableRooms = () => Object.keys(rooms).map(roomCode => ({
+    roomCode,
+    players: rooms[roomCode].filter(id => id !== '').length,
+    maxPlayers: 2
+}));
+
+const BROADCAST_DELAY = 5000;
+let broadcastTimeout: NodeJS.Timeout | null = null;
+const scheduleBroadcast = () => {
+    if (broadcastTimeout) return;
+    broadcastTimeout = setTimeout(() => {
+        io.emit('availableRooms', getAvailableRooms());
+        broadcastTimeout = null;
+    }, BROADCAST_DELAY);
+};
+
+setInterval(() => {
+    Object.keys(rooms).forEach(roomCode => {
+        rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+
+        if (rooms[roomCode].length === 0) {
+            console.log(`Cleanup: Deleting empty room ${roomCode}`);
+            delete rooms[roomCode];
+            delete roomStates[roomCode];
+        }
+    });
+    scheduleBroadcast();
+}, 60000);
+
 
 
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket: Socket) => {
-    // Clean up empty rooms periodically
-    setInterval(() => {
-        Object.keys(rooms).forEach(roomCode => {
-            // Filter out empty strings
-            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
-            
-            // Delete truly empty rooms
-            if (rooms[roomCode].length === 0) {
-                console.log(`Cleanup: Deleting empty room ${roomCode}`);
-                delete rooms[roomCode];
-                delete roomStates[roomCode];
-            }
-        });
-        
-        // Optional: broadcast updated room list after cleanup
-        io.emit('availableRooms', Object.keys(rooms).map(roomCode => {
-            return {
-                roomCode,
-                players: rooms[roomCode].filter(id => id !== '').length,
-                maxPlayers: 2
-            };
-        }));
-    }, 60000); // Run every minute
-    // Broadcast available rooms
-    const broadcastAvailableRooms = () => {
-        const availableRooms = Object.keys(rooms).map(roomCode => {
-            return {
-                roomCode,
-                players: rooms[roomCode].filter(id => id !== '').length,
-                maxPlayers: 2
-            };
-        });
-        
-        // Broadcast to everyone in the lobby
-        io.emit('availableRooms', availableRooms);
-    };
     //Create a room
     socket.on('createRoom', (roomCode:string, gameState?:GameStateType) => {
         rooms[roomCode] = [socket.id];
@@ -437,8 +430,7 @@ io.on('connection', (socket: Socket) => {
         socket.emit('createRoom', roomCode)
         roomStates[roomCode] = gameState!;
 
-        // Broadcast updated room list
-        broadcastAvailableRooms();
+        scheduleBroadcast();
     });
     //Join a room
     socket.on('joinRoom', (roomCode:string) => {
@@ -493,7 +485,7 @@ io.on('connection', (socket: Socket) => {
         console.log('players', players, roomCode)
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id)
         rooms[roomCode].push(socket.id);
-        broadcastAvailableRooms();
+        scheduleBroadcast();
         const player = players[socket.id];
         //let playerNumber: number;
         if (player) {
@@ -546,7 +538,7 @@ io.on('connection', (socket: Socket) => {
             }
         }
         delete players[socket.id];
-        broadcastAvailableRooms();
+        scheduleBroadcast();
     });
     //Error handling
     socket.on('error', (error: Error) => {
@@ -609,12 +601,12 @@ io.on('connection', (socket: Socket) => {
             
             // Remove the player from players object
             delete players[socket.id];
-            broadcastAvailableRooms();
+            scheduleBroadcast();
         }
     });
     //Request available rooms
     socket.on('requestAvailableRooms', () => {
-        broadcastAvailableRooms();
+        socket.emit('availableRooms', getAvailableRooms());
     });
 });
 
