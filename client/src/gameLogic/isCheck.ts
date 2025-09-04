@@ -119,10 +119,7 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
         squarePiece = gameState.board[y!][x!];
          // Log the current square and squarePiece color
           
-        if (!squarePiece || squarePiece.color === 'none' || !squarePiece.color) {
-           // Log the result
-          continue; // Skip to the next iteration of the inner loop if the squarePiece is empty or has no color
-        }
+        if (!squarePiece || squarePiece.color === 'none') continue;
         const color = playerNumber === 1 ? 'black' : 'white';
         const opponentColor = color === 'white' ? 'black' : 'white';
         if (squarePiece.color === color ) {
