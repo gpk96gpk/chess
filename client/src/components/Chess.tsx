@@ -408,18 +408,38 @@ const Chess: React.FC<Props> = (props) => {
             
             // Get the valid moves using handleDrop's internal logic
             lastDragOverPosition.current = null; // Reset this to force handleDrop to calculate all valid moves
-            const validPositions = getValidPositions(fakeEvent);
-            
+            let validPositions = getValidPositions(fakeEvent);
+
+            // Manually check for castling options when using click-to-move
+            if (piece.type === 'king') {
+                const startPos = position;
+                const castleTargets: Position[] = [
+                    [startPos[0], 0], // queenside rook
+                    [startPos[0], 7], // kingside rook
+                ];
+
+                castleTargets.forEach(target => {
+                    const pieceCopy = JSON.parse(JSON.stringify(piece)) as PieceType;
+                    const result = validMoves(pieceCopy, startPos, gameState, playerNumber, target) as ValidMovesResult;
+                    if (result && result.canCastle) {
+                        const exists = validPositions.some(move => move[0] === target[0] && move[1] === target[1]);
+                        if (!exists) {
+                            validPositions.push(target);
+                        }
+                    }
+                });
+            }
+
             if (validPositions && validPositions.length > 0) {
                 props.setSelectedPiece(piece);
                 props.setHighlightedTiles(validPositions);
             } else {
                 props.setSelectedPiece(null);
                 props.setHighlightedTiles([]);
-                
+
             }
         }
-        
+
     };
     // Helper function to get valid positions
     const getValidPositions = (event: React.DragEvent): Position[] => {
