@@ -632,7 +632,7 @@ function isSquareUnderAttack(square: Position, gameState: GameStateType, attacke
 
       
 
-      if ((lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) || (lastPosition[0] === (0 || 7)) ) {
+      if ((lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) || (lastPosition[0] === 0 || lastPosition[0] === 7)) {
           
 
           const positionsBetweenAreEmpty = lastPosition[0] === position[0] 
