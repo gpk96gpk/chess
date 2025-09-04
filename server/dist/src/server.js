@@ -338,7 +338,7 @@ setInterval(() => {
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket) => {
     //Create a room
-    socket.on('createRoom', (roomCode, gameState) => {
+     socket.on('createRoom', (roomCode, gameState) => {
         rooms[roomCode] = [socket.id];
         const playerNumber = 1;
         players[socket.id] = { roomCode, playerNumber };

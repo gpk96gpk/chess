@@ -421,14 +421,41 @@ setInterval(() => {
 io.on('connection', (socket: Socket) => {
     //Create a room
     socket.on('createRoom', (roomCode:string, gameState?:GameStateType) => {
-        rooms[roomCode] = [socket.id];
-        const playerNumber = 1;
-        players[socket.id] = { roomCode, playerNumber };
-        console.log('players', players, roomCode, playerNumber, gameState)
-        socket.emit('playerNumber', playerNumber);
-        socket.emit('gameState', gameState)
-        socket.emit('createRoom', roomCode)
-        roomStates[roomCode] = gameState!;
+        // If the room already exists, join it instead of overwriting
+        if (rooms[roomCode] && rooms[roomCode].length > 0) {
+            socket.join(roomCode);
+            if (!rooms[roomCode].includes(socket.id)) {
+                rooms[roomCode].push(socket.id);
+            }
+
+            const otherPlayerSocketId = rooms[roomCode].find(id => id !== socket.id);
+            const playerNumber = otherPlayerSocketId && players[otherPlayerSocketId]
+                ? players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1
+                : 1;
+
+            players[socket.id] = { roomCode, playerNumber };
+            socket.emit('playerNumber', playerNumber);
+
+            if (gameState) {
+                roomStates[roomCode] = gameState;
+                const others = rooms[roomCode].filter(id => id !== socket.id);
+                io.to(others).emit('loadSaveGame', roomCode, roomStates[roomCode]);
+            }
+
+            socket.emit('gameState', roomStates[roomCode]);
+            socket.emit('createRoom', roomCode);
+        } else {
+            rooms[roomCode] = [socket.id];
+            const playerNumber = 1;
+            players[socket.id] = { roomCode, playerNumber };
+            socket.join(roomCode);
+            socket.emit('playerNumber', playerNumber);
+            socket.emit('gameState', gameState);
+            socket.emit('createRoom', roomCode);
+            if (gameState) {
+                roomStates[roomCode] = gameState;
+            }
+        }
 
         scheduleBroadcast();
     });
@@ -578,7 +605,10 @@ io.on('connection', (socket: Socket) => {
         console.log('disconnected player', player)
         if (player) {
             const roomCode = player.roomCode;
-            socket.broadcast.to(roomCode).emit('turn', 0);
+            // Ensure remaining players in the room receive the turn reset
+            // Using io.to ensures the message is delivered even if the
+            // disconnecting socket has already left the room
+            io.to(roomCode).emit('turn', 0 as any);
             
             // Replace the problematic code with this:
             if (rooms[roomCode]) {
