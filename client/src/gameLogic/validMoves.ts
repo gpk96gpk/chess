@@ -667,17 +667,8 @@ function isCheckmate(gameState: GameStateType, piece: PieceType, position: Posit
   if (!isCheckOpponent(gameState, threateningSquares, opponentPlayerNumber, checkPosition, piece, position, playerNumber, targetPosition, matchFoundInDirection, currentColor).isKingInCheck) {
     return false;
   }
-
   // Find all of the opponent's pieces
-  const opponentPieces: PieceType[] = [];
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const currentPiece = gameState.board[row][col];
-      if (currentPiece.color === opponentColor) {
-        opponentPieces.push(currentPiece);
-      }
-    }
-  }
+  const opponentPieces = gameState.piecePositions[opponentColor];
 
   // Check if any of the opponent's pieces have valid moves that would get the king out of check
   for (const opponentPiece of opponentPieces) {
