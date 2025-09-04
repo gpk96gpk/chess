@@ -12,11 +12,7 @@ interface CheckResult {
   firstTriggeringOpponentPieceIndex?: number;
 }
 function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquares, opponentPlayerNumber: PlayerNumber, checkPosition: Position | null, piece: PieceType, position: Position | [], playerNumber: PlayerNumber, lastPosition: Position | null, matchFoundInDirection: number, currentPlayerColor: PieceColor | Color): CheckResult {
-  const isCheckDebugCheck = {opponentPlayerNumber,position,matchFoundInDirection}
-  if (!isCheckDebugCheck && !gameState) {
-    console.error(isCheckDebugCheck! && isCheckDebugCheck);
-  }
-  const pieceColor = piece.color as PieceColor;  
+  const pieceColor = piece.color as PieceColor;
   const pieceType = piece.type;
   const pieceIndex = piece.index;
   const pieceLastPosition = lastPosition;
