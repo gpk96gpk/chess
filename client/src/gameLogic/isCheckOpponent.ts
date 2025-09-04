@@ -13,32 +13,29 @@ interface CheckResult {
   firstTriggeringOpponentPieceIndex?: number;
 }
 
-function isKnightAttackingPosition(
+function getKnightAttackerPosition(
   kingPosition: Position,
   gameState: GameStateType,
-  currentPlayerColor: PieceColor
-): boolean {
+  attackingColor: PieceColor
+): Position | null {
   const knightOffsets: Position[] = [
     [-2, -1], [-2, 1],
     [-1, -2], [-1, 2],
     [1, -2], [1, 2],
     [2, -1], [2, 1]
   ];
-  // In this file, current player's pieces are attacking the opponent king.
-  const currentKnights = gameState.piecePositions[currentPlayerColor].filter(piece => piece.type === 'knight');
-  for (const knight of currentKnights) {
-    const [ky, kx] = knight.position;
-    for (const [dy, dx] of knightOffsets) {
-      const newY = ky! + dy!;
-      const newX = kx! + dx!;
-      if (newY >= 0 && newY < 8 && newX >= 0 && newX < 8) {
-        if (newY === kingPosition[0] && newX === kingPosition[1]) {
-          return true;
-        }
+
+  for (const [dy, dx] of knightOffsets) {
+    const y = kingPosition[0]! + dy!;
+    const x = kingPosition[1]! + dx!;
+    if (y >= 0 && y < 8 && x >= 0 && x < 8) {
+      const piece = gameState.board[y][x];
+      if (piece.type === 'knight' && piece.color === attackingColor) {
+        return [y, x];
       }
     }
   }
-  return false;
+  return null;
 }
 
 function isPawnAttackingKing(kingPosition: Position, gameState: GameStateType, attackingColor: PieceColor): boolean {
@@ -99,43 +96,30 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
   
   // Check for knight attacks
   let threateningSquaresCopy: ThreateningSquares;
-if (isKnightAttackingPosition(gameState.kingPositions[opponentColor], gameState, currentPlayerColor)) {
-  // Special handling for knights - they don't have a linear direction
-  // Create a custom threatening square entry for the knight
-  threateningSquaresCopy = [...threateningSquares] as ThreateningSquares;
-  
-  // Find the knight that's causing check
-  const currentKnights = gameState.piecePositions[currentPlayerColor as PieceColor]
-    .filter(p => p.type === 'knight');
-  
-  for (const knight of currentKnights) {
-    const [ky, kx] = knight.position;
-    const kingPos = gameState.kingPositions[opponentColor];
-    
-    // Check if this knight is attacking the king
-    const knightOffsets = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
-    for (const [dy, dx] of knightOffsets) {
-      const newY = ky! + dy;
-      const newX = kx! + dx;
-      if (newY === kingPos[0] && newX === kingPos[1]) {
-        // This knight is causing check - add its position to a special knight direction (8)
-        // Make sure direction 8 exists
-        if (!threateningSquaresCopy[8]) {
-          threateningSquaresCopy[8] = [];
-        }
-        // Add the knight position to this direction
-        threateningSquaresCopy[8].push([ky!, kx!] as number & number[]);
-        
-        // Set check direction to 8 (knight attack)
-        gameState.checkStatus.direction = 8;
-        break;
-      }
+  const knightAttackPos = getKnightAttackerPosition(
+    gameState.kingPositions[opponentColor],
+    gameState,
+    currentPlayerColor
+  );
+
+  if (knightAttackPos) {
+    // Special handling for knights - they don't have a linear direction
+    threateningSquaresCopy = [...threateningSquares] as ThreateningSquares;
+    if (!threateningSquaresCopy[8]) {
+      threateningSquaresCopy[8] = [];
     }
+    threateningSquaresCopy[8].push(knightAttackPos as number & number[]);
+    gameState.checkStatus.direction = 8;
+    isKingInCheck = true;
+  } else {
+    // For non-knight checks, use normal threatening squares
+    threateningSquaresCopy = calculateThreateningSquares(
+      gameState,
+      currentPlayerColor,
+      piece as PieceType,
+      lastPosition
+    );
   }
-} else {
-  // For non-knight checks, use normal threatening squares
-  threateningSquaresCopy = calculateThreateningSquares(gameState, currentPlayerColor, piece as PieceType, lastPosition);
-}
 
   
   // Check for pawn attacks
