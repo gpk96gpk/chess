@@ -82,10 +82,19 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     // Create a copy of the game state
     const tempGameState = JSON.parse(JSON.stringify(gameState));
     const currentColor = piece.color;
-    const threateningPieces = currentColor !== 'none' ? gameState.threateningPiecesPositions[currentColor as 'black' | 'white'] : [];
-    
-    if (currentColor !== 'none' && gameState.threateningPiecesPositions[currentColor] && threateningPieces[gameState.checkStatus.direction] === endPos) {
-      
+    const threateningPieces =
+      currentColor !== 'none'
+        ? gameState.threateningPiecesPositions[currentColor as 'black' | 'white']
+        : [];
+
+    // If the move captures the checking piece, it's always allowed
+    const captureTarget = threateningPieces[gameState.checkStatus.direction];
+    if (
+      currentColor !== 'none' &&
+      Array.isArray(captureTarget) &&
+      captureTarget[0] === endPos[0] &&
+      captureTarget[1] === endPos[1]
+    ) {
       return false;
     }
     // Get current player's color
@@ -94,22 +103,34 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     const opponentPlayerNumber = currentColor === 'white' ? 1 : 2;
     
     // Make the hypothetical move
-    tempGameState.board[startPos[0]!][startPos[1]!] = { 
-      type: 'empty', 
-      color: 'none', 
-      hasMoved: false, 
-      position: [startPos[0], startPos[1]] 
+    tempGameState.board[startPos[0]!][startPos[1]!] = {
+      type: 'empty',
+      color: 'none',
+      hasMoved: false,
+      position: [startPos[0], startPos[1]]
     };
-    
+
     // Remember what was at the target position (in case of capture)
-    //const capturedPiece = tempGameState.board[endPos[0]!][endPos[1]!];
-    
+    const capturedPiece = tempGameState.board[endPos[0]!][endPos[1]!];
+
     // Move the piece
     tempGameState.board[endPos[0]!][endPos[1]!] = {
       ...piece,
       position: endPos,
       hasMoved: true
     };
+
+    // Update piece positions for both players to reflect the hypothetical move
+    if (capturedPiece.color !== 'none') {
+      tempGameState.piecePositions[capturedPiece.color] = tempGameState.piecePositions[capturedPiece.color].filter(
+        p => p.position[0] !== endPos[0] || p.position[1] !== endPos[1]
+      );
+    }
+    tempGameState.piecePositions[currentColor] = tempGameState.piecePositions[currentColor].map(p =>
+      p.position[0] === startPos[0] && p.position[1] === startPos[1]
+        ? { ...p, position: endPos, hasMoved: true }
+        : p
+    );
     
     // Update king position if we're moving the king
     const kingPosition = {...gameState.kingPositions};
@@ -419,11 +440,11 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
   }
     
   if (isOpponentKingInCheck) {
-    
+
     gameState.checkStatus[opponentColor] = true;
     // Create a piece with the opposite color to check if colorToCheck is in checkmate
-    isKingInCheckMate = isCheckmate(tempGameState, piece, position, lastPosition);
-    
+    isKingInCheckMate = isCheckmate(tempGameState, piece, position, lastPosition, true);
+
   }
   
  
@@ -654,7 +675,13 @@ function isSquareUnderAttack(square: Position, gameState: GameStateType, attacke
   
 
 
-function isCheckmate(gameState: GameStateType, piece: PieceType, position: Position, targetPosition: Position): boolean {
+function isCheckmate(
+  gameState: GameStateType,
+  piece: PieceType,
+  position: Position,
+  targetPosition: Position,
+  kingAlreadyInCheck = false
+): boolean {
   // Get the opponent's color
   const opponentColor = piece.color === 'white' ? 'black' : 'white';
   const currentColor = piece.color === 'white' || piece.color === 'black' ? piece.color : 'white';
@@ -663,21 +690,27 @@ function isCheckmate(gameState: GameStateType, piece: PieceType, position: Posit
   const checkPosition = gameState.kingPositions[opponentColor];
   const threateningSquares = gameState.threateningPiecesPositions[currentColor] || [];
 
-  // First check if the opponent king is in check
-  if (!isCheckOpponent(gameState, threateningSquares, opponentPlayerNumber, checkPosition, piece, position, playerNumber, targetPosition, matchFoundInDirection, currentColor).isKingInCheck) {
-    return false;
-  }
-
-  // Find all of the opponent's pieces
-  const opponentPieces: PieceType[] = [];
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const currentPiece = gameState.board[row][col];
-      if (currentPiece.color === opponentColor) {
-        opponentPieces.push(currentPiece);
-      }
+  // First check if the opponent king is in check unless the caller already confirmed
+  if (!kingAlreadyInCheck) {
+    if (
+      !isCheckOpponent(
+        gameState,
+        threateningSquares,
+        opponentPlayerNumber,
+        checkPosition,
+        piece,
+        position,
+        playerNumber,
+        targetPosition,
+        matchFoundInDirection,
+        currentColor
+      ).isKingInCheck
+    ) {
+      return false;
     }
   }
+  // Find all of the opponent's pieces
+  const opponentPieces = gameState.piecePositions[opponentColor];
 
   // Check if any of the opponent's pieces have valid moves that would get the king out of check
   for (const opponentPiece of opponentPieces) {

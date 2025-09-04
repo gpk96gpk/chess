@@ -353,7 +353,7 @@ app.delete("/api/v1/chess/games/:gameId", authenticateJWT, async (req, res) => {
 //     pingTimeout: 60000,
 //     pingInterval: 25000
 // });
-const io = require('socket.io')(httpServer, {
+const io = new Server(httpServer, {
     cors: {
         origin: '*',  // More permissive for testing
         methods: ["GET", "POST", "OPTIONS"],
@@ -386,59 +386,78 @@ let players: { [socketId: string]: PlayerInfo } = {};
 let rooms: { [key: string]: string[] } = {};
 let roomStates: { [roomCode: string]: GameStateType } = {};
 
+const getAvailableRooms = () => Object.keys(rooms).map(roomCode => ({
+    roomCode,
+    players: rooms[roomCode].filter(id => id !== '').length,
+    maxPlayers: 2
+}));
+
+const BROADCAST_DELAY = 5000;
+let broadcastTimeout: NodeJS.Timeout | null = null;
+const scheduleBroadcast = () => {
+    if (broadcastTimeout) return;
+    broadcastTimeout = setTimeout(() => {
+        io.emit('availableRooms', getAvailableRooms());
+        broadcastTimeout = null;
+    }, BROADCAST_DELAY);
+};
+
+setInterval(() => {
+    Object.keys(rooms).forEach(roomCode => {
+        rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+
+        if (rooms[roomCode].length === 0) {
+            console.log(`Cleanup: Deleting empty room ${roomCode}`);
+            delete rooms[roomCode];
+            delete roomStates[roomCode];
+        }
+    });
+    scheduleBroadcast();
+}, 60000);
+
 
 
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket: Socket) => {
-    // Clean up empty rooms periodically
-    setInterval(() => {
-        Object.keys(rooms).forEach(roomCode => {
-            // Filter out empty strings
-            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
-            
-            // Delete truly empty rooms
-            if (rooms[roomCode].length === 0) {
-                console.log(`Cleanup: Deleting empty room ${roomCode}`);
-                delete rooms[roomCode];
-                delete roomStates[roomCode];
-            }
-        });
-        
-        // Optional: broadcast updated room list after cleanup
-        io.emit('availableRooms', Object.keys(rooms).map(roomCode => {
-            return {
-                roomCode,
-                players: rooms[roomCode].filter(id => id !== '').length,
-                maxPlayers: 2
-            };
-        }));
-    }, 60000); // Run every minute
-    // Broadcast available rooms
-    const broadcastAvailableRooms = () => {
-        const availableRooms = Object.keys(rooms).map(roomCode => {
-            return {
-                roomCode,
-                players: rooms[roomCode].filter(id => id !== '').length,
-                maxPlayers: 2
-            };
-        });
-        
-        // Broadcast to everyone in the lobby
-        io.emit('availableRooms', availableRooms);
-    };
     //Create a room
     socket.on('createRoom', (roomCode:string, gameState?:GameStateType) => {
-        rooms[roomCode] = [socket.id];
-        const playerNumber = 1;
-        players[socket.id] = { roomCode, playerNumber };
-        console.log('players', players, roomCode, playerNumber, gameState)
-        socket.emit('playerNumber', playerNumber);
-        socket.emit('gameState', gameState)
-        socket.emit('createRoom', roomCode)
-        roomStates[roomCode] = gameState!;
+        // If the room already exists, join it instead of overwriting
+        if (rooms[roomCode] && rooms[roomCode].length > 0) {
+            socket.join(roomCode);
+            if (!rooms[roomCode].includes(socket.id)) {
+                rooms[roomCode].push(socket.id);
+            }
 
-        // Broadcast updated room list
-        broadcastAvailableRooms();
+            const otherPlayerSocketId = rooms[roomCode].find(id => id !== socket.id);
+            const playerNumber = otherPlayerSocketId && players[otherPlayerSocketId]
+                ? players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1
+                : 1;
+
+            players[socket.id] = { roomCode, playerNumber };
+            socket.emit('playerNumber', playerNumber);
+
+            if (gameState) {
+                roomStates[roomCode] = gameState;
+                const others = rooms[roomCode].filter(id => id !== socket.id);
+                io.to(others).emit('loadSaveGame', roomCode, roomStates[roomCode]);
+            }
+
+            socket.emit('gameState', roomStates[roomCode]);
+            socket.emit('createRoom', roomCode);
+        } else {
+            rooms[roomCode] = [socket.id];
+            const playerNumber = 1;
+            players[socket.id] = { roomCode, playerNumber };
+            socket.join(roomCode);
+            socket.emit('playerNumber', playerNumber);
+            socket.emit('gameState', gameState);
+            socket.emit('createRoom', roomCode);
+            if (gameState) {
+                roomStates[roomCode] = gameState;
+            }
+        }
+
+        scheduleBroadcast();
     });
     //Join a room
     socket.on('joinRoom', (roomCode:string) => {
@@ -493,7 +512,7 @@ io.on('connection', (socket: Socket) => {
         console.log('players', players, roomCode)
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id)
         rooms[roomCode].push(socket.id);
-        broadcastAvailableRooms();
+        scheduleBroadcast();
         const player = players[socket.id];
         //let playerNumber: number;
         if (player) {
@@ -546,7 +565,7 @@ io.on('connection', (socket: Socket) => {
             }
         }
         delete players[socket.id];
-        broadcastAvailableRooms();
+        scheduleBroadcast();
     });
     //Error handling
     socket.on('error', (error: Error) => {
@@ -586,7 +605,10 @@ io.on('connection', (socket: Socket) => {
         console.log('disconnected player', player)
         if (player) {
             const roomCode = player.roomCode;
-            socket.broadcast.to(roomCode).emit('turn', 0);
+            // Ensure remaining players in the room receive the turn reset
+            // Using io.to ensures the message is delivered even if the
+            // disconnecting socket has already left the room
+            io.to(roomCode).emit('turn', 0 as any);
             
             // Replace the problematic code with this:
             if (rooms[roomCode]) {
@@ -609,12 +631,12 @@ io.on('connection', (socket: Socket) => {
             
             // Remove the player from players object
             delete players[socket.id];
-            broadcastAvailableRooms();
+            scheduleBroadcast();
         }
     });
     //Request available rooms
     socket.on('requestAvailableRooms', () => {
-        broadcastAvailableRooms();
+        socket.emit('availableRooms', getAvailableRooms());
     });
 });
 

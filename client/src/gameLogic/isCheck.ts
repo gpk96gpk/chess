@@ -39,36 +39,34 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
   let isKingInCheck = gameState.checkStatus[currentPlayerColor as PieceColor];
   
   function isKnightAttackingPosition(): boolean {
-    // Assuming gameState.board is a 2D array representing the game board
+    // Offsets for all possible knight moves
     const knightOffsets: Position[] = [
       [2, 1], [2, -1],
       [-2, 1], [-2, -1],
       [1, 2], [1, -2],
       [-1, 2], [-1, -2],
     ];
-    const threateningSquares = knightOffsets.map(([dy, dx]) => {
-      if (!checkPosition) {
-        checkPosition = gameState.kingPositions[currentPlayerColor as PieceColor];
-      }
-      const y = checkPosition![0]! + dy!;
-      const x = checkPosition![1]! + dx!;
-      return [y, x];
-    }).filter(([y, x]) => y >= 0 && y < 8 && x >= 0 && x < 8);
-  
-    // Get the positions of the opponent's knights
-    
-    const opponentKnights = gameState.piecePositions[opponentColor].filter(piece => piece.type === 'knight');
-  
-    for (const knight of opponentKnights) {
-      const [knightY, knightX] = knight.position;
-  
-      // Check if the knight is in a position that could attack the king
-      if (threateningSquares.some(([y, x]) => y === knightY && x === knightX)) {
-        isKingInCheck = true;
-        return true;
+
+    // Determine the king's position if it isn't provided
+    if (!checkPosition) {
+      checkPosition = gameState.kingPositions[currentPlayerColor as PieceColor];
+    }
+
+    const [ky, kx] = checkPosition!;
+
+    // Check each potential knight square for an opponent knight
+    for (const [dy, dx] of knightOffsets) {
+      const y = ky! + dy!;
+      const x = kx! + dx!;
+      if (y >= 0 && y < 8 && x >= 0 && x < 8) {
+        const piece = gameState.board[y][x];
+        if (piece.type === 'knight' && piece.color === opponentColor) {
+          isKingInCheck = true;
+          return true;
+        }
       }
     }
-  
+
     return false;
   }
   function canBlock(gameState: GameStateType, threateningSquares: Position[][] | Position[], currentPlayerColor: PieceColor, piece: PieceType): boolean {
@@ -119,10 +117,7 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
         squarePiece = gameState.board[y!][x!];
          // Log the current square and squarePiece color
           
-        if (!squarePiece || squarePiece.color === 'none' || !squarePiece.color) {
-           // Log the result
-          continue; // Skip to the next iteration of the inner loop if the squarePiece is empty or has no color
-        }
+        if (!squarePiece || squarePiece.color === 'none') continue;
         const color = playerNumber === 1 ? 'black' : 'white';
         const opponentColor = color === 'white' ? 'black' : 'white';
         if (squarePiece.color === color ) {
@@ -258,8 +253,11 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
   return true; // Return false if no blocking piece is found after checking all pieces
 }
 
-
-canBlock(gameState, threateningSquares as Position[][] | Position[], opponentColor, piece); 
+// Preserve the detected check status before calling canBlock,
+// which mutates the shared isKingInCheck flag
+const checkStatusBeforeBlock = isKingInCheck;
+canBlock(gameState, threateningSquares as Position[][] | Position[], opponentColor, piece);
+isKingInCheck = checkStatusBeforeBlock;
 
 // Assuming firstTriggeringOpponentPiece is a coordinate like [y, x]
 let firstTriggeringOpponentPieceIndex = -1;
