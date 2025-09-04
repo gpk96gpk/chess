@@ -419,11 +419,11 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
   }
     
   if (isOpponentKingInCheck) {
-    
+
     gameState.checkStatus[opponentColor] = true;
     // Create a piece with the opposite color to check if colorToCheck is in checkmate
-    isKingInCheckMate = isCheckmate(tempGameState, piece, position, lastPosition);
-    
+    isKingInCheckMate = isCheckmate(tempGameState, piece, position, lastPosition, true);
+
   }
   
  
@@ -654,7 +654,13 @@ function isSquareUnderAttack(square: Position, gameState: GameStateType, attacke
   
 
 
-function isCheckmate(gameState: GameStateType, piece: PieceType, position: Position, targetPosition: Position): boolean {
+function isCheckmate(
+  gameState: GameStateType,
+  piece: PieceType,
+  position: Position,
+  targetPosition: Position,
+  kingAlreadyInCheck = false
+): boolean {
   // Get the opponent's color
   const opponentColor = piece.color === 'white' ? 'black' : 'white';
   const currentColor = piece.color === 'white' || piece.color === 'black' ? piece.color : 'white';
@@ -663,9 +669,24 @@ function isCheckmate(gameState: GameStateType, piece: PieceType, position: Posit
   const checkPosition = gameState.kingPositions[opponentColor];
   const threateningSquares = gameState.threateningPiecesPositions[currentColor] || [];
 
-  // First check if the opponent king is in check
-  if (!isCheckOpponent(gameState, threateningSquares, opponentPlayerNumber, checkPosition, piece, position, playerNumber, targetPosition, matchFoundInDirection, currentColor).isKingInCheck) {
-    return false;
+  // First check if the opponent king is in check unless the caller already confirmed
+  if (!kingAlreadyInCheck) {
+    if (
+      !isCheckOpponent(
+        gameState,
+        threateningSquares,
+        opponentPlayerNumber,
+        checkPosition,
+        piece,
+        position,
+        playerNumber,
+        targetPosition,
+        matchFoundInDirection,
+        currentColor
+      ).isKingInCheck
+    ) {
+      return false;
+    }
   }
 
   // Find all of the opponent's pieces
