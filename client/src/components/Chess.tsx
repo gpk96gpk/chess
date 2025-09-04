@@ -434,12 +434,31 @@ const Chess: React.FC<Props> = (props) => {
         
         // Get valid moves using the same code path as handleDrop
         const result = validMoves(piece, position, gameState, playerNumber, position);
-        
-        // Handle different possible return types from validMoves
+
         if (!result) return [];
-        if (Array.isArray(result)) return result; // Handle Position[] return type
-        if ('moves' in result) return result.moves; // Handle ValidMovesResult return type
-        return []; // Fallback for any other case
+
+        // Normalize result to a moves array
+        let moves: Position[] = [];
+        if (Array.isArray(result)) {
+            moves = result;
+        } else if ('moves' in result) {
+            moves = result.moves || [];
+
+            // Include castling moves when selecting the king
+            if (piece.type === 'king') {
+                const castleTargets: Position[] = [
+                    [position[0], position[1] + 2],
+                    [position[0], position[1] - 2]
+                ];
+                castleTargets.forEach(target => {
+                    const castleResult = validMoves(piece, position, gameState, playerNumber, target) as ValidMovesResult;
+                    if (castleResult && 'canCastle' in castleResult && castleResult.canCastle) {
+                        moves.push(target);
+                    }
+                });
+            }
+        }
+        return moves; // Fallback for any other case is empty array
     };
     const handleSquareClick = (event: React.MouseEvent, position: Position) => {
         event.stopPropagation(); // Prevent bubbling
