@@ -408,18 +408,38 @@ const Chess: React.FC<Props> = (props) => {
             
             // Get the valid moves using handleDrop's internal logic
             lastDragOverPosition.current = null; // Reset this to force handleDrop to calculate all valid moves
-            const validPositions = getValidPositions(fakeEvent);
-            
+            let validPositions = getValidPositions(fakeEvent);
+
+            // Manually check for castling options when using click-to-move
+            if (piece.type === 'king') {
+                const startPos = position;
+                const castleTargets: Position[] = [
+                    [startPos[0], 0], // queenside rook
+                    [startPos[0], 7], // kingside rook
+                ];
+
+                castleTargets.forEach(target => {
+                    const pieceCopy = JSON.parse(JSON.stringify(piece)) as PieceType;
+                    const result = validMoves(pieceCopy, startPos, gameState, playerNumber, target) as ValidMovesResult;
+                    if (result && result.canCastle) {
+                        const exists = validPositions.some(move => move[0] === target[0] && move[1] === target[1]);
+                        if (!exists) {
+                            validPositions.push(target);
+                        }
+                    }
+                });
+            }
+
             if (validPositions && validPositions.length > 0) {
                 props.setSelectedPiece(piece);
                 props.setHighlightedTiles(validPositions);
             } else {
                 props.setSelectedPiece(null);
                 props.setHighlightedTiles([]);
-                
+
             }
         }
-        
+
     };
     // Helper function to get valid positions
     const getValidPositions = (event: React.DragEvent): Position[] => {
@@ -434,12 +454,31 @@ const Chess: React.FC<Props> = (props) => {
         
         // Get valid moves using the same code path as handleDrop
         const result = validMoves(piece, position, gameState, playerNumber, position);
-        
-        // Handle different possible return types from validMoves
+
         if (!result) return [];
-        if (Array.isArray(result)) return result; // Handle Position[] return type
-        if ('moves' in result) return result.moves; // Handle ValidMovesResult return type
-        return []; // Fallback for any other case
+
+        // Normalize result to a moves array
+        let moves: Position[] = [];
+        if (Array.isArray(result)) {
+            moves = result;
+        } else if ('moves' in result) {
+            moves = result.moves || [];
+
+            // Include castling moves when selecting the king
+            if (piece.type === 'king') {
+                const castleTargets: Position[] = [
+                    [position[0], position[1] + 2],
+                    [position[0], position[1] - 2]
+                ];
+                castleTargets.forEach(target => {
+                    const castleResult = validMoves(piece, position, gameState, playerNumber, target) as ValidMovesResult;
+                    if (castleResult && 'canCastle' in castleResult && castleResult.canCastle) {
+                        moves.push(target);
+                    }
+                });
+            }
+        }
+        return moves; // Fallback for any other case is empty array
     };
     const handleSquareClick = (event: React.MouseEvent, position: Position) => {
         event.stopPropagation(); // Prevent bubbling
