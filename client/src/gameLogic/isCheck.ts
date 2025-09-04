@@ -255,8 +255,11 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
   return true; // Return false if no blocking piece is found after checking all pieces
 }
 
-
-canBlock(gameState, threateningSquares as Position[][] | Position[], opponentColor, piece); 
+// Preserve the detected check status before calling canBlock,
+// which mutates the shared isKingInCheck flag
+const checkStatusBeforeBlock = isKingInCheck;
+canBlock(gameState, threateningSquares as Position[][] | Position[], opponentColor, piece);
+isKingInCheck = checkStatusBeforeBlock;
 
 // Assuming firstTriggeringOpponentPiece is a coordinate like [y, x]
 let firstTriggeringOpponentPieceIndex = -1;
