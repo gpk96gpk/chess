@@ -365,6 +365,8 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
 const detectedDirection = gameState.checkStatus.direction;
 // Call canBlock but don't let it override our check detection
 canBlock(gameState, threateningSquares, checkPosition, currentPlayerColor, piece as PieceType);
+  
+
 const isKingInCheckMate: boolean = false; // Checkmate logic is separate
 const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
 const finalCheckStatus = isKingInCheck;
