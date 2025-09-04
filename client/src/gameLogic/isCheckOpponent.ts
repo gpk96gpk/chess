@@ -178,8 +178,8 @@ function isCheckOpponent(gameState: GameStateType, threateningSquares: Threateni
     }
   }
 
-  // *** CRITICAL FIX: Save the check status BEFORE canBlock modifies it ***
-  let finalCheckStatus = isKingInCheck;
+  // Save the check status before canBlock potentially modifies it
+  const finalCheckStatus = isKingInCheck;
 
 
   function canBlock(gameState: GameStateType, threateningSquares: ThreateningSquares, 
@@ -352,19 +352,22 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
  // === Save our check detection result before canBlock can modify it ===
  //const isInCheck = isKingInCheck;
 // === Save our check detection result before canBlock can modify it ===
-// let finalCheckStatus = isKingInCheck;
 
  // Store the direction that was found during check detection
  const detectedDirection = gameState.checkStatus.direction;
 
 const isKingInCheckMate: boolean = false; // Checkmate logic is separate
-  const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
-  if (piece.type === 'pawn') {
-    finalCheckStatus;
-  } else {
-    finalCheckStatus = isKingInCheck;
-  }
-  return { isOpponentKingInCheck: finalCheckStatus, isKingInCheckMate, loser: opponentColor, slicedThreateningSquares, checkDirection: detectedDirection, firstTriggeringOpponentPiece };
+const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
+
+// Return the original check status captured before calling canBlock
+return {
+  isOpponentKingInCheck: finalCheckStatus,
+  isKingInCheckMate,
+  loser: opponentColor,
+  slicedThreateningSquares,
+  checkDirection: detectedDirection,
+  firstTriggeringOpponentPiece
+};
 }
 
 export default isCheckOpponent;
