@@ -370,11 +370,8 @@ if (firstTriggeringCurrentPieceIndex !== -1) {
 // === Save our check detection result before canBlock can modify it ===
 // let finalCheckStatus = isKingInCheck;
 
-// Store the direction that was found during check detection
-const detectedDirection = gameState.checkStatus.direction;
-// Call canBlock but don't let it override our check detection
-canBlock(gameState, threateningSquares, checkPosition, currentPlayerColor, piece as PieceType);
-  
+ // Store the direction that was found during check detection
+ const detectedDirection = gameState.checkStatus.direction;
 
 const isKingInCheckMate: boolean = false; // Checkmate logic is separate
   const firstTriggeringOpponentPiece = firstTriggeringCurrentPiece;
