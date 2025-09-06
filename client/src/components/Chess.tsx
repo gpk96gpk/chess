@@ -482,7 +482,7 @@ const Chess: React.FC<Props> = (props) => {
         
         if (isValidMove) {
             // Store the original piece position
-            const piecePosition = props.selectedPiece.position as Position;
+            const piecePosition = [...(props.selectedPiece.position as Position)];
             
             
             // Make sure we're not trying to castle onto our own rook
@@ -499,7 +499,7 @@ const Chess: React.FC<Props> = (props) => {
             lastDragOverPosition.current = position;
             
             // Execute the same move logic as in handleDrop
-            const selectedPieceCopy = props.selectedPiece;
+            const selectedPieceCopy = JSON.parse(JSON.stringify(props.selectedPiece));
             const fakeEvent = {
                 preventDefault: () => {},
                 dataTransfer: {
