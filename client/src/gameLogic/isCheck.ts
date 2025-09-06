@@ -115,78 +115,81 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
       for (const square of threateningSquaresCopy[directionIndex] as Position[]) {
         const [y, x] = square;
         squarePiece = gameState.board[y!][x!];
-         // Log the current square and squarePiece color
-          
+        // Skip empty squares and keep scanning outward
         if (!squarePiece || squarePiece.color === 'none') continue;
-        const color = playerNumber === 1 ? 'black' : 'white';
-        const opponentColor = color === 'white' ? 'black' : 'white';
-        if (squarePiece.color === color ) {
-           // Log the result
-          //firstTriggeringOpponentPiece = squarePiece; // Store the first triggering opponent piece
-          //breakOuterLoop = true; // Set the flag to break the outer loop
+        // Any friendly piece blocks the ray immediately
+        if (squarePiece.color === (currentPlayerColor as PieceColor)) {
           break;
         }
+        // From this point the first encountered non-empty is an opponent piece.
         // if (squarePiece.color === currentPlayerColor) {
         //    // Log the result
         //   breakOuterLoop = true; // Set the flag to break the outer loop
         //   break; // Break the inner loop and move to the next direction
         // }
 
-        // New block to check pawn threats in diagonal directions (directionIndex 4 to 7)
+        // Pawn threats are only valid on the first diagonal square from the king
         if (directionIndex >= 4 && directionIndex < 8 && squarePiece.type === 'pawn') {
-          // Get the king's position (y,x)
-          const kingPos = piece.position ? piece.type === 'king' ? pieceLastPosition : piece.position : gameState.kingPositions[currentPlayerColor];
-           // Log the king's position
-          // For y,x coordinates:
-          // Black pawn attacks: (y+1, x-1) and (y+1, x+1)
-          // White pawn attacks: (y-1, x-1) and (y-1, x+1)
+          const kingPos = piece.type === 'king' && pieceLastPosition
+            ? pieceLastPosition
+            : gameState.kingPositions[currentPlayerColor as PieceColor];
           const pawnY = square[0];
           const pawnX = square[1];
-          const pawnAttacks = squarePiece.color === 'black' 
+          const pawnAttacks = squarePiece.color === 'black'
             ? [[pawnY! + 1, pawnX! - 1], [pawnY! + 1, pawnX! + 1]]
             : [[pawnY! - 1, pawnX! - 1], [pawnY! - 1, pawnX! + 1]];
-
-          if (pawnAttacks.some(([y, x]) => y === kingPos![0] && x === kingPos![1])) {
-              
-              isKingInCheck = true;
-              gameState.checkStatus[currentPlayerColor] = true;
-              gameState.checkStatus.direction = directionIndex;
-              checkPosition = square;
-              return false;
-          } else {
-              
-              // If the pawn is not threatening, break out of this direction's loop.
-              break;
+          if (pawnAttacks.some(([py, px]) => py === kingPos![0] && px === kingPos![1])) {
+            isKingInCheck = true;
+            gameState.checkStatus[currentPlayerColor as PieceColor] = true;
+            gameState.checkStatus.direction = directionIndex;
+            checkPosition = square;
+            return false; // Pawn is checking; stop scanning
           }
+          // Pawn blocks the ray; no check from this direction
+          break;
         }
 
-        if ((directionIndex < 4 && squarePiece.type !== 'rook' && squarePiece.type !== 'queen') ||
-            (directionIndex >= 4 && directionIndex < 8 && squarePiece.type !== 'bishop' && squarePiece.type !== 'queen') || 
-            (directionIndex >= 8 && squarePiece.type !== 'knight') || // Check if the squarePiece is not an opponent's knight
-            (directionIndex >= 4 && directionIndex < 8 && squarePiece.type === 'pawn') // Check if the squarePiece is a pawn and it's the first coordinate in the diagonal direction
-            ) {
-               // Log the result
-              isKingInCheck = false;
-              break; // Skip to the next iteration of the inner loop if the squarePiece is not a rook, bishop, queen, or knight
-
-          } else if (squarePiece.color === opponentColor){
-             // Log the result
-            breakOuterLoop = true; // Set the flag to break the outer loop
+        // Handle sliding and knight threats from the first opponent piece on the ray
+        const oppColor = currentPlayerColor === 'white' ? 'black' : 'white';
+        const type = squarePiece.type;
+        // Orthogonal rays (0..3): rook or queen
+        if (directionIndex < 4) {
+          if (squarePiece.color === oppColor && (type === 'rook' || type === 'queen')) {
+            breakOuterLoop = true;
             isKingInCheck = true;
-            gameState.checkStatus[currentPlayerColor] = true; // Set the checkStatus in the gameState
-            gameState.checkStatus.direction = directionIndex; // Set the checkDirection in the gameState
-            if (!checkPosition) {
-              checkPosition = gameState.kingPositions[currentPlayerColor as PieceColor];
-            }
-            checkPosition = square; // Set the checkPosition in the gameState
-            return false; // End loop and return false
+            gameState.checkStatus[currentPlayerColor as PieceColor] = true;
+            gameState.checkStatus.direction = directionIndex;
+            checkPosition = square;
+            return false; // Found checking piece
           }
+          break; // First piece blocks this ray; no check from this direction
+        }
+        // Diagonal rays (4..7): bishop or queen
+        if (directionIndex >= 4 && directionIndex < 8) {
+          if (squarePiece.color === oppColor && (type === 'bishop' || type === 'queen')) {
+            breakOuterLoop = true;
+            isKingInCheck = true;
+            gameState.checkStatus[currentPlayerColor as PieceColor] = true;
+            gameState.checkStatus.direction = directionIndex;
+            checkPosition = square;
+            return false; // Found checking piece
+          }
+          break; // First piece blocks this ray; no check from this direction
+        }
+        // Knight rays (8..15): only knights count
+        if (directionIndex >= 8) {
+          if (squarePiece.color === oppColor && type === 'knight') {
+            breakOuterLoop = true;
+            isKingInCheck = true;
+            gameState.checkStatus[currentPlayerColor as PieceColor] = true;
+            gameState.checkStatus.direction = directionIndex;
+            checkPosition = square;
+            return false; // Found checking piece
+          }
+          break; // First piece blocks this ray; no check from this direction
+        }
   
-          if ((directionIndex === 4 || directionIndex === 5 || directionIndex === 6 || directionIndex === 7) && squarePiece.type === 'pawn') {
-               // Log the result
-              gameState.checkStatus.direction = directionIndex; // Set the checkDirection in the gameState
-              continue; // Break the loop and move to the next direction
-          }
+          // No need to handle additional cases; we've already returned after first piece
   
           const opponentPlayerPieces = gameState.piecePositions[opponentColor].map((existingPiece) => {
              // Log the id of the existing piece

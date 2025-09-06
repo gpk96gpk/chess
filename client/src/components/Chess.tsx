@@ -94,43 +94,25 @@ const Chess: React.FC<Props> = (props) => {
             return;
         }
     
-        // Update piece position with the drop coordinates
-        if (lastDragOverPosition.current) {
-            piece.position = lastDragOverPosition.current;
-            
-        } else {
-            console.error('Error: lastDragOverPosition is null');
-            return;
-        }
-    
-        const currentPlayerColor = playerNumber === 1 ? 'black' : 'white';
-        const opponentColor = playerNumber === 1 ? 'white' : 'black';
-        
-        
-        let toX: number, toY: number;
-        if (lastDragOverPosition.current && lastDragOverPosition.current.length === 2) {
-            [toX, toY] = lastDragOverPosition.current;
-        } else {
+        const target = lastDragOverPosition.current;
+        if (!target || target.length !== 2) {
             console.error('Error: lastDragOverPosition is null or invalid');
             return;
         }
-        let fromX: number | undefined, fromY: number | undefined;
-        if (piece.position) {
-            // Note: piece.position was updated above to the drop coords
-            // Use startPosition.current (the original coordinates) for "from"
-            if(startPosition.current){
-                [fromX, fromY] = startPosition.current;
-            } else {
-                console.error('Error: startPosition.current is null');
-                return;
-            }
+
+        const currentPlayerColor = playerNumber === 1 ? 'black' : 'white';
+        const opponentColor = playerNumber === 1 ? 'white' : 'black';
+
+        const [toX, toY] = target;
+        let fromX: number, fromY: number;
+        if (startPosition.current) {
+            [fromX, fromY] = startPosition.current;
         } else {
-            console.error('Error: piece.position is null');
+            console.error('Error: startPosition.current is null');
             return;
         }
-                
-        
-        const validMovesResult = validMoves(piece, startPosition.current!, gameState, playerNumber, lastDragOverPosition.current!);
+
+        const validMovesResult = validMoves(piece, startPosition.current!, gameState, playerNumber, target);
         if (!validMovesResult) {
             console.error('Error: validMoves returned nothing');
             return;
@@ -184,7 +166,7 @@ const Chess: React.FC<Props> = (props) => {
             
             if (pieceToUpdate) {
                 pieceToUpdate.hasMoved = true;
-                pieceToUpdate.position = lastDragOverPosition.current || [];
+                pieceToUpdate.position = target || [];
                 pieceToUpdate.hasMovedTwo && (pieceToUpdate.hasMovedTwo = true);
                 pieceToUpdate.color = piece.color;
                 const pieceIndex = pieceToUpdate.index;
@@ -255,16 +237,16 @@ const Chess: React.FC<Props> = (props) => {
         
         const isPieceValidMove = pieceValidMoves && pieceValidMoves.some(move => {
             const isStartPosEqual = move.every((value, index) => value === startPosition.current![index]);
-            const isLastDragPosEqual = move.every((value, index) => value === lastDragOverPosition.current![index]);
-            return isStartPosEqual || isLastDragPosEqual;
+            const isTargetEqual = move.every((value, index) => value === target[index]);
+            return isStartPosEqual || isTargetEqual;
         });
-        
+
         if (!isPieceValidMove || turnState !== playerNumber) {
             return;
         }
-        
-        
-        gameState.threateningPiecesPositions[currentPlayerColor] = calculateThreateningSquares(gameState, currentPlayerColor, piece, lastDragOverPosition.current!);
+
+        piece.position = target;
+        gameState.threateningPiecesPositions[currentPlayerColor] = calculateThreateningSquares(gameState, currentPlayerColor, piece, target);
         //This if Statement handles moving out of check
         //handle move out of check in the checkMate
         if (isPieceValidMove) {
@@ -276,7 +258,7 @@ const Chess: React.FC<Props> = (props) => {
             let checkPosition;
             let matchFoundInDirection;
             //add a check to see if piece is moving into threatening square array from game state 
-            const moveIntoCheck = isCheck(tempGameState, gameState.threateningPiecesPositions[currentPlayerColor], opponentPlayerNumber, checkPosition!, piece, piece.position!, playerNumber, lastDragOverPosition.current, matchFoundInDirection!, currentPlayerColor);
+            const moveIntoCheck = isCheck(tempGameState, gameState.threateningPiecesPositions[currentPlayerColor], opponentPlayerNumber, checkPosition!, piece, piece.position!, playerNumber, target, matchFoundInDirection!, currentPlayerColor);
             
             if (moveIntoCheck.isKingInCheck) {
                 
@@ -293,9 +275,9 @@ const Chess: React.FC<Props> = (props) => {
                 
             }
             const enPassantDirection = piece.color === 'white' ? -1 : 1;
-            //Check if lastDragOverPosition is equal to the enPassantMove if it is then update the board to remove the piece that was taken
-            if (enPassantMove && lastDragOverPosition.current![0] === enPassantMove[0] && lastDragOverPosition.current![1] === enPassantMove[1]) {
-                updateBoard(gameState, lastDragOverPosition.current![0] - enPassantDirection, lastDragOverPosition.current![1], {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: -1, id: -1, position: [lastDragOverPosition.current![0] - enPassantDirection, lastDragOverPosition.current![1]] as Position});
+            //Check if target is equal to the enPassantMove if it is then update the board to remove the piece that was taken
+            if (enPassantMove && target[0] === enPassantMove[0] && target[1] === enPassantMove[1]) {
+                updateBoard(gameState, target[0] - enPassantDirection, target[1], {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: -1, id: -1, position: [target[0] - enPassantDirection, target[1]] as Position});
             }
             
             updateBoard(gameState, fromX!, fromY!, {type: 'empty', color: 'none', hasMoved: false, isHighlighted: false, index: -1, id: -1, position: [fromX!, fromY!] as Position});

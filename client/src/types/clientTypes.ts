@@ -98,6 +98,11 @@ export interface GameStateType {
         black: number[][][] | number[][];
         white: number[][][] | number[][];
     };
+    // Optional precomputed attack map (true if square is attacked by color)
+    attackMap?: {
+        white: boolean[][];
+        black: boolean[][];
+    };
     piecePositions: {
         black: PiecePositions[];
         white: PiecePositions[];

@@ -4,6 +4,7 @@ import pawnPromotion from './pawnPromotion';
 import enPassant from './enPassant';
 import isCheck from './isCheck';
 import isCheckOpponent from './isCheckOpponent';
+import computeAttackMap from './computeAttackMap';
 import getMovesForPiece from './pieceMoves';
 import { generateThreateningSquares } from '../testUtils/testBoards';
 
@@ -30,6 +31,15 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
   }
 
   
+  // Precompute attack map for current board before generating moves
+  gameState.attackMap = computeAttackMap(gameState);
+  // Keep a fresh attack map on the current board (do not mutate checkStatus here)
+  gameState.attackMap = computeAttackMap(gameState);
+  const sideInCheckNow = {
+    white: isSquareUnderAttack(gameState.kingPositions.white, gameState, 'black'),
+    black: isSquareUnderAttack(gameState.kingPositions.black, gameState, 'white'),
+  } as const;
+
   if (piece.type === 'king' && (tempGameState.kingPositions[tempGameState.turn][0] !== position[0] || tempGameState.kingPositions[tempGameState.turn][1] !== position[1])) {
     threateningSquares = calculateThreateningSquares(tempGameState, currentColor, piece, lastPosition) || [];
   } else {
@@ -143,33 +153,15 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     tempGameState.threateningPiecesPositions[currentColor] = calculateThreateningSquares(tempGameState, currentColor as PieceColor, piece, endPos);
 
 
-    // Find the king's position
-    const checkPosition = piece.type === 'king' ? endPos : gameState.kingPositions[currentColor as 'black' | 'white'];
-    
-    // Get threatening squares
-    
-    const threateningSquares = tempGameState.threateningPiecesPositions[currentColor] || [];
-    
-    // Default value for matchFoundInDirection
-    //const matchFoundInDirection = -1;
-    
-    // Check if our king would be in check after this move
-    const checkResult = isCheck(
-      tempGameState,
-      threateningSquares,
-      opponentPlayerNumber,
-      checkPosition,
-      piece,
-      piece.position || startPos,
-      playerNumber,
-      endPos,
-      matchFoundInDirection,
-      currentColor
-    );
-    
-    moves.push(checkResult.slicedThreateningSquares as Position);
-    
-    return checkResult.isKingInCheck;
+    // Use precomputed attack map approach to determine if our king would be in check after this move
+    tempGameState.attackMap = computeAttackMap(tempGameState);
+    const kingSquare = tempGameState.kingPositions[currentColor as 'white' | 'black'];
+    const kingWouldBeInCheck = isSquareUnderAttack(kingSquare, tempGameState, opponentColor);
+    if (!kingWouldBeInCheck) {
+      // This target position is valid; add to normalMoves (caller filters later as needed)
+      normalMoves.push(endPos);
+    }
+    return;
   }
 
   function checkPositionsBetweenAreEmpty(gameState: GameStateType, lastPosition: Position, position: Position): boolean {
@@ -266,6 +258,8 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
         }
         
         // Check if the king passes through or ends on a square under attack
+        // Precompute attack map so we can query quickly
+        gameState.attackMap = computeAttackMap(gameState);
         for (let file = kingFile; direction === 1 ? file! <= kingFile! + 2 : file! >= kingFile! - 2; file! += direction) {
           // Skip the starting position - we already verified it's not in check
           if (file === kingFile) continue;
@@ -511,45 +505,108 @@ const filteredMoves = normalMoves.filter(move => {
   // Check if our king would be in check after this move
   const opponentColor = currentColor === 'white' ? 'black' : 'white';
   
-  // This checks if the king would be under attack after the move
+  // Precompute attack map for the hypothetical board and ask if king is attacked
+  tempGameState.attackMap = computeAttackMap(tempGameState);
   return !isSquareUnderAttack(
-    tempGameState.kingPositions[currentColor], 
-    tempGameState, 
+    tempGameState.kingPositions[currentColor],
+    tempGameState,
     opponentColor
   );
 });
 
 // In validMoves function where filtering happens during check
-if (gameState.checkStatus[currentColor]) {
+if (sideInCheckNow[currentColor as 'white' | 'black']) {
   // If king is in check, only allow moves that resolve the check
-  normalMoves = normalMoves.filter(move => {
-    // Only allow moves that:
-    // 1. Capture the checking piece (already in captureMoves)
-    // 2. Block the line of attack (for non-knight checks)
-    // 3. Move the king out of check (handled separately)
-    
-    // For a knight check (direction 10), only allow capturing the knight
-    if (checkDirection && checkDirection >= 8 && checkDirection <= 15) {
-      // Check if this move captures the knight
-      return captureMoves.some(captureMove => 
-        captureMove[0] === move[0] && captureMove[1] === move[1]
-      );
+  // Compute current attackers on our king and the block squares if sliding attackers
+  const getCheckingPieces = (gs: GameStateType, defender: PieceColor) => {
+    const attackers: { pos: Position; type: string; blockSquares: Position[] }[] = [];
+    const kingPos = gs.kingPositions[defender] as [number, number];
+    const attackerColor = defender === 'white' ? 'black' : 'white';
+
+    // Knight attackers
+    const knightOffsets = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+    for (const [dy, dx] of knightOffsets) {
+      const y = kingPos[0] + dy, x = kingPos[1] + dx;
+      if (y >= 0 && y < 8 && x >= 0 && x < 8) {
+        const p = gs.board[y][x];
+        if (p.type === 'knight' && p.color === attackerColor) attackers.push({ pos: [y, x], type: 'knight', blockSquares: [] });
+      }
     }
-    
-    // For other checks, allow moves that capture or block
-    // (existing logic for other check types)
-    
-    return false; // Default to disallowing moves during check
-  });
+
+    // Pawn attackers (relative to defender)
+    const pawnDirs = attackerColor === 'white' ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]];
+    for (const [dy, dx] of pawnDirs) {
+      const y = kingPos[0] + dy, x = kingPos[1] + dx;
+      if (y >= 0 && y < 8 && x >= 0 && x < 8) {
+        const p = gs.board[y][x];
+        if (p.type === 'pawn' && p.color === attackerColor) attackers.push({ pos: [y, x], type: 'pawn', blockSquares: [] });
+      }
+    }
+
+    // King attacker (adjacent)
+    const kingOffsets = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+    for (const [dy, dx] of kingOffsets) {
+      const y = kingPos[0] + dy, x = kingPos[1] + dx;
+      if (y >= 0 && y < 8 && x >= 0 && x < 8) {
+        const p = gs.board[y][x];
+        if (p.type === 'king' && p.color === attackerColor) attackers.push({ pos: [y, x], type: 'king', blockSquares: [] });
+      }
+    }
+
+    // Sliding attackers: rook/queen on orthogonal; bishop/queen on diagonals
+    const dirs = [ [-1,0],[1,0],[0,-1],[0,1], [-1,-1],[-1,1],[1,-1],[1,1] ];
+    for (let i=0;i<dirs.length;i++){
+      const [dy, dx] = dirs[i];
+      const path: Position[] = [];
+      let y = kingPos[0] + dy, x = kingPos[1] + dx;
+      while (y >= 0 && y < 8 && x >= 0 && x < 8) {
+        const p = gs.board[y][x];
+        if (p.type !== 'empty') {
+          const orth = i < 4;
+          const diag = i >= 4;
+          if (p.color === attackerColor && ((orth && (p.type === 'rook' || p.type === 'queen')) || (diag && (p.type === 'bishop' || p.type === 'queen')))) {
+            attackers.push({ pos: [y,x], type: p.type!, blockSquares: path.slice() });
+          }
+          break;
+        }
+        path.push([y,x]);
+        y += dy; x += dx;
+      }
+    }
+    return attackers;
+  };
+
+  const attackers = getCheckingPieces(gameState, currentColor as PieceColor);
+
+  // If double check, only king can move; strip all non-king moves
+  if (attackers.length >= 2 && piece.type !== 'king') {
+    normalMoves = [];
+  } else if (attackers.length >= 1 && piece.type !== 'king') {
+    const atk = attackers[0];
+    const allowed = new Set<string>();
+    // capture square
+    allowed.add(`${atk.pos[0]}:${atk.pos[1]}`);
+    // block squares (sliding checks)
+    for (const b of atk.blockSquares) allowed.add(`${b[0]}:${b[1]}`);
+    normalMoves = normalMoves.filter(m => allowed.has(`${m[0]}:${m[1]}`));
+  }
 }
 
 // Helper function to check if a square is under attack
 function isSquareUnderAttack(square: Position, gameState: GameStateType, attackerColor: PieceColor): boolean {
   // Extract coordinates
   const [y, x] = square;
+  // Use precomputed map if available
+  if (gameState.attackMap && gameState.attackMap[attackerColor]) {
+    return !!gameState.attackMap[attackerColor][y!]?.[x!];
+  }
   
   // Check for pawn attacks
-  const pawnDirections = attackerColor === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+  // To see if `square` is attacked by pawns of `attackerColor`,
+  // look for a pawn one rank behind the square relative to its advance direction.
+  // White pawns advance up (y-1), so they attack from (y+1, x±1).
+  // Black pawns advance down (y+1), so they attack from (y-1, x±1).
+  const pawnDirections = attackerColor === 'white' ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]];
   for (const [dy, dx] of pawnDirections) {
     const py = y! + dy;
     const px = x! + dx;
@@ -649,28 +706,39 @@ function isSquareUnderAttack(square: Position, gameState: GameStateType, attacke
   }
   
   if (piece && piece.type === 'king') {
-      const lastPiece = gameState.board[lastPosition[0]!][lastPosition[1]!];
-
-      
-
-      if ((lastPiece.type === 'rook' && lastPiece.color === piece.color && !lastPiece.hasMoved && !piece.hasMoved) || (lastPosition[0] === 0 || lastPosition[0] === 7)) {
-          
-
-          const positionsBetweenAreEmpty = lastPosition[0] === position[0] 
-              ? checkPositionsBetweenAreEmpty(gameState, position, lastPosition)
-              : checkPositionsBetweenAreEmpty(gameState, position, lastPosition);
-
-          if (positionsBetweenAreEmpty) {
-              canCastle = true;
-              
-              normalMoves.push(lastPosition);
-              addMoveIfValid(lastPosition, tempGameState);
-          } else {
-              
-          }
-      } else {
-          
+    const rookAtTarget = gameState.board[lastPosition[0]!][lastPosition[1]!];
+    const kingPos = piece.position as Position;
+    const sameRank = lastPosition[0] === kingPos[0];
+    const rookOnCorner = lastPosition[1] === 0 || lastPosition[1] === 7;
+    if (
+      sameRank &&
+      rookOnCorner &&
+      rookAtTarget.type === 'rook' &&
+      rookAtTarget.color === piece.color &&
+      !rookAtTarget.hasMoved &&
+      !piece.hasMoved
+    ) {
+      // Verify path empty between king and rook
+      const rank = kingPos[0]!;
+      const kingFile = kingPos[1]!;
+      const rookFile = lastPosition[1]!;
+      const direction = rookFile > kingFile ? 1 : -1;
+      let pathClear = true;
+      for (let file = Math.min(kingFile, rookFile) + 1; file <= Math.max(kingFile, rookFile) - 1; file++) {
+        if (gameState.board[rank][file].type !== 'empty') { pathClear = false; break; }
       }
+      if (pathClear) {
+        // King cannot be in check, pass through check, or end in check
+        const startUnderAttack = isSquareUnderAttack([rank, kingFile], gameState, opponentColor);
+        const step1UnderAttack = isSquareUnderAttack([rank, kingFile + direction], gameState, opponentColor);
+        const step2UnderAttack = isSquareUnderAttack([rank, kingFile + 2 * direction], gameState, opponentColor);
+        if (!startUnderAttack && !step1UnderAttack && !step2UnderAttack) {
+          canCastle = true;
+          normalMoves.push(lastPosition);
+          addMoveIfValid(lastPosition, tempGameState);
+        }
+      }
+    }
   }
   
 
@@ -929,38 +997,7 @@ if (isOpponentKingInCheck) {
   
 }
 
-// Check if the Black king can castle
-if (piece.type === 'king' && piece.color === 'black' && !piece.hasMoved) {
-  // Check if this is the black king's initial position
-  if (position[0] === 0 && position[1] === 4) {
-    // Check queenside rook
-    const queenRook = gameState.board[0][0];
-    if (queenRook.type === 'rook' && queenRook.color === 'black' && !queenRook.hasMoved) {
-      // Check if squares between king and rook are empty
-      const arePathsEmpty = gameState.board[0][1].type === 'empty' && 
-                           gameState.board[0][2].type === 'empty' && 
-                           gameState.board[0][3].type === 'empty';
-      
-      if (arePathsEmpty) {
-        // No pieces between king and rook, enable castling
-        canCastle = true;
-      }
-    }
-    
-    // Check kingside rook
-    const kingRook = gameState.board[0][7];
-    if (kingRook.type === 'rook' && kingRook.color === 'black' && !kingRook.hasMoved) {
-      // Check if squares between king and rook are empty
-      const arePathsEmpty = gameState.board[0][5].type === 'empty' && 
-                           gameState.board[0][6].type === 'empty';
-      
-      if (arePathsEmpty) {
-        // No pieces between king and rook, enable castling
-        canCastle = true;
-      }
-    }
-  }
-}
+// Remove ad-hoc black castling toggles; castling is validated in addMoveIfValid/canKingCastle
 
 return {
   moves: filteredMoves,
