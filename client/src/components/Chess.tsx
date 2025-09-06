@@ -499,20 +499,20 @@ const Chess: React.FC<Props> = (props) => {
             lastDragOverPosition.current = position;
             
             // Execute the same move logic as in handleDrop
+            const selectedPieceCopy = props.selectedPiece;
             const fakeEvent = {
                 preventDefault: () => {},
                 dataTransfer: {
                     getData: (key: string) => {
-                        if (key === 'piece') return JSON.stringify(props.selectedPiece);
+                        if (key === 'piece') return JSON.stringify(selectedPieceCopy);
                         if (key === 'position') return JSON.stringify(piecePosition);
                         return '';
                     }
                 }
             } as unknown as React.DragEvent;
-            
+
             // Clear selection and highlights BEFORE calling handleDrop
             // to avoid race conditions
-            //const selectedPieceCopy = props.selectedPiece;
             props.setSelectedPiece(null);
             props.setHighlightedTiles([]);
             
