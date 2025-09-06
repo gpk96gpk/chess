@@ -246,6 +246,7 @@ const Chess: React.FC<Props> = (props) => {
         }
 
         piece.position = target;
+        gameState.threateningPiecesPositions[currentPlayerColor] = calculateThreateningSquares(gameState, currentPlayerColor, piece, target);
         //This if Statement handles moving out of check
         //handle move out of check in the checkMate
         if (isPieceValidMove) {
@@ -253,24 +254,21 @@ const Chess: React.FC<Props> = (props) => {
             tempGameState.board[toX][toY] = piece;
             tempGameState.board[toX][toY].hasMoved = true;
             tempGameState.board[fromX!][fromY!] = { type: 'empty', color: 'none', hasMoved: false, isHighlighted: false };
-
-            const updatedThreateningSquares = calculateThreateningSquares(tempGameState, currentPlayerColor, piece, target);
+            
             let checkPosition;
             let matchFoundInDirection;
-            //add a check to see if piece is moving into threatening square array from game state
-            const moveIntoCheck = isCheck(tempGameState, updatedThreateningSquares, opponentPlayerNumber, checkPosition!, piece, piece.position!, playerNumber, target, matchFoundInDirection!, currentPlayerColor);
-
+            //add a check to see if piece is moving into threatening square array from game state 
+            const moveIntoCheck = isCheck(tempGameState, gameState.threateningPiecesPositions[currentPlayerColor], opponentPlayerNumber, checkPosition!, piece, piece.position!, playerNumber, target, matchFoundInDirection!, currentPlayerColor);
+            
             if (moveIntoCheck.isKingInCheck) {
-
+                
                 //const isKingInCheckMate = isCheckmate(gameState, currentPlayerColor);
-
+                
                 return;
             } else {
-                gameState.checkStatus[currentPlayerColor] = false;
-
+                gameState.checkStatus[currentPlayerColor] = false;                
+                
             }
-
-            gameState.threateningPiecesPositions[currentPlayerColor] = updatedThreateningSquares;
             
             if (piece.type === 'pawn' && Math.abs(toX - fromX!) === 2) {
                 piece.hasMovedTwo = true;
