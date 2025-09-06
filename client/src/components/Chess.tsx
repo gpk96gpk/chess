@@ -511,13 +511,13 @@ const Chess: React.FC<Props> = (props) => {
                 }
             } as unknown as React.DragEvent;
 
-            // Clear selection and highlights BEFORE calling handleDrop
-            // to avoid race conditions
+            // Call the existing handleDrop function with our synthetic event
+            // If state updates interfere, wrap this in setTimeout(() => handleDrop(fakeEvent), 0)
+            handleDrop(fakeEvent);
+
+            // Clear selection and highlights after the move completes
             props.setSelectedPiece(null);
             props.setHighlightedTiles([]);
-            
-            // Call the existing handleDrop function with our synthetic event
-            handleDrop(fakeEvent);
         } else {
             // If clicked on an invalid move square, just deselect
             props.setSelectedPiece(null);
