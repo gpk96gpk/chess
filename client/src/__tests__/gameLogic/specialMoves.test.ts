@@ -265,9 +265,10 @@ describe('Special Chess Moves Tests', () => {
       const position = whiteKing.position as Position;
       const castlePosition: Position = [7, 6]; // Kingside castle destination
       const result = validMoves(whiteKing, position, gameState, 2, castlePosition) as ValidMoveReturn;
-      
+
       // Verify castling is allowed
       expect(result.canCastle).toBe(true);
+      expect(result.moves).toContainEqual(castlePosition);
     });
 
     test('White king can castle queenside', () => {
@@ -295,9 +296,10 @@ describe('Special Chess Moves Tests', () => {
       const position = whiteKing.position as Position;
       const castlePosition: Position = [7, 2]; // Queenside castle destination
       const result = validMoves(whiteKing, position, gameState, 2, castlePosition) as ValidMoveReturn;
-      
+
       // Verify castling is allowed
       expect(result.canCastle).toBe(true);
+      expect(result.moves).toContainEqual(castlePosition);
     });
 
     test('Black king can castle kingside', () => {
@@ -324,9 +326,10 @@ describe('Special Chess Moves Tests', () => {
       const position = blackKing.position as Position;
       const castlePosition: Position = [0, 6]; // Kingside castle destination
       const result = validMoves(blackKing, position, gameState, 1, castlePosition) as ValidMoveReturn;
-      
+
       // Verify castling is allowed
       expect(result.canCastle).toBe(true);
+      expect(result.moves).toContainEqual(castlePosition);
     });
 
     test('Black king can castle queenside', () => {
@@ -357,6 +360,7 @@ describe('Special Chess Moves Tests', () => {
 
         // Verify castling is allowed
         expect(result.canCastle).toBe(true);
+        expect(result.moves).toContainEqual(castlePosition);
     });
 
     test('Black king cannot castle queenside through check', () => {
