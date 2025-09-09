@@ -79,8 +79,20 @@ function isCheck(gameState: GameStateType, threateningSquares: ThreateningSquare
       const [knightY, knightX] = knight.position;
   
       // Check if the knight is in a position that could attack the king
-      if (threateningSquares.some(([y, x]) => y === knightY && x === knightX)) {
+      let foundPosition: [number, number] | null = null;
+      const isAttacking = threateningSquares.some(([y, x]) => {
+        if (y === knightY && x === knightX) {
+          foundPosition = [y, x];
+          return true;
+        }
+        return false;
+      });
+      
+      if (isAttacking && foundPosition !== null) {
+        const [y, x] = foundPosition as [number, number];
         isKingInCheck = true;
+        firstTriggeringOpponentPiece = gameState.board[y][x];
+        slicedThreateningSquares = [[y, x]];
         return true;
       }
     }
@@ -296,25 +308,25 @@ canBlock(gameState, threateningSquares as Position[][] | Position[], checkPositi
 // Assuming firstTriggeringOpponentPiece is a coordinate like [y, x]
 let firstTriggeringOpponentPieceIndex = -1;
 const checkDirection = gameState.checkStatus.direction;
-const currentPlayerThreateningSquares = gameState.threateningPiecesPositions[currentPlayerColor as PieceColor] ;
+const opponentThreateningSquares = gameState.threateningPiecesPositions[opponentColor as PieceColor] ;
 console.log('843firstTriggeringOpponentPiece', firstTriggeringOpponentPiece)
-console.log('843threateningSquares', gameState.threateningPiecesPositions[currentPlayerColor as PieceColor], gameState, currentPlayerThreateningSquares[checkDirection], checkDirection, Array.isArray(currentPlayerThreateningSquares))
+console.log('843threateningSquares', gameState.threateningPiecesPositions[currentPlayerColor as PieceColor], gameState, opponentThreateningSquares[checkDirection], checkDirection, Array.isArray(opponentThreateningSquares))
 let slicedCoordinates: number[] | number[][] = [];
 //firstTriggeringOpponentPieceIndex = checkDirection;
 
-if (currentPlayerThreateningSquares[checkDirection] && Array.isArray(currentPlayerThreateningSquares[checkDirection])) {
-  for (let i = 0; i < currentPlayerThreateningSquares[checkDirection].length; i++) {
-    const square = currentPlayerThreateningSquares[checkDirection][i];
+if (opponentThreateningSquares[checkDirection] && Array.isArray(opponentThreateningSquares[checkDirection])) {
+  for (let i = 0; i < opponentThreateningSquares[checkDirection].length; i++) {
+    const square = opponentThreateningSquares[checkDirection][i];
     if (Array.isArray(square)) {
       const [y, x] = square;
       const piece = gameState.board[y][x];
       console.log('843piece', piece)
-      console.log('843currentPlayerThreateningSquares[checkDirection]', currentPlayerThreateningSquares[checkDirection])
-  
-      if (piece && piece.color === currentPlayerColor) {
+      console.log('843opponentThreateningSquares[checkDirection]', opponentThreateningSquares[checkDirection])
+
+      if (piece && piece.color === opponentColor) {
         firstTriggeringOpponentPiece = piece;
         console.log('843firstTriggeringOpponentPiece', firstTriggeringOpponentPiece)
-        slicedCoordinates = currentPlayerThreateningSquares[checkDirection].slice(0, i + 1);
+        slicedCoordinates = opponentThreateningSquares[checkDirection].slice(0, i + 1);
         firstTriggeringOpponentPieceIndex = i; // Store the index of the first triggering piece
         console.log('843slicedCoordinates', slicedCoordinates)
         break;
@@ -380,7 +392,7 @@ if (piece.type === 'king') {
       }
     }
   }
-  if (gameState.threateningPiecesPositions[currentPlayerColor as PieceColor].some(square => square[0] === lastPosition![0] && square[1] === lastPosition![1])) {
+  if (gameState.threateningPiecesPositions[opponentColor as PieceColor].some(square => square[0] === lastPosition![0] && square[1] === lastPosition![1])) {
     // If the king's move is in the threatening squares and the king is not taking the threatening piece, return false
     if (!(lastPosition![0] === firstTriggeringOpponentPiece?.position![0] && lastPosition![1] === firstTriggeringOpponentPiece!.position[1])) {
       isKingInCheck = true;
