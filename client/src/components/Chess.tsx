@@ -498,12 +498,56 @@ const Chess: React.FC<Props> = (props) => {
         
         // Get valid moves using the same code path as handleDrop
         const result = validMoves(piece, position, gameState, playerNumber, position);
-        
-        // Handle different possible return types from validMoves
-        if (!result) return [];
-        if (Array.isArray(result)) return result; // Handle Position[] return type
-        if ('moves' in result) return result.moves; // Handle ValidMovesResult return type
-        return []; // Fallback for any other case
+
+        // Normalize result into an array of positions
+        let moves: Position[] = [];
+        if (result) {
+            if (Array.isArray(result)) {
+                moves = result;
+            } else if ('moves' in result) {
+                moves = result.moves;
+            }
+        }
+
+        // Special handling for castling in click-to-move mode
+        // Castling is triggered by clicking the rook, so we need to highlight
+        // the rook squares when castling is permitted. Reuse existing logic in
+        // validMoves to verify castling by testing each rook position.
+        if (piece.type === 'king') {
+            const castleOptions: { rook: Position; kingTarget: Position }[] = [
+                { rook: [position[0], 0], kingTarget: [position[0], 2] }, // Queenside
+                { rook: [position[0], 7], kingTarget: [position[0], 6] }, // Kingside
+            ];
+
+            castleOptions.forEach(({ rook, kingTarget }) => {
+                const castleResult = validMoves(
+                    piece,
+                    position,
+                    gameState,
+                    playerNumber,
+                    kingTarget
+                );
+
+                if (
+                    castleResult &&
+                    !Array.isArray(castleResult) &&
+                    Array.isArray(castleResult.moves) &&
+                    castleResult.moves.some(
+                        m => m[0] === kingTarget[0] && m[1] === kingTarget[1]
+                    )
+                ) {
+                    // Highlight both the rook and the king's destination square
+                    if (!moves.some(m => m[0] === rook[0] && m[1] === rook[1])) {
+                        moves.push(rook);
+                    }
+                    if (!moves.some(m => m[0] === kingTarget[0] && m[1] === kingTarget[1])) {
+                        moves.push(kingTarget);
+                    }
+                }
+            });
+        }
+
+        return moves; // Fallback for any other case
     };
     const handleSquareClick = (event: React.MouseEvent, position: Position) => {
         event.stopPropagation(); // Prevent bubbling
