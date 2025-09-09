@@ -359,6 +359,35 @@ describe('Special Chess Moves Tests', () => {
         expect(result.canCastle).toBe(true);
     });
 
+    test('Black king cannot castle queenside through check', () => {
+      // Create a black king that has not moved
+      const blackKing = createPiece('king', 'black', [0, 4], 2);
+      blackKing.hasMoved = false;
+
+      // Create a black rook that has not moved
+      const blackRook = createPiece('rook', 'black', [0, 0], 3);
+      blackRook.hasMoved = false;
+
+      // Create an attacking white rook targeting the path
+      const whiteRook = createPiece('rook', 'white', [1, 3], 4);
+
+      // Create the game state with these pieces
+      const gameState = createTestBoard([blackKing, blackRook, whiteRook]);
+
+      // Ensure the spaces between king and rook are empty
+      gameState.board[0][1] = { type: 'empty', color: 'none', position: [0, 1], hasMoved: false };
+      gameState.board[0][2] = { type: 'empty', color: 'none', position: [0, 2], hasMoved: false };
+      gameState.board[0][3] = { type: 'empty', color: 'none', position: [0, 3], hasMoved: false };
+
+      // Get valid moves for the king
+      const position = blackKing.position as Position;
+      const castlePosition: Position = [0, 2]; // Queenside castle destination
+      const result = validMoves(blackKing, position, gameState, 1, castlePosition) as ValidMoveReturn;
+
+      // Verify castling is not allowed
+      expect(result.canCastle).toBe(false);
+    });
+
     test('King cannot castle if it has moved', () => {
       // Create a white king that HAS moved
       const whiteKing = createPiece('king', 'white', [7, 4], 2);

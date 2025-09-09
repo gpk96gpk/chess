@@ -1035,39 +1035,6 @@ if (isOpponentKingInCheck) {
   console.log(`Checkmate determination: ${isKingInCheckMate ? 'CHECKMATE' : 'NOT CHECKMATE'}`);
 }
 
-// Check if the Black king can castle
-if (piece.type === 'king' && piece.color === 'black' && !piece.hasMoved) {
-  // Check if this is the black king's initial position
-  if (position[0] === 0 && position[1] === 4) {
-    // Check queenside rook
-    const queenRook = gameState.board[0][0];
-    if (queenRook.type === 'rook' && queenRook.color === 'black' && !queenRook.hasMoved) {
-      // Check if squares between king and rook are empty
-      const arePathsEmpty = gameState.board[0][1].type === 'empty' && 
-                           gameState.board[0][2].type === 'empty' && 
-                           gameState.board[0][3].type === 'empty';
-      
-      if (arePathsEmpty) {
-        // No pieces between king and rook, enable castling
-        canCastle = true;
-      }
-    }
-    
-    // Check kingside rook
-    const kingRook = gameState.board[0][7];
-    if (kingRook.type === 'rook' && kingRook.color === 'black' && !kingRook.hasMoved) {
-      // Check if squares between king and rook are empty
-      const arePathsEmpty = gameState.board[0][5].type === 'empty' && 
-                           gameState.board[0][6].type === 'empty';
-      
-      if (arePathsEmpty) {
-        // No pieces between king and rook, enable castling
-        canCastle = true;
-      }
-    }
-  }
-}
-
 return {
   moves: filteredMoves,
   threateningSquares: {
