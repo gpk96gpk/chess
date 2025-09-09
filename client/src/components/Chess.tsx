@@ -514,6 +514,7 @@ const Chess: React.FC<Props> = (props) => {
         // the rook squares when castling is permitted. Reuse existing logic in
         // validMoves to verify castling by testing each rook position.
         if (piece.type === 'king') {
+
             const castleOptions: { rook: Position; kingTarget: Position }[] = [
                 { rook: [position[0], 0], kingTarget: [position[0], 2] }, // Queenside
                 { rook: [position[0], 7], kingTarget: [position[0], 6] }, // Kingside
@@ -542,6 +543,7 @@ const Chess: React.FC<Props> = (props) => {
                     }
                     if (!moves.some(m => m[0] === kingTarget[0] && m[1] === kingTarget[1])) {
                         moves.push(kingTarget);
+
                     }
                 }
             });
