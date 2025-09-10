@@ -499,6 +499,7 @@ io.on('connection', (socket: Socket) => {
     //Turn
     socket.on('turn', (playerTurn: 0 | 1 | 2, roomCode: string) => {
         const player = players[socket.id];
+
         const roomPlayers = rooms[roomCode] || [];
 
         // If fewer than two players are in the room, no one can move
