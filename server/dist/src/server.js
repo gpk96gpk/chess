@@ -4,6 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+//   import * as dotenv from 'dotenv';
+//   dotenv.config();
+//   console.log('===== DB CONNECTION DETAILS =====');
+//   console.log('PGHOST:', process.env.PGHOST);
+//   console.log('PGUSER:', process.env.PGUSER);
+//   console.log('PGPASSWORD:', process.env.PGPASSWORD);
+//   console.log('PGDATABASE:', process.env.PGDATABASE);
+//   console.log('PGPORT:', process.env.PGPORT);
+//   console.log('================================');
 require("dotenv/config");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
@@ -261,22 +270,52 @@ const io = new socket_io_1.Server(httpServer, {
 let players = {};
 let rooms = {};
 let roomStates = {};
+let roomTurnStates = {};
+const getAvailableRooms = () => {
+    return Object.keys(rooms).map(roomCode => ({
+        roomCode,
+        players: rooms[roomCode].filter(id => id !== '').length,
+        maxPlayers: 2
+    }));
+};
+const broadcastAvailableRooms = () => {
+    io.emit('availableRooms', getAvailableRooms());
+};
+// Periodically clean up empty rooms and broadcast updates
+setInterval(() => {
+    Object.keys(rooms).forEach(roomCode => {
+        rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+        if (rooms[roomCode].length === 0) {
+            delete rooms[roomCode];
+            delete roomStates[roomCode];
+            delete roomTurnStates[roomCode];
+        }
+    });
+    broadcastAvailableRooms();
+}, 5000);
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket) => {
     //Create a room
     socket.on('createRoom', (roomCode, gameState) => {
-        rooms[roomCode] = [socket.id];
+        if (!rooms[roomCode]) {
+            rooms[roomCode] = [];
+        }
+        rooms[roomCode].push(socket.id);
         const playerNumber = 1;
         players[socket.id] = { roomCode, playerNumber };
-        console.log('players', players, roomCode, playerNumber, gameState);
+        console.log('players', players, roomCode, playerNumber);
         socket.emit('playerNumber', playerNumber);
         socket.emit('gameState', gameState);
         socket.emit('createRoom', roomCode);
         roomStates[roomCode] = gameState;
+        if (roomTurnStates[roomCode] === undefined) {
+            roomTurnStates[roomCode] = gameState && gameState.turn === 'white' ? 2 : 1;
+        }
+        // Do not allow moves until two players are present
+        socket.emit('turn', rooms[roomCode].length < 2 ? 0 : roomTurnStates[roomCode]);
     });
     //Join a room
     socket.on('joinRoom', (roomCode) => {
-        //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
         if (!rooms[roomCode] || (rooms[roomCode] && rooms[roomCode].length === 0) || roomCode === '' || roomCode === null) {
             socket.emit('roomError', 'The room is empty.');
@@ -284,31 +323,61 @@ io.on('connection', (socket) => {
             return;
         }
         socket.join(roomCode);
+        // Clean up empty slots
+        if (rooms[roomCode]) {
+            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+        }
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
-            //players[socket.id] = { roomCode, playerNumber: 1 };
         }
-        if (rooms[roomCode].some(id => id === '')) {
-            const indexOfPlayer = rooms[roomCode].indexOf(socket.id);
-            players[socket.id] = { roomCode, playerNumber: indexOfPlayer === 0 ? 2 : 1 };
+        // Determine player number BEFORE pushing to the room
+        let playerNumber;
+        if (rooms[roomCode].length === 0) {
+            playerNumber = 1;
         }
-        if (rooms[roomCode].length === 1) {
-            const otherPlayerSocketId = rooms[roomCode][0];
-            players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1 };
+        else if (rooms[roomCode].length === 1) {
+            const existingPlayer = rooms[roomCode][0];
+            if (players[existingPlayer]) {
+                playerNumber = players[existingPlayer].playerNumber === 1 ? 2 : 1;
+            }
+            else {
+                playerNumber = 2; // Default to player 2 if joining an existing room
+            }
         }
+        else {
+            socket.emit('roomError', 'Room is full.');
+            return;
+        }
+        // Set player info BEFORE adding to room
+        players[socket.id] = { roomCode, playerNumber };
+        // Now add to room
+        rooms[roomCode].push(socket.id);
         console.log('players', players, roomCode);
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id);
-        rooms[roomCode].push(socket.id);
-        const player = players[socket.id];
-        let playerNumber;
-        if (player) {
-            player.roomCode = roomCode;
-            playerNumber = player.playerNumber;
-            console.log('playerNumber', playerNumber, player.playerNumber, player.roomCode, player, players[socket.id], socket.id);
-            players[socket.id] = { roomCode, playerNumber };
-            socket.emit('playerNumber', playerNumber);
-        }
+        socket.emit('playerNumber', playerNumber);
         socket.emit('gameState', roomStates[roomCode]);
+        // FIXED: Only emit turn state when both players are present, and preserve the existing turn
+        if (rooms[roomCode].length < 2) {
+            // Waiting for second player
+            io.to(roomCode).emit('turn', 0);
+        }
+        else {
+            // Both players present - emit the preserved turn state
+            // If no turn state exists, derive it from the game state
+            let currentTurn = roomTurnStates[roomCode];
+            if (currentTurn === undefined && roomStates[roomCode]) {
+                // Derive turn from the actual game state if turn state is missing
+                currentTurn = roomStates[roomCode].turn === 'black' ? 1 : 2;
+                roomTurnStates[roomCode] = currentTurn;
+            }
+            else if (currentTurn === undefined) {
+                // Last resort fallback
+                currentTurn = 1;
+                roomTurnStates[roomCode] = currentTurn;
+            }
+            console.log('Emitting turn state:', currentTurn, 'for room:', roomCode);
+            io.to(roomCode).emit('turn', currentTurn);
+        }
     });
     //Load save game
     socket.on('loadSaveGame', (roomCode) => {
@@ -317,21 +386,39 @@ io.on('connection', (socket) => {
             const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
             io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
             console.log('emitted load game to host');
+            // Sync turn state from saved game and broadcast to both players
+            const saved = roomStates[roomCode];
+            if (saved && saved.turn) {
+                roomTurnStates[roomCode] = saved.turn === 'white' ? 2 : 1;
+                io.to(roomCode).emit('turn', roomTurnStates[roomCode]);
+            }
         }
         else {
             console.log(`No moves have been made in room with room code ${roomCode}`);
         }
     });
-    //Turn 
+    //Turn
     socket.on('turn', (playerTurn, roomCode) => {
-        if (rooms[roomCode]) {
-            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-            io.to(otherPlayerSocketId).emit('turn', playerTurn);
-            console.log('turn', roomCode, playerTurn);
+        const player = players[socket.id];
+        const roomPlayers = rooms[roomCode] || [];
+        // If fewer than two players are in the room, no one can move
+        if (roomPlayers.filter(id => id !== '').length < 2) {
+            socket.emit('turn', 0);
+            return;
         }
-        else {
-            console.log(`No moves have been made in room with room code ${roomCode}`);
+        if (playerTurn !== 0) {
+            // Ignore attempts from a player to set the turn to themselves.
+            if (!player || player.playerNumber === playerTurn) {
+                // Send the correct turn state back to the sender without
+                // altering the stored turn.
+                socket.emit('turn', roomTurnStates[roomCode] ?? playerTurn);
+                return;
+            }
+            roomTurnStates[roomCode] = playerTurn;
         }
+        const otherPlayerSocketId = roomPlayers.filter(id => id !== socket.id);
+        io.to(otherPlayerSocketId).emit('turn', playerTurn);
+        console.log('turn', roomCode, playerTurn);
     });
     //Leave a room
     socket.on('leaveRoom', (roomCode) => {
@@ -350,6 +437,7 @@ io.on('connection', (socket) => {
             if (rooms[roomCode].length === 0) {
                 delete rooms[roomCode];
                 delete roomStates[roomCode];
+                delete roomTurnStates[roomCode];
             }
         }
         delete players[socket.id];
@@ -393,16 +481,33 @@ io.on('connection', (socket) => {
         console.log('disconnected player', player);
         if (player) {
             const roomCode = player.roomCode;
+            // Don't change the turn state when a player disconnects
+            // Just emit 0 to indicate waiting state, but preserve roomTurnStates[roomCode]
             socket.broadcast.to(roomCode).emit('turn', 0);
-            const playerIndex = rooms[roomCode].indexOf(socket.id);
-            if (playerIndex !== -1) {
-                rooms[roomCode][playerIndex] = '';
+            // Replace the problematic code with this:
+            if (rooms[roomCode]) {
+                // Actually remove the player from the array instead of setting to empty string
+                const playerIndex = rooms[roomCode].indexOf(socket.id);
+                if (playerIndex !== -1) {
+                    rooms[roomCode].splice(playerIndex, 1); // Remove completely instead of setting to ''
+                }
+                // Clean up any remaining empty strings (from previous disconnects)
+                rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+                // Delete room if truly empty
+                if (rooms[roomCode].length === 0) {
+                    delete rooms[roomCode];
+                    delete roomStates[roomCode];
+                    delete roomTurnStates[roomCode]; // Only delete turn state if room is completely empty
+                    console.log(`Room ${roomCode} deleted because it's empty`);
+                }
             }
-            if (rooms[roomCode].length === 0) {
-                delete rooms[roomCode];
-                delete roomStates[roomCode];
-            }
+            // Remove the player from players object
+            delete players[socket.id];
         }
+    });
+    //Request available rooms
+    socket.on('requestAvailableRooms', () => {
+        socket.emit('availableRooms', getAvailableRooms());
     });
 });
 // process.env.PORT is used to get the port from the .env file 
@@ -414,7 +519,7 @@ app.listen(PORT, () => {
 });
 httpServer.listen(3004, () => {
     console.log('socket server running at localhost/:3004');
-  });
+});
 // httpServer.listen(3004, '0.0.0.0', () => {
 //     console.log('socket server running at http://34.224.30.160/:3004');
 // });

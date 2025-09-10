@@ -367,6 +367,7 @@ let players: { [socketId: string]: PlayerInfo } = {};
 let rooms: { [key: string]: string[] } = {};
 let roomStates: { [roomCode: string]: GameStateType } = {};
 let roomTurnStates: { [roomCode: string]: 0 | 1 | 2 | 3 } = {};
+let lastKnownTurnStates: { [roomCode: string]: 0 | 1 | 2 | 3 } = {};
 
 const getAvailableRooms = () => {
     return Object.keys(rooms).map(roomCode => ({
@@ -421,7 +422,6 @@ io.on('connection', (socket: Socket) => {
     });
     //Join a room
     socket.on('joinRoom', (roomCode:string) => {
-        //const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id)
         if (!rooms[roomCode] || (rooms[roomCode] && rooms[roomCode].length === 0) || roomCode === '' || roomCode === null) {
             socket.emit('roomError', 'The room is empty.');
@@ -436,12 +436,8 @@ io.on('connection', (socket: Socket) => {
         }
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
-            //players[socket.id] = { roomCode, playerNumber: 1 };
         }
-        if (rooms[roomCode].some(id => id === '')) {
-            const indexOfPlayer = rooms[roomCode].indexOf(socket.id);
-            players[socket.id] = { roomCode, playerNumber: indexOfPlayer === 0 ? 2 : 1};
-        }
+        
         // Determine player number BEFORE pushing to the room
         let playerNumber: number;
         
@@ -452,38 +448,60 @@ io.on('connection', (socket: Socket) => {
             if (players[existingPlayer]) {
                 playerNumber = players[existingPlayer].playerNumber === 1 ? 2 : 1;
             } else {
-                playerNumber = 1;
+                playerNumber = 2; // Default to player 2 if joining an existing room
             }
         } else {
             socket.emit('roomError', 'Room is full.');
             return;
         }
-        if (rooms[roomCode].length === 1) {
-            const otherPlayerSocketId = rooms[roomCode][0];
-            
-            // Check if the otherPlayerSocketId is valid and exists in players
-            if (otherPlayerSocketId && otherPlayerSocketId !== '' && players[otherPlayerSocketId]) {
-                players[socket.id] = { roomCode, playerNumber: players[otherPlayerSocketId].playerNumber === 1 ? 2 : 1 };
-            } else {
-                // If no valid player exists in the room, assign as player 1
-                players[socket.id] = { roomCode, playerNumber: 1 };
-            }
-        } 
+        
+        // Set player info BEFORE adding to room
+        players[socket.id] = { roomCode, playerNumber };
+        
+        // Now add to room
+        rooms[roomCode].push(socket.id);
+        
         console.log('players', players, roomCode)
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id)
-        rooms[roomCode].push(socket.id);
-        const player = players[socket.id];
-        //let playerNumber: number;
-        if (player) {
-            player.roomCode = roomCode;
-            playerNumber = player.playerNumber;
-            console.log('playerNumber', playerNumber, player.playerNumber, player.roomCode, player, players[socket.id], socket.id)
-            players[socket.id] = { roomCode, playerNumber };
-            socket.emit('playerNumber', playerNumber);
-        }
+        
+        socket.emit('playerNumber', playerNumber);
         socket.emit('gameState', roomStates[roomCode]);
-        const turnToEmit = rooms[roomCode].length < 2 ? 0 : (roomTurnStates[roomCode] ?? 1);
-        io.to(roomCode).emit('turn', turnToEmit);
+        
+        // FIXED: Restore previous turn state when both players are present
+        if (rooms[roomCode].length < 2) {
+            // Waiting for second player
+            io.to(roomCode).emit('turn', 0);
+        } else {
+            // Both players present - prioritize restoring the previous turn state
+            
+            // Try to get the last known turn state first (before disconnect)
+            let currentTurn = lastKnownTurnStates[roomCode];
+            console.log(`Found saved turn state for room ${roomCode}:`, currentTurn);
+            
+            if (currentTurn === undefined) {
+                // Fall back to current room turn state
+                currentTurn = roomTurnStates[roomCode];
+                
+                if (currentTurn === undefined && roomStates[roomCode]) {
+                    // Derive from game state if needed
+                    currentTurn = roomStates[roomCode].turn === 'black' ? 1 : 2;
+                } else if (currentTurn === undefined) {
+                    // Last resort fallback
+                    currentTurn = 1;
+                }
+            } else {
+                // We found a saved turn state, so use it and clear from storage
+                console.log(`Restoring saved turn state ${currentTurn} for room ${roomCode}`);
+                delete lastKnownTurnStates[roomCode];
+            }
+            
+            // Store the final turn state
+            roomTurnStates[roomCode] = currentTurn;
+            
+            // IMPORTANT: Emit to ALL players in the room to ensure consistency
+            console.log('Emitting turn state:', currentTurn, 'for room:', roomCode);
+            io.to(roomCode).emit('turn', currentTurn);
+        }
     });
     //Load save game
     socket.on('loadSaveGame', (roomCode:string) => {
@@ -492,6 +510,12 @@ io.on('connection', (socket: Socket) => {
             const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
             io.to(otherPlayerSocketId).emit('loadSaveGame', roomCode, roomStates[roomCode]);
             console.log('emitted load game to host')
+            // Sync turn state from saved game and broadcast to both players
+            const saved = roomStates[roomCode];
+            if (saved && saved.turn) {
+                roomTurnStates[roomCode] = saved.turn === 'white' ? 2 : 1;
+                io.to(roomCode).emit('turn', roomTurnStates[roomCode]);
+            }
         } else {
             console.log(`No moves have been made in room with room code ${roomCode}`);
         }
@@ -586,26 +610,29 @@ io.on('connection', (socket: Socket) => {
         if (player) {
             const roomCode = player.roomCode;
             
-            // Don't change the turn state when a player disconnects
-            // Just emit 0 to indicate waiting state, but preserve roomTurnStates[roomCode]
+            // STORE THE CURRENT TURN STATE before emitting waiting state
+            if (roomTurnStates[roomCode] !== undefined && roomTurnStates[roomCode] > 0) {
+                lastKnownTurnStates[roomCode] = roomTurnStates[roomCode];
+                console.log(`Saved turn state ${lastKnownTurnStates[roomCode]} for room ${roomCode}`);
+            }
+            
+            // Just emit 0 to indicate waiting state, but don't change roomTurnStates
             socket.broadcast.to(roomCode).emit('turn', 0);
             
-            // Replace the problematic code with this:
+            // Rest of existing disconnect code...
             if (rooms[roomCode]) {
-                // Actually remove the player from the array instead of setting to empty string
                 const playerIndex = rooms[roomCode].indexOf(socket.id);
                 if (playerIndex !== -1) {
-                    rooms[roomCode].splice(playerIndex, 1); // Remove completely instead of setting to ''
+                    rooms[roomCode].splice(playerIndex, 1);
                 }
                 
-                // Clean up any remaining empty strings (from previous disconnects)
                 rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
                 
-                // Delete room if truly empty
                 if (rooms[roomCode].length === 0) {
                     delete rooms[roomCode];
                     delete roomStates[roomCode];
-                    delete roomTurnStates[roomCode]; // Only delete turn state if room is completely empty
+                    delete roomTurnStates[roomCode];
+                    // NOTE: We intentionally DON'T delete lastKnownTurnStates[roomCode]
                     console.log(`Room ${roomCode} deleted because it's empty`);
                 }
             }

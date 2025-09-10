@@ -519,8 +519,20 @@ function App() {
 
     useEffect(() => {
         socket.on('loadSaveGame', (roomId, gameStateParameter) => {
-            const turnNumber = gameStateParameter?.turn === 'black' ? 1 : 2;
-            console.debug('turnNumber', turnNumber)
+            let turnNumber: 0 | 1 | 2 | 3;
+
+            if (gameStateParameter && gameStateParameter.turn) {
+                turnNumber = gameStateParameter.turn === 'black' ? 1 : 2;
+                console.debug('turnNumber', turnNumber)
+            } else {
+                // Handle the case where gameStateParameter or gameStateParameter.turn is null
+                //console.log('turnNumber', turnNumber)
+                turnNumber = 2;
+            }            
+            if (!gameStateParameter && gameState && gameState.history.length === 0) {
+                console.debug('turnState change initial', turnNumber)
+                turnNumber = 1
+            } 
             console.debug('roomCode', roomCode, roomId)
             console.debug('emitting to guest client', gameStateParameter, gameState)
             socket.emit('gameState', gameStateParameter || gameState, roomId );
