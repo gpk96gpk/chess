@@ -401,7 +401,10 @@ setInterval(() => {
 io.on('connection', (socket: Socket) => {
     //Create a room
     socket.on('createRoom', (roomCode:string, gameState?:GameStateType) => {
-        rooms[roomCode] = [socket.id];
+        if (!rooms[roomCode]) {
+            rooms[roomCode] = [];
+        }
+        rooms[roomCode].push(socket.id);
         const playerNumber = 1;
         players[socket.id] = { roomCode, playerNumber };
         console.log('players', players, roomCode, playerNumber, gameState)
@@ -409,8 +412,11 @@ io.on('connection', (socket: Socket) => {
         socket.emit('gameState', gameState)
         socket.emit('createRoom', roomCode)
         roomStates[roomCode] = gameState!;
-        roomTurnStates[roomCode] = gameState && gameState.turn === 'white' ? 2 : 1;
-        socket.emit('turn', roomTurnStates[roomCode]);
+        if (roomTurnStates[roomCode] === undefined) {
+            roomTurnStates[roomCode] = gameState && gameState.turn === 'white' ? 2 : 1;
+        }
+        // Do not allow moves until two players are present
+        socket.emit('turn', rooms[roomCode].length < 2 ? 0 : roomTurnStates[roomCode]);
 
     });
     //Join a room
@@ -426,7 +432,8 @@ io.on('connection', (socket: Socket) => {
 
         // Clean up empty slots
         if (rooms[roomCode]) {
-            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+            // Remove empty or stale socket IDs before assigning the newcomer.
+            rooms[roomCode] = rooms[roomCode].filter(id => id !== '' && players[id]);
         }
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
@@ -476,7 +483,11 @@ io.on('connection', (socket: Socket) => {
             socket.emit('playerNumber', playerNumber);
         }
         socket.emit('gameState', roomStates[roomCode]);
-        io.to(roomCode).emit('turn', roomTurnStates[roomCode] ?? 1);
+        const turnToEmit = rooms[roomCode].length < 2 ? 0 : (roomTurnStates[roomCode] ?? 1);
+        // Only inform the joining player of the current turn. Existing players
+        // already know whose turn it is and shouldn't receive a conflicting
+        // update that could trigger a reset from the client side.
+        socket.emit('turn', turnToEmit);
     });
     //Load save game
     socket.on('loadSaveGame', (roomCode:string) => {
@@ -489,18 +500,33 @@ io.on('connection', (socket: Socket) => {
             console.log(`No moves have been made in room with room code ${roomCode}`);
         }
     });
-    //Turn 
+    //Turn
     socket.on('turn', (playerTurn: 0 | 1 | 2, roomCode: string) => {
+        const player = players[socket.id];
+        // Consider only actively tracked players; stale socket IDs shouldn't
+        // count toward the room's population.
+        const roomPlayers = (rooms[roomCode] || []).filter(id => players[id]);
+
+        // If fewer than two players are in the room, no one can move and we
+        // must not mutate the stored turn state.
+        if (roomPlayers.length < 2) {
+            socket.emit('turn', 0);
+            return;
+        }
+
         if (playerTurn !== 0) {
+            // Ignore attempts from a player to set the turn to themselves.
+            if (!player || player.playerNumber === playerTurn) {
+                // Send the correct turn state back to the sender without
+                // altering the stored turn.
+                socket.emit('turn', roomTurnStates[roomCode] ?? playerTurn);
+                return;
+            }
             roomTurnStates[roomCode] = playerTurn;
         }
-        if (rooms[roomCode]) {
-            const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
-            io.to(otherPlayerSocketId).emit('turn', playerTurn as any);
-            console.log('turn', roomCode, playerTurn)
-        } else {
-            console.log(`No moves have been made in room with room code ${roomCode}`);
-        }
+        const otherPlayerSocketId = roomPlayers.filter(id => id !== socket.id);
+        io.to(otherPlayerSocketId).emit('turn', playerTurn as any);
+        console.log('turn', roomCode, playerTurn)
     });
     //Leave a room
     socket.on('leaveRoom', (roomCode:string) => {
@@ -508,7 +534,7 @@ io.on('connection', (socket: Socket) => {
             const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
             io.to(otherPlayerSocketId).emit('leaveRoom');
             io.to(otherPlayerSocketId).emit('turn', 0 as any);
-            console.log(`Player with socket ID ${otherPlayerSocketId} has left room with room code ${roomCode}`)
+            console.log(`Player with socket ID ${socket.id} has left room with room code ${roomCode}`)
         }
         socket.leave(roomCode);
         if (rooms[roomCode]) {
