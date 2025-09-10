@@ -514,36 +514,18 @@ const Chess: React.FC<Props> = (props) => {
         // the rook squares when castling is permitted. Reuse existing logic in
         // validMoves to verify castling by testing each rook position.
         if (piece.type === 'king') {
-
-            const castleOptions: { rook: Position; kingTarget: Position }[] = [
-                { rook: [position[0], 0], kingTarget: [position[0], 2] }, // Queenside
-                { rook: [position[0], 7], kingTarget: [position[0], 6] }, // Kingside
+            const potentialRooks: Position[] = [
+                [position[0], 0], // Queenside rook
+                [position[0], 7]  // Kingside rook
             ];
 
-            castleOptions.forEach(({ rook, kingTarget }) => {
-                const castleResult = validMoves(
-                    piece,
-                    position,
-                    gameState,
-                    playerNumber,
-                    kingTarget
-                );
-
-                if (
-                    castleResult &&
-                    !Array.isArray(castleResult) &&
-                    Array.isArray(castleResult.moves) &&
-                    castleResult.moves.some(
-                        m => m[0] === kingTarget[0] && m[1] === kingTarget[1]
-                    )
-                ) {
-                    // Highlight both the rook and the king's destination square
-                    if (!moves.some(m => m[0] === rook[0] && m[1] === rook[1])) {
-                        moves.push(rook);
-                    }
-                    if (!moves.some(m => m[0] === kingTarget[0] && m[1] === kingTarget[1])) {
-                        moves.push(kingTarget);
-
+            potentialRooks.forEach(rookPos => {
+                const castleResult = validMoves(piece, position, gameState, playerNumber, rookPos);
+                if (castleResult && !Array.isArray(castleResult) && castleResult.canCastle) {
+                    // Only add if not already in moves
+                    if (!moves.some(m => m[0] === rookPos[0] && m[1] === rookPos[1])) {
+                        console.log("Clickcaslting0012", rookPos, moves);
+                        moves.push(rookPos);
                     }
                 }
             });
