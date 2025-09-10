@@ -12,7 +12,6 @@ import BoardButtons from './BoardButtons';
 import { getPieceIcon } from '../assets/icons';
 import { polyfill } from "mobile-drag-drop";
 import { scrollBehaviourDragImageTranslateOverride } from "mobile-drag-drop/scroll-behaviour";
-import { getPieceIcon } from '../assets/icons';
 // import BoardTimer from './BoardTimer';
 // import resetGameState from '../gameLogic/resetGameState';
 

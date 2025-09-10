@@ -518,7 +518,7 @@ form>input {
 }
 
 .promotion-dialog {
-  background-color: #ffffff;
+  background-color: #a0a0a0bb !important;
   padding: 1rem;
   border-radius: 8px
 
