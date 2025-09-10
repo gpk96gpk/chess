@@ -512,9 +512,29 @@ io.on('connection', (socket: Socket) => {
             console.log('emitted load game to host')
             // Sync turn state from saved game and broadcast to both players
             const saved = roomStates[roomCode];
+            let currentTurn = lastKnownTurnStates[roomCode];
+            console.log(`Found saved turn state for room ${roomCode}:`, currentTurn);
+            
+            if (currentTurn === undefined) {
+                // Fall back to current room turn state
+                currentTurn = roomTurnStates[roomCode];
+                
+                if (currentTurn === undefined && roomStates[roomCode]) {
+                    // Derive from game state if needed
+                    currentTurn = roomStates[roomCode].turn === 'black' ? 1 : 2;
+                } else if (currentTurn === undefined) {
+                    // Last resort fallback
+                    currentTurn = 1;
+                }
+            } else {
+                // We found a saved turn state, so use it and clear from storage
+                console.log(`Restoring saved turn state ${currentTurn} for room ${roomCode}`);
+                delete lastKnownTurnStates[roomCode];
+            }
             if (saved && saved.turn) {
-                roomTurnStates[roomCode] = saved.turn === 'white' ? 2 : 1;
-                io.to(roomCode).emit('turn', roomTurnStates[roomCode]);
+                //roomTurnStates[roomCode] = saved.turn === 'white' ? 2 : 1;
+                io.to(roomCode).emit('turn', currentTurn);
+                console.log('emitted turn state from saved game', currentTurn)
             }
         } else {
             console.log(`No moves have been made in room with room code ${roomCode}`);

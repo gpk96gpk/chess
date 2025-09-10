@@ -428,7 +428,7 @@ function App() {
     useEffect(() => {
         socket.on('joinRoom', (roomId) => {
             console.log(`Socket Joined room ${roomId}`);
-            socket.emit('turn', turnState, roomId)
+            //socket.emit('turn', turnState, roomId)
         });
 
         return () => {
@@ -540,7 +540,7 @@ function App() {
             
             setTurnState(turnNumber);
             
-            socket.emit('turn', turnNumber, roomId)
+            //socket.emit('turn', turnNumber, roomId)
 
         });
         // const handleLoadSaveGame = () => {
