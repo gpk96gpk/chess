@@ -4,7 +4,7 @@ interface ServerToClientEvents {
     gameOver: (isGameOver: {winner: string, isGameOver: boolean}) => void;
     playerNumber: (playerNumber: number) => void;
     reset: () => void;
-    turn: (xTurn: boolean) => void;
+    turn: (turnState: 0 | 1 | 2 | 3) => void;
     gameState: (gameState: any) => void;
     leaveRoom: () => void;
     joinRoom: () => void;
