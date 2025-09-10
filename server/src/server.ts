@@ -489,9 +489,17 @@ io.on('connection', (socket: Socket) => {
             console.log(`No moves have been made in room with room code ${roomCode}`);
         }
     });
-    //Turn 
+    //Turn
     socket.on('turn', (playerTurn: 0 | 1 | 2, roomCode: string) => {
+        const player = players[socket.id];
         if (playerTurn !== 0) {
+            // Ignore attempts from a player to set the turn to themselves.
+            if (!player || player.playerNumber === playerTurn) {
+                // Send the correct turn state back to the sender without
+                // altering the stored turn.
+                socket.emit('turn', roomTurnStates[roomCode] ?? playerTurn);
+                return;
+            }
             roomTurnStates[roomCode] = playerTurn;
         }
         if (rooms[roomCode]) {
