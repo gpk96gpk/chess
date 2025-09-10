@@ -12,10 +12,10 @@ import bishopWhite from './bishopWhite.svg';
 import queenWhite from './queenWhite.svg';
 import kingWhite from './kingWhite.svg';
 
-type PieceType = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
+type PieceName = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 type PieceColor = 'white' | 'black';
 
-const icons: Record<PieceColor, Record<PieceType, string>> = {
+const icons: Record<PieceColor, Record<PieceName, string>> = {
   black: {
     pawn: pawnBlack,
     rook: rookBlack,
@@ -34,6 +34,8 @@ const icons: Record<PieceColor, Record<PieceType, string>> = {
   },
 };
 
-export function getPieceIcon(type: PieceType, color: PieceColor) {
-  return icons[color][type];
+export function getPieceIcon(type: string, color: PieceColor) {
+  const pieceName = type.toLowerCase() as PieceName;
+  return icons[color][pieceName];
 }
+
