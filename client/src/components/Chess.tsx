@@ -6,9 +6,10 @@ import validMoves from '../gameLogic/validMoves'
 import isDraw from '../gameLogic/isDraw'
 import Board from './Board';
 import GameOver from './GameOver';
-import { Props, Position, PieceType, GameStateType, ValidMovesResult } from '../types/clientTypes';
+import { Props, Position, PieceType, GameStateType, ValidMovesResult, PieceColor, PieceNameWithoutNone } from '../types/clientTypes';
 import calculateThreateningSquares from '../gameLogic/calculateThreateningSquares';
 import BoardButtons from './BoardButtons';
+import { getPieceIcon } from '../assets/icons';
 import { polyfill } from "mobile-drag-drop";
 import { scrollBehaviourDragImageTranslateOverride } from "mobile-drag-drop/scroll-behaviour";
 import { getPieceIcon } from '../assets/icons';
@@ -766,44 +767,47 @@ const Chess: React.FC<Props> = (props) => {
                 <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} />
             </div>
             
-            {/* Pawn Promotion Overlay */}
-            {showPromotionDialog && (
-                <div className="promotion-overlay">
-                    <div className="promotion-dialog">
-                        <h3>Choose promotion piece:</h3>
-                        <div className="promotion-options">
-                            {['queen', 'rook', 'bishop', 'knight'].map(piece => (
-                                <div
-                                    key={piece}
-                                    className="promotion-piece"
-                                    onClick={() => handlePromotionSelection(piece as 'queen' | 'rook' | 'bishop' | 'knight')}
-                                >
-                                    <img
-                                        src={getPieceIcon(piece as 'queen' | 'rook' | 'bishop' | 'knight', currentPlayerColor as 'white' | 'black')}
-                                        alt={piece}
-                                    />
-                                </div>
-                            ))}
+            <div className="board-container">
+                {showPromotionDialog && (
+                    <div className="promotion-overlay">
+                        <div className="promotion-dialog">
+                            <h3>Choose promotion piece:</h3>
+                            <div className="promotion-options">
+                                {['queen', 'rook', 'bishop', 'knight'].map(piece => (
+                                    <div
+                                        key={piece}
+                                        className="promotion-piece"
+                                        onClick={() => handlePromotionSelection(piece as 'queen' | 'rook' | 'bishop' | 'knight')}
+                                    >
+                                        <img
+                                            src={getPieceIcon(piece as PieceNameWithoutNone, currentPlayerColor as PieceColor)}
+                                            alt={`${currentPlayerColor} ${piece}`}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+
                         </div>
                     </div>
-                </div>
-            )}
-            
-            <Board 
-                setTurnState={setTurnState} 
-                setWinner={setWinner} 
-                gameState={props.gameState} 
-                handleDragStart={handleDragStart} 
-                handleDragEnter={handleDragEnter} 
-                handleDragOver={handleDragOver} 
-                handleDrop={handleDrop}
-                isKingInCheck={isKingInCheck}
-                handlePieceClick={handlePieceClick}
-                handleSquareClick={handleSquareClick}
-                handleBoardClick={handleBoardClick}
-                highlightedTiles={props.highlightedTiles}
-                playerNumber={playerNumber} 
-/>        </div>
+                )}
+
+                <Board
+                    setTurnState={setTurnState}
+                    setWinner={setWinner}
+                    gameState={props.gameState}
+                    handleDragStart={handleDragStart}
+                    handleDragEnter={handleDragEnter}
+                    handleDragOver={handleDragOver}
+                    handleDrop={handleDrop}
+                    isKingInCheck={isKingInCheck}
+                    handlePieceClick={handlePieceClick}
+                    handleSquareClick={handleSquareClick}
+                    handleBoardClick={handleBoardClick}
+                    highlightedTiles={props.highlightedTiles}
+                    playerNumber={playerNumber}
+                />
+            </div>
+        </div>
     );
 }
 export default Chess;
