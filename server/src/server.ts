@@ -407,7 +407,7 @@ io.on('connection', (socket: Socket) => {
         rooms[roomCode].push(socket.id);
         const playerNumber = 1;
         players[socket.id] = { roomCode, playerNumber };
-        console.log('players', players, roomCode, playerNumber, gameState)
+        console.log('players', players, roomCode, playerNumber)
         socket.emit('playerNumber', playerNumber);
         socket.emit('gameState', gameState)
         socket.emit('createRoom', roomCode)
@@ -432,8 +432,7 @@ io.on('connection', (socket: Socket) => {
 
         // Clean up empty slots
         if (rooms[roomCode]) {
-            // Remove empty or stale socket IDs before assigning the newcomer.
-            rooms[roomCode] = rooms[roomCode].filter(id => id !== '' && players[id]);
+            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
         }
         if (!rooms[roomCode]) {
             rooms[roomCode] = [];
@@ -484,10 +483,7 @@ io.on('connection', (socket: Socket) => {
         }
         socket.emit('gameState', roomStates[roomCode]);
         const turnToEmit = rooms[roomCode].length < 2 ? 0 : (roomTurnStates[roomCode] ?? 1);
-        // Only inform the joining player of the current turn. Existing players
-        // already know whose turn it is and shouldn't receive a conflicting
-        // update that could trigger a reset from the client side.
-        socket.emit('turn', turnToEmit);
+        io.to(roomCode).emit('turn', turnToEmit);
     });
     //Load save game
     socket.on('loadSaveGame', (roomCode:string) => {
@@ -503,13 +499,11 @@ io.on('connection', (socket: Socket) => {
     //Turn
     socket.on('turn', (playerTurn: 0 | 1 | 2, roomCode: string) => {
         const player = players[socket.id];
-        // Consider only actively tracked players; stale socket IDs shouldn't
-        // count toward the room's population.
-        const roomPlayers = (rooms[roomCode] || []).filter(id => players[id]);
 
-        // If fewer than two players are in the room, no one can move and we
-        // must not mutate the stored turn state.
-        if (roomPlayers.length < 2) {
+        const roomPlayers = rooms[roomCode] || [];
+
+        // If fewer than two players are in the room, no one can move
+        if (roomPlayers.filter(id => id !== '').length < 2) {
             socket.emit('turn', 0);
             return;
         }
@@ -534,7 +528,7 @@ io.on('connection', (socket: Socket) => {
             const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
             io.to(otherPlayerSocketId).emit('leaveRoom');
             io.to(otherPlayerSocketId).emit('turn', 0 as any);
-            console.log(`Player with socket ID ${socket.id} has left room with room code ${roomCode}`)
+            console.log(`Player with socket ID ${otherPlayerSocketId} has left room with room code ${roomCode}`)
         }
         socket.leave(roomCode);
         if (rooms[roomCode]) {
@@ -591,6 +585,9 @@ io.on('connection', (socket: Socket) => {
         console.log('disconnected player', player)
         if (player) {
             const roomCode = player.roomCode;
+            
+            // Don't change the turn state when a player disconnects
+            // Just emit 0 to indicate waiting state, but preserve roomTurnStates[roomCode]
             socket.broadcast.to(roomCode).emit('turn', 0);
             
             // Replace the problematic code with this:
@@ -608,14 +605,14 @@ io.on('connection', (socket: Socket) => {
                 if (rooms[roomCode].length === 0) {
                     delete rooms[roomCode];
                     delete roomStates[roomCode];
-                    delete roomTurnStates[roomCode];
+                    delete roomTurnStates[roomCode]; // Only delete turn state if room is completely empty
                     console.log(`Room ${roomCode} deleted because it's empty`);
                 }
             }
             
             // Remove the player from players object
-        delete players[socket.id];
-    }
+            delete players[socket.id];
+        }
     });
     //Request available rooms
     socket.on('requestAvailableRooms', () => {
