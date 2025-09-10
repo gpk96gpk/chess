@@ -11,6 +11,7 @@ import calculateThreateningSquares from '../gameLogic/calculateThreateningSquare
 import BoardButtons from './BoardButtons';
 import { polyfill } from "mobile-drag-drop";
 import { scrollBehaviourDragImageTranslateOverride } from "mobile-drag-drop/scroll-behaviour";
+import { getPieceIcon } from '../assets/icons';
 // import BoardTimer from './BoardTimer';
 // import resetGameState from '../gameLogic/resetGameState';
 
@@ -765,23 +766,25 @@ const Chess: React.FC<Props> = (props) => {
                 <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} />
             </div>
             
-            {/* Add Promotion Dialog */}
+            {/* Pawn Promotion Overlay */}
             {showPromotionDialog && (
-                <div className="promotion-dialog">
-                    <h3>Choose promotion piece:</h3>
-                    <div className="promotion-options">
-                        {['queen', 'rook', 'bishop', 'knight'].map(piece => (
-                            <div 
-                                key={piece} 
-                                className="promotion-piece"
-                                onClick={() => handlePromotionSelection(piece as 'queen' | 'rook' | 'bishop' | 'knight')}
-                            >
-                                <img 
-                                    src={`/src/assets/${piece}${currentPlayerColor.charAt(0).toUpperCase() + currentPlayerColor.slice(1)}.svg`} 
-                                    alt={piece} 
-                                />
-                            </div>
-                        ))}
+                <div className="promotion-overlay">
+                    <div className="promotion-dialog">
+                        <h3>Choose promotion piece:</h3>
+                        <div className="promotion-options">
+                            {['queen', 'rook', 'bishop', 'knight'].map(piece => (
+                                <div
+                                    key={piece}
+                                    className="promotion-piece"
+                                    onClick={() => handlePromotionSelection(piece as 'queen' | 'rook' | 'bishop' | 'knight')}
+                                >
+                                    <img
+                                        src={getPieceIcon(piece as 'queen' | 'rook' | 'bishop' | 'knight', currentPlayerColor as 'white' | 'black')}
+                                        alt={piece}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}
