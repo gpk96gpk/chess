@@ -368,47 +368,37 @@ let rooms: { [key: string]: string[] } = {};
 let roomStates: { [roomCode: string]: GameStateType } = {};
 let roomTurnStates: { [roomCode: string]: 0 | 1 | 2 | 3 } = {};
 
+const getAvailableRooms = () => {
+    return Object.keys(rooms).map(roomCode => ({
+        roomCode,
+        players: rooms[roomCode].filter(id => id !== '').length,
+        maxPlayers: 2
+    }));
+};
+
+const broadcastAvailableRooms = () => {
+    io.emit('availableRooms', getAvailableRooms());
+};
+
+// Periodically clean up empty rooms and broadcast updates
+setInterval(() => {
+    Object.keys(rooms).forEach(roomCode => {
+        rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
+
+        if (rooms[roomCode].length === 0) {
+            delete rooms[roomCode];
+            delete roomStates[roomCode];
+            delete roomTurnStates[roomCode];
+        }
+    });
+
+    broadcastAvailableRooms();
+}, 5000);
+
 
 
 //SOCKET LISTENERS AND EMITTERS
 io.on('connection', (socket: Socket) => {
-    // Clean up empty rooms periodically
-    setInterval(() => {
-        Object.keys(rooms).forEach(roomCode => {
-            // Filter out empty strings
-            rooms[roomCode] = rooms[roomCode].filter(id => id !== '');
-            
-            // Delete truly empty rooms
-            if (rooms[roomCode].length === 0) {
-                console.log(`Cleanup: Deleting empty room ${roomCode}`);
-                delete rooms[roomCode];
-                delete roomStates[roomCode];
-                delete roomTurnStates[roomCode];
-            }
-        });
-        
-        // Optional: broadcast updated room list after cleanup
-        io.emit('availableRooms', Object.keys(rooms).map(roomCode => {
-            return {
-                roomCode,
-                players: rooms[roomCode].filter(id => id !== '').length,
-                maxPlayers: 2
-            };
-        }));
-    }, 60000); // Run every minute
-    // Broadcast available rooms
-    const broadcastAvailableRooms = () => {
-        const availableRooms = Object.keys(rooms).map(roomCode => {
-            return {
-                roomCode,
-                players: rooms[roomCode].filter(id => id !== '').length,
-                maxPlayers: 2
-            };
-        });
-        
-        // Broadcast to everyone in the lobby
-        io.emit('availableRooms', availableRooms);
-    };
     //Create a room
     socket.on('createRoom', (roomCode:string, gameState?:GameStateType) => {
         rooms[roomCode] = [socket.id];
@@ -422,8 +412,6 @@ io.on('connection', (socket: Socket) => {
         roomTurnStates[roomCode] = gameState && gameState.turn === 'white' ? 2 : 1;
         socket.emit('turn', roomTurnStates[roomCode]);
 
-        // Broadcast updated room list
-        broadcastAvailableRooms();
     });
     //Join a room
     socket.on('joinRoom', (roomCode:string) => {
@@ -478,7 +466,6 @@ io.on('connection', (socket: Socket) => {
         console.log('players', players, roomCode)
         console.log('rooms', rooms, roomCode, rooms[roomCode], socket.id)
         rooms[roomCode].push(socket.id);
-        broadcastAvailableRooms();
         const player = players[socket.id];
         //let playerNumber: number;
         if (player) {
@@ -536,7 +523,6 @@ io.on('connection', (socket: Socket) => {
             }
         }
         delete players[socket.id];
-        broadcastAvailableRooms();
     });
     //Error handling
     socket.on('error', (error: Error) => {
@@ -599,13 +585,12 @@ io.on('connection', (socket: Socket) => {
             }
             
             // Remove the player from players object
-            delete players[socket.id];
-            broadcastAvailableRooms();
-        }
+        delete players[socket.id];
+    }
     });
     //Request available rooms
     socket.on('requestAvailableRooms', () => {
-        broadcastAvailableRooms();
+        socket.emit('availableRooms', getAvailableRooms());
     });
 });
 
