@@ -366,6 +366,7 @@ const io = new Server<SocketTypes>(httpServer, {
 let players: { [socketId: string]: PlayerInfo } = {};
 let rooms: { [key: string]: string[] } = {};
 let roomStates: { [roomCode: string]: GameStateType } = {};
+let roomTurnStates: { [roomCode: string]: 0 | 1 | 2 | 3 } = {};
 
 
 
@@ -382,6 +383,7 @@ io.on('connection', (socket: Socket) => {
                 console.log(`Cleanup: Deleting empty room ${roomCode}`);
                 delete rooms[roomCode];
                 delete roomStates[roomCode];
+                delete roomTurnStates[roomCode];
             }
         });
         
@@ -417,6 +419,8 @@ io.on('connection', (socket: Socket) => {
         socket.emit('gameState', gameState)
         socket.emit('createRoom', roomCode)
         roomStates[roomCode] = gameState!;
+        roomTurnStates[roomCode] = gameState && gameState.turn === 'white' ? 2 : 1;
+        socket.emit('turn', roomTurnStates[roomCode]);
 
         // Broadcast updated room list
         broadcastAvailableRooms();
@@ -485,6 +489,7 @@ io.on('connection', (socket: Socket) => {
             socket.emit('playerNumber', playerNumber);
         }
         socket.emit('gameState', roomStates[roomCode]);
+        io.to(roomCode).emit('turn', roomTurnStates[roomCode] ?? 1);
     });
     //Load save game
     socket.on('loadSaveGame', (roomCode:string) => {
@@ -499,6 +504,9 @@ io.on('connection', (socket: Socket) => {
     });
     //Turn 
     socket.on('turn', (playerTurn: 0 | 1 | 2, roomCode: string) => {
+        if (playerTurn !== 0) {
+            roomTurnStates[roomCode] = playerTurn;
+        }
         if (rooms[roomCode]) {
             const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
             io.to(otherPlayerSocketId).emit('turn', playerTurn as any);
@@ -524,6 +532,7 @@ io.on('connection', (socket: Socket) => {
             if (rooms[roomCode].length === 0) {
                 delete rooms[roomCode];
                 delete roomStates[roomCode];
+                delete roomTurnStates[roomCode];
             }
         }
         delete players[socket.id];
@@ -584,6 +593,7 @@ io.on('connection', (socket: Socket) => {
                 if (rooms[roomCode].length === 0) {
                     delete rooms[roomCode];
                     delete roomStates[roomCode];
+                    delete roomTurnStates[roomCode];
                     console.log(`Room ${roomCode} deleted because it's empty`);
                 }
             }
