@@ -493,6 +493,7 @@ form>input {
   border-color: red !important;
 }
 
+
 .Chess {
   position: relative
 }
@@ -520,6 +521,7 @@ form>input {
   background-color: #ffffff;
   padding: 1rem;
   border-radius: 8px
+
 }
 
 .promotion-options {
