@@ -361,6 +361,8 @@ io.on('connection', (socket) => {
     //Game state
     socket.on('gameState', (gameState, roomCode) => {
         if (rooms[roomCode]) {
+            // Persist the latest state so newcomers receive up-to-date boards
+            roomStates[roomCode] = gameState;
             const otherPlayerSocketId = [...rooms[roomCode]].filter(id => id !== socket.id);
             io.to(otherPlayerSocketId).emit('gameState', gameState);
         }
