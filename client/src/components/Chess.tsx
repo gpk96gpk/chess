@@ -345,8 +345,93 @@ const Chess: React.FC<Props> = (props) => {
             
             console.log('847canCastle', canCastle, piece.type, castlingDirection, piece.hasMoved, piece);
             if (piece.type === 'king' && canCastle) {
-                console.log('847Castling king:', currentPlayerColor, toX, toY);
-                handleCastling(gameState, toX, toY, piece);
+                // Extra guard: ensure castling is still legal at execution time
+                const attackerColor = currentPlayerColor === 'white' ? 'black' : 'white';
+                const rank = fromX!;
+                const startFile = fromY!;
+                const dir = (toY === 0 || toY === 2) ? -1 : (toY === 7 || toY === 6) ? 1 : (toY! > startFile ? 1 : -1);
+                const step1: Position = [rank, startFile + dir];
+                const step2: Position = [rank, startFile + 2 * dir];
+
+                // Local attack detector (matches rules used elsewhere)
+                const isSquareUnderAttackLocal = (square: Position, state: GameStateType, attacker: 'white' | 'black'): boolean => {
+                    const [y, x] = square;
+                    if (y === undefined || x === undefined) return false;
+                    // Pawns
+                    const pawnDirs = attacker === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+                    for (const [dy, dx] of pawnDirs) {
+                        const py = y + dy, px = x + dx;
+                        if (py >= 0 && py < 8 && px >= 0 && px < 8) {
+                            const p = state.board[py][px];
+                            if (p.type === 'pawn' && p.color === attacker) return true;
+                        }
+                    }
+                    // Knights
+                    const knightDirs = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+                    for (const [dy, dx] of knightDirs) {
+                        const ny = y + dy, nx = x + dx;
+                        if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8) {
+                            const p = state.board[ny][nx];
+                            if (p.type === 'knight' && p.color === attacker) return true;
+                        }
+                    }
+                    // Rooks/Queens
+                    const rookDirs = [[0,1],[1,0],[0,-1],[-1,0]];
+                    for (const [dy, dx] of rookDirs) {
+                        let cy = y + dy, cx = x + dx;
+                        while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+                            const p = state.board[cy][cx];
+                            if (p.type !== 'empty') {
+                                if (p.color === attacker && (p.type === 'rook' || p.type === 'queen')) return true;
+                                break;
+                            }
+                            cy += dy; cx += dx;
+                        }
+                    }
+                    // Bishops/Queens
+                    const bishopDirs = [[1,1],[1,-1],[-1,1],[-1,-1]];
+                    for (const [dy, dx] of bishopDirs) {
+                        let cy = y + dy, cx = x + dx;
+                        while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+                            const p = state.board[cy][cx];
+                            if (p.type !== 'empty') {
+                                if (p.color === attacker && (p.type === 'bishop' || p.type === 'queen')) return true;
+                                break;
+                            }
+                            cy += dy; cx += dx;
+                        }
+                    }
+                    // Kings
+                    const kingDirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+                    for (const [dy, dx] of kingDirs) {
+                        const ky = y + dy, kx = x + dx;
+                        if (ky >= 0 && ky < 8 && kx >= 0 && kx < 8) {
+                            const p = state.board[ky][kx];
+                            if (p.type === 'king' && p.color === attacker) return true;
+                        }
+                    }
+                    return false;
+                };
+
+                const pathClear = () => {
+                    const targetRookFile = dir === -1 ? 0 : 7;
+                    for (let f = Math.min(startFile, targetRookFile) + 1; f <= Math.max(startFile, targetRookFile) - 1; f++) {
+                        if (gameState.board[rank][f].type !== 'empty') return false;
+                    }
+                    return true;
+                };
+
+                const illegal = gameState.checkStatus[currentPlayerColor]
+                    || isSquareUnderAttackLocal(step1, gameState, attackerColor)
+                    || isSquareUnderAttackLocal(step2, gameState, attackerColor)
+                    || !pathClear();
+
+                if (illegal) {
+                    console.log('Castling blocked at execution time:', { step1, step2, attackerColor });
+                } else {
+                    console.log('847Castling king:', currentPlayerColor, toX, toY);
+                    handleCastling(gameState, toX, toY, piece);
+                }
             }
 
             piece.hasMoved = true;
@@ -456,16 +541,25 @@ const Chess: React.FC<Props> = (props) => {
         
         if (piece.type === 'king') {
             console.log('556Moving king:', currentPlayerColor, toX, toY);
-            gameState.kingPositions[currentPlayerColor] = [toX, toY];
+            if (hasCastled) {
+                const finalY = fromY! + (toY > fromY! ? 2 : -2);
+                gameState.kingPositions[currentPlayerColor] = [toX, finalY];
+            } else {
+                gameState.kingPositions[currentPlayerColor] = [toX, toY];
+            }
             gameState.turn = gameState.history.length % 2 === 0 ? 'black' : 'white';
             console.log('556gameState', gameState);
         }
 
 
+        // Record the correct destination for castling (final king square)
+        const historyToY = (piece.type === 'king' && hasCastled)
+            ? (fromY! + (toY > fromY! ? 2 : -2))
+            : toY;
         gameState.history.push({
             piece: { ...piece, hasMoved: true },
             from: [fromX!, fromY!],
-            to: [toX, toY],
+            to: [toX, historyToY],
             board: JSON.parse(JSON.stringify(gameState.board)),
             turnNumber: gameState.history.length,
             turn: currentPlayerColor,
