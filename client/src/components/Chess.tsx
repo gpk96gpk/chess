@@ -5,6 +5,7 @@ import isCheck from '../gameLogic/isCheck'
 import validMoves from '../gameLogic/validMoves'
 import enPassant from '../gameLogic/enPassant'
 import isDraw from '../gameLogic/isDraw'
+//import getMovesForPiece from '../gameLogic/pieceMoves'
 import Board from './Board';
 import GameOver from './GameOver';
 import { Props, Position, PieceType, GameStateType, ValidMovesResult, PieceColor, PieceNameWithoutNone } from '../types/clientTypes';
@@ -903,3 +904,4 @@ const Chess: React.FC<Props> = (props) => {
     );
 }
 export default Chess;
+
