@@ -1035,6 +1035,57 @@ if (isOpponentKingInCheck) {
   console.log(`Checkmate determination: ${isKingInCheckMate ? 'CHECKMATE' : 'NOT CHECKMATE'}`);
 }
 
+// Add en passant move directly to filteredMoves if it exists
+if (enPassantMove && Array.isArray(enPassantMove) && enPassantMove.length === 2) {
+  // Check if the move is already in filteredMoves
+  const moveExists = filteredMoves.some(
+    move => move[0] === enPassantMove[0] && move[1] === enPassantMove[1]
+  );
+  
+  // Only add if not already present
+  if (!moveExists) {
+    console.log('Adding en passant move directly to filtered moves:', enPassantMove);
+    
+    // Verify this en passant move wouldn't put our king in check
+    const tempGameState = JSON.parse(JSON.stringify(gameState));
+    const [fromX, fromY] = piece.position as Position;
+    const [toX, toY] = enPassantMove;
+    const enPassantDirection = piece.color === 'white' ? 1 : -1;
+    
+    // Clear original position
+    tempGameState.board[fromX][fromY] = {
+      type: 'empty',
+      color: 'none',
+      hasMoved: false,
+      position: [fromX, fromY]
+    };
+    
+    // Place piece at en passant position
+    tempGameState.board[toX][toY] = {
+      ...piece,
+      position: enPassantMove,
+      hasMoved: true
+    };
+    
+    // Remove captured pawn
+    tempGameState.board[toX + enPassantDirection][toY] = {
+      type: 'empty',
+      color: 'none',
+      hasMoved: false,
+      position: [toX + enPassantDirection, toY]
+    };
+    
+    // Check if our king would be in check after this move
+    const kingPos = tempGameState.kingPositions[currentColor];
+    const wouldBeInCheck = isSquareUnderAttack(kingPos, tempGameState, opponentColor);
+    
+    // Only add if it doesn't put our king in check
+    if (!wouldBeInCheck) {
+      filteredMoves.push(enPassantMove);
+    }
+  }
+}
+
 return {
   moves: filteredMoves,
   threateningSquares: {
