@@ -1058,7 +1058,7 @@ if (enPassantMove && Array.isArray(enPassantMove) && enPassantMove.length === 2)
     const enPassantDirection = piece.color === 'white' ? 1 : -1;
     
     // Clear original position
-    tempGameState.board[fromX][fromY] = {
+    tempGameState.board[fromX!][fromY!] = {
       type: 'empty',
       color: 'none',
       hasMoved: false,
