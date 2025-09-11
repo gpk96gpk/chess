@@ -434,6 +434,11 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
   //   tempGameState.threateningPiecesPositions[piece.color] = threatenedSquaresWithOpponentPieces;
   // }
   const opponentPlayerNumber = playerNumber === 1 ? 2 : 1;
+  // When highlighting (click-to-select), we call validMoves with lastPosition === position.
+  // Guard against mutating the real gameState (check flags) during highlight computations.
+  const isSelectionOnly = Array.isArray(position) && Array.isArray(lastPosition)
+    && position.length === 2 && lastPosition.length === 2
+    && position[0] === lastPosition[0] && position[1] === lastPosition[1];
   const checkPosition = piece.type === 'king' ? lastPosition : position;
   const isKingInCheck: boolean = false;
   console.log('847piece.type', piece.type, 'checkPosition', checkPosition, 'lastPosition', lastPosition, 'gameState', gameState, 'piece', piece, 'position', position, 'playerNumber', playerNumber, 'lastPosition', lastPosition, 'matchFoundInDirection', matchFoundInDirection, 'currentColor', currentColor);
@@ -443,8 +448,8 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
   const { isOpponentKingInCheck, slicedThreateningSquares, checkDirection, firstTriggeringOpponentPiece } = isCheckOpponent(hypotheticalGameState, threatenedSquaresWithOpponentPieces, opponentPlayerNumber, checkPosition, piece, position, playerNumber, lastPosition, matchFoundInDirection, currentColor);
   console.log('843isKingInCheck', isKingInCheck, '843slicedThreateningSquares', slicedThreateningSquares, '843directionIndex', checkDirection);
   
-  // Explicitly update the game state with the returned direction
-  if (checkDirection !== undefined) {
+  // Explicitly update the direction only when applying a move (not on highlight)
+  if (!isSelectionOnly && checkDirection !== undefined) {
     gameState.checkStatus.direction = checkDirection;
   }
   if (gameState.checkStatus[currentColor]) {
@@ -539,7 +544,7 @@ function validMoves(piece: PieceType, position: Position, gameState: GameStateTy
     }
   }
     
-  if (isOpponentKingInCheck) {
+  if (!isSelectionOnly && isOpponentKingInCheck) {
     console.log('3333Opponent king is in check');
     gameState.checkStatus[opponentColor] = true;
     // const colorToCheck = piece.type === 'king' ? currentColor : opponentColor;
