@@ -787,10 +787,27 @@ function isSquareUnderAttack(square: Position, gameState: GameStateType, attacke
               : checkPositionsBetweenAreEmpty(gameState, position, lastPosition);
 
           if (positionsBetweenAreEmpty) {
-              canCastle = true;
-              console.log(`Positions between are empty`, canCastle);
-              normalMoves.push(lastPosition);
-              addMoveIfValid(lastPosition, tempGameState);
+              // Minimal legality checks: cannot castle while in check,
+              // and king may not pass through or land on attacked squares
+              if (!gameState.checkStatus[currentColor]) {
+                const rank = position[0]!;
+                const kingFile = position[1]!;
+                const dir = lastPosition[1]! > kingFile ? 1 : -1;
+                const step1: Position = [rank, kingFile + dir];
+                const step2: Position = [rank, kingFile + 2 * dir];
+                const step1Attacked = isSquareUnderAttack(step1, gameState, opponentColor);
+                const step2Attacked = isSquareUnderAttack(step2, gameState, opponentColor);
+                if (!step1Attacked && !step2Attacked) {
+                  canCastle = true;
+                  console.log(`Positions between are empty and safe for castling`, canCastle);
+                  normalMoves.push(lastPosition);
+                  addMoveIfValid(lastPosition, tempGameState);
+                } else {
+                  console.log('Castling denied: path or destination attacked', { step1, step2, step1Attacked, step2Attacked });
+                }
+              } else {
+                console.log('Castling denied: king currently in check');
+              }
           } else {
               console.log(`Positions between are not empty`);
           }
