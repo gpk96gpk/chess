@@ -550,7 +550,7 @@ const Chess: React.FC<Props> = (props) => {
 
             targets.forEach(target => {
                 const [ty, tx] = target;
-                if (ty >= 0 && ty < 8 && tx >= 0 && tx < 8) {
+                if (ty! >= 0 && ty! < 8 && tx! >= 0 && tx! < 8) {
                     const epMove = enPassant(piece, target, gameState);
                     if (epMove && !moves.some(m => m[0] === epMove[0] && m[1] === epMove[1])) {
                         moves.push(epMove);
