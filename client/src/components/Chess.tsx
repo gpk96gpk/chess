@@ -351,6 +351,71 @@ const Chess: React.FC<Props> = (props) => {
             piece.hasMoved = true;
             console.log('847piece.hasMoved', piece.hasMoved, piece);
             updateBoard(gameState, toX, toY, piece);
+
+            // Recompute check flags from the final board (authoritative)
+            const isSquareUnderAttackLocal = (square: Position, state: GameStateType, attackerColor: 'white' | 'black'): boolean => {
+                const [y, x] = square;
+                if (y === undefined || x === undefined) return false;
+                // Pawns
+                const pawnDirs = attackerColor === 'white' ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]];
+                for (const [dy, dx] of pawnDirs) {
+                    const py = y + dy, px = x + dx;
+                    if (py >= 0 && py < 8 && px >= 0 && px < 8) {
+                        const p = state.board[py][px];
+                        if (p.type === 'pawn' && p.color === attackerColor) return true;
+                    }
+                }
+                // Knights
+                const knightDirs = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+                for (const [dy, dx] of knightDirs) {
+                    const ny = y + dy, nx = x + dx;
+                    if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8) {
+                        const p = state.board[ny][nx];
+                        if (p.type === 'knight' && p.color === attackerColor) return true;
+                    }
+                }
+                // Rooks/Queens
+                const rookDirs = [[0,1],[1,0],[0,-1],[-1,0]];
+                for (const [dy, dx] of rookDirs) {
+                    let cy = y + dy, cx = x + dx;
+                    while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+                        const p = state.board[cy][cx];
+                        if (p.type !== 'empty') {
+                            if (p.color === attackerColor && (p.type === 'rook' || p.type === 'queen')) return true;
+                            break;
+                        }
+                        cy += dy; cx += dx;
+                    }
+                }
+                // Bishops/Queens
+                const bishopDirs = [[1,1],[1,-1],[-1,1],[-1,-1]];
+                for (const [dy, dx] of bishopDirs) {
+                    let cy = y + dy, cx = x + dx;
+                    while (cy >= 0 && cy < 8 && cx >= 0 && cx < 8) {
+                        const p = state.board[cy][cx];
+                        if (p.type !== 'empty') {
+                            if (p.color === attackerColor && (p.type === 'bishop' || p.type === 'queen')) return true;
+                            break;
+                        }
+                        cy += dy; cx += dx;
+                    }
+                }
+                // Kings
+                const kingDirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+                for (const [dy, dx] of kingDirs) {
+                    const ky = y + dy, kx = x + dx;
+                    if (ky >= 0 && ky < 8 && kx >= 0 && kx < 8) {
+                        const p = state.board[ky][kx];
+                        if (p.type === 'king' && p.color === attackerColor) return true;
+                    }
+                }
+                return false;
+            };
+            gameState.checkStatus.white = isSquareUnderAttackLocal(gameState.kingPositions.white, gameState, 'black');
+            gameState.checkStatus.black = isSquareUnderAttackLocal(gameState.kingPositions.black, gameState, 'white');
+            if (!gameState.checkStatus.white && !gameState.checkStatus.black) {
+                gameState.checkStatus.direction = -1;
+            }
             console.log('847 gameState updated', gameState);   
         }
 
@@ -780,7 +845,7 @@ const Chess: React.FC<Props> = (props) => {
     console.log('turnState2', turnState)
     gameState.turn = turnState === 1 ? 'black' : 'white';
     console.log('761props.gameState', props.gameState)
-    setGameState(props.gameState)
+    // Do not overwrite local gameState from props on every render — this caused stale flags to reappear
     const isCurrentPlayerInCheck = isKingInCheck && gameState.checkStatus[opponentPlayerNumber === 1 ? 'black' : 'white'];
     console.log('761isCurrentPlayerInCheck', isCurrentPlayerInCheck, gameState.checkStatus);
     return (
