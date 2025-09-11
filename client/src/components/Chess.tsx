@@ -232,47 +232,74 @@ const Chess: React.FC<Props> = (props) => {
         const castlingDirection = piece.type === 'king' && toY! - fromY! === 2 ? 1 : -1;
 
         const handleCastling = (gameState: GameStateType, toX: number, toY: number, piece: PieceType) => {
-            let castleDirection : number;
-            let rookDirection : number;
-            let rookPosition : number;
+            let castleDirection: number;
+            let rookDirection: number;
+            let rookPosition: number;
+
             if ((toY === 0 || toY === 2) && piece && piece.position) {
-                castleDirection = fromY! - 2
-                rookPosition = fromY! - 1
-                rookDirection = 0
-                console.log('castlingPosition', castleDirection)
-              }
-              if ((toY === 7 || toY === 6) && piece && piece.position) {
-                castleDirection = fromY! + 2
-                rookPosition = fromY! + 1
+                castleDirection = fromY! - 2;
+                rookPosition = fromY! - 1;
+                rookDirection = 0;
+                console.log('castlingPosition', castleDirection);
+            }
+            if ((toY === 7 || toY === 6) && piece && piece.position) {
+                castleDirection = fromY! + 2;
+                rookPosition = fromY! + 1;
                 rookDirection = 7;
-                console.log('castlingPosition', castleDirection)
-              }
- 
+                console.log('castlingPosition', castleDirection);
+            }
+
+            const kingIndex = gameState.board[fromX!][fromY!].index;
+            const rookIndex = gameState.board[fromX!][rookDirection!].index;
+
             gameState.board[fromX!][rookPosition!].color = currentPlayerColor;
             gameState.board[fromX!][rookPosition!].type = 'rook';
             gameState.board[fromX!][rookPosition!].hasMoved = true;
-            gameState.board[fromX!][rookPosition!].position = piece.position;
-            gameState.board[fromX!][rookPosition!].index = gameState.board[fromX!][rookDirection!].index
+            gameState.board[fromX!][rookPosition!].position = [toX, rookPosition!];
+            gameState.board[fromX!][rookPosition!].index = rookIndex;
 
             gameState.board[fromX!][castleDirection!].color = currentPlayerColor;
             gameState.board[fromX!][castleDirection!].type = 'king';
             gameState.board[fromX!][castleDirection!].hasMoved = true;
             gameState.board[fromX!][castleDirection!].position = [toX, castleDirection!];
-            gameState.board[fromX!][castleDirection!].index = gameState.board[fromX!][fromY!].index
-            
+            gameState.board[fromX!][castleDirection!].index = kingIndex;
+
             gameState.board[fromX!][rookDirection!].color = 'none';
             gameState.board[fromX!][rookDirection!].type = 'empty';
             gameState.board[fromX!][rookDirection!].hasMoved = true;
             gameState.board[fromX!][rookDirection!].position = [];
-            gameState.board[fromX!][rookDirection!].index = -1
+            gameState.board[fromX!][rookDirection!].index = -1;
 
             gameState.board[fromX!][fromY!].color = 'none';
             gameState.board[fromX!][fromY!].type = 'empty';
             gameState.board[fromX!][fromY!].hasMoved = true;
             gameState.board[fromX!][fromY!].position = [];
-            gameState.board[fromX!][fromY!].index = -1
-            hasCastled = true
+            gameState.board[fromX!][fromY!].index = -1;
 
+            const kingPiece = gameState.piecePositions[currentPlayerColor].find(p => p.id === kingIndex);
+            if (kingPiece) {
+                kingPiece.position = [toX, castleDirection!];
+                kingPiece.hasMoved = true;
+            }
+            const rookPiece = gameState.piecePositions[currentPlayerColor].find(p => p.id === rookIndex);
+            if (rookPiece) {
+                rookPiece.position = [toX, rookPosition!];
+                rookPiece.hasMoved = true;
+            }
+
+            const opponentColor: PieceColor = currentPlayerColor === 'white' ? 'black' : 'white';
+            const currentKingPos: Position = [toX, castleDirection!];
+            const opponentKingPos = gameState.kingPositions[opponentColor];
+
+            gameState.threateningPiecesPositions[currentPlayerColor] = calculateThreateningSquares(gameState, currentPlayerColor as PieceColor, gameState.board[currentKingPos[0]][currentKingPos[1]], currentKingPos);
+            gameState.threateningPiecesPositions[opponentColor] = calculateThreateningSquares(gameState, opponentColor as PieceColor, gameState.board[opponentKingPos[0]][opponentKingPos[1]], opponentKingPos);
+
+            const currentCheck = isCheck(gameState, gameState.threateningPiecesPositions[opponentColor], opponentPlayerNumber, null, gameState.board[currentKingPos[0]][currentKingPos[1]], currentKingPos, playerNumber, currentKingPos, 0, currentPlayerColor);
+            const opponentCheck = isCheck(gameState, gameState.threateningPiecesPositions[currentPlayerColor], playerNumber, null, gameState.board[opponentKingPos[0]][opponentKingPos[1]], opponentKingPos, opponentPlayerNumber, opponentKingPos, 0, opponentColor);
+            gameState.checkStatus[currentPlayerColor] = currentCheck.isKingInCheck;
+            gameState.checkStatus[opponentColor] = opponentCheck.isKingInCheck;
+
+            hasCastled = true;
         }
 
         if (!piece || piece.type === 'empty') {
