@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { SocketContext } from "../context/SocketContext";
 import isCheck from '../gameLogic/isCheck'
 import validMoves from '../gameLogic/validMoves'
+import enPassant from '../gameLogic/enPassant'
 import isDraw from '../gameLogic/isDraw'
 import Board from './Board';
 import GameOver from './GameOver';
@@ -527,6 +528,25 @@ const Chess: React.FC<Props> = (props) => {
                     if (!moves.some(m => m[0] === rookPos[0] && m[1] === rookPos[1])) {
                         console.log("Clickcaslting0012", rookPos, moves);
                         moves.push(rookPos);
+                    }
+                }
+            });
+        }
+
+        // Include en passant capture squares in highlight
+        if (piece.type === 'pawn') {
+            const direction = piece.color === 'white' ? -1 : 1;
+            const targets: Position[] = [
+                [position[0]! + direction, position[1]! - 1],
+                [position[0]! + direction, position[1]! + 1]
+            ];
+
+            targets.forEach(target => {
+                const [ty, tx] = target;
+                if (ty >= 0 && ty < 8 && tx >= 0 && tx < 8) {
+                    const epMove = enPassant(piece, target, gameState);
+                    if (epMove && !moves.some(m => m[0] === epMove[0] && m[1] === epMove[1])) {
+                        moves.push(epMove);
                     }
                 }
             });
