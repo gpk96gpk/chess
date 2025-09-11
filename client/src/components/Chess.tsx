@@ -150,7 +150,14 @@ const Chess: React.FC<Props> = (props) => {
                 currentPlayerInCheck, gameState);
         console.log('761currentPlayerInCheck', currentPlayerInCheck);
         
-        const validMovesResult = validMoves(piece, startPosition.current!, gameState, playerNumber, lastDragOverPosition.current!);
+        const validMovesResult = validMoves(
+            piece,
+            startPosition.current!,
+            gameState,
+            playerNumber,
+            lastDragOverPosition.current!,
+            { dryRun: true }
+        );
         if (!validMovesResult) {
             console.error('Error: validMoves returned nothing');
             return;
