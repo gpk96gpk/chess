@@ -499,7 +499,7 @@ const Chess: React.FC<Props> = (props) => {
         const position: Position = JSON.parse(positionString);
         
         // Get valid moves using the same code path as handleDrop
-        const result = validMoves(piece, position, gameState, playerNumber, position);
+        const result = validMoves(piece, position, gameState, playerNumber, position, { dryRun: true });
 
         // Normalize result into an array of positions
         let moves: Position[] = [];
@@ -522,7 +522,7 @@ const Chess: React.FC<Props> = (props) => {
             ];
 
             potentialRooks.forEach(rookPos => {
-                const castleResult = validMoves(piece, position, gameState, playerNumber, rookPos);
+                const castleResult = validMoves(piece, position, gameState, playerNumber, rookPos, { dryRun: true });
                 if (castleResult && !Array.isArray(castleResult) && castleResult.canCastle) {
                     // Only add if not already in moves
                     if (!moves.some(m => m[0] === rookPos[0] && m[1] === rookPos[1])) {
