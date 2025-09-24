@@ -959,7 +959,17 @@ const Chess: React.FC<Props> = (props) => {
                 {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
                 {gameState.checkStatus.white && <h2>White in check!</h2>}
                 {gameState.checkStatus.black && <h2>Black in check!</h2>}
-                <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} handleReset={props.handleReset} />
+                <BoardButtons 
+                    setTurnState={setTurnState} 
+                    setWinner={setWinner} 
+                    setGameState={setGameState} 
+                    gameState={gameState} 
+                    roomCode={roomCode} 
+                    handleReset={props.handleReset}
+                    setPlayingAgainstAI={props.setPlayingAgainstAI}
+                    setSelectedPiece={props.setSelectedPiece}
+                    setHighlightedTiles={props.setHighlightedTiles}
+                />
             </div>
             
             <div className="board-container">

@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react';
+
 export type PieceNames = 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn' | 'empty';
 
 export type Color = 'black' | 'white' | 'none';
@@ -22,7 +24,7 @@ export type Props = {
     turnState: 0 | 1 | 2 | 3;
     setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>;
     winner: string | null;
-    setWinner: (winner: string | null) => void;
+    setWinner: Dispatch<SetStateAction<string | null>>;
     isPlayerInCheck: boolean;
     setIsPlayerInCheck: (arg0: boolean) => void;
     username: string | null;
@@ -35,9 +37,10 @@ export type Props = {
     pieceToPromote: PieceType | null;
     setPieceToPromote: (arg0: PieceType | null) => void;
     selectedPiece: PieceType | null;
-    setSelectedPiece: (arg0: PieceType | null) => void;
+    setSelectedPiece: Dispatch<SetStateAction<PieceType | null>>;
     highlightedTiles: Position[];
-    setHighlightedTiles: (arg0: Position[]) => void;
+    setHighlightedTiles: Dispatch<SetStateAction<Position[]>>;
+    setPlayingAgainstAI: Dispatch<SetStateAction<boolean>>;
 };
 
 export type TestPieceMoveAdapter = PieceMoveType & {
@@ -143,12 +146,15 @@ export type Move = {
 };
 
 export interface BoardButtonsProps {
+    setTurnState: Dispatch<SetStateAction<0 | 1 | 2 | 3>>;
+    setWinner: Dispatch<SetStateAction<string | null>>;
+    setGameState: Dispatch<SetStateAction<GameStateType>>;
     gameState: GameStateType;
-    setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
-    setWinner: (winner: string | null) => void;
-    setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>;
-    roomCode: string | undefined;
+    roomCode: string | null | undefined;
     handleReset: () => void;
+    setPlayingAgainstAI: Dispatch<SetStateAction<boolean>>;
+    setSelectedPiece: Dispatch<SetStateAction<PieceType | null>>;
+    setHighlightedTiles: Dispatch<SetStateAction<Position[]>>;
 }
 
 export type ValidMovesResult = {

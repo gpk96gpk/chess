@@ -18,7 +18,7 @@ import BoardSaveGameButton from './BoardSaveGameButton';
 import { BoardButtonsProps } from '../types/clientTypes';
 import resetGameState from '../gameLogic/resetGameState';
 
-const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, setWinner, setTurnState, roomCode, handleReset }) => {
+const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, setWinner, setTurnState, roomCode, handleReset, setPlayingAgainstAI, setSelectedPiece, setHighlightedTiles }) => {
   const socket = useContext(SocketContext);
   const [showExitOverlay, setShowExitOverlay] = useState(false);
   const navigate = useNavigate();
@@ -28,11 +28,27 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, se
   };
 
   const handleConfirmExit = () => {
-    const { initialBoard } = resetGameState();
-    setGameState(initialBoard!);
+    // Reset game state to initial clean state
+    const initialBoard = resetGameState();
+    setGameState(initialBoard);
     setWinner(null);
     setTurnState(0);
+    
+    // Reset AI-specific state if the setters are available
+    if (setPlayingAgainstAI) {
+      setPlayingAgainstAI(false);
+    }
+    if (setSelectedPiece) {
+      setSelectedPiece(null);
+    }
+    if (setHighlightedTiles) {
+      setHighlightedTiles([]);
+    }
+    
+    // Navigate to lobby
     navigate('/');
+    
+    // Emit leave room event for multiplayer games
     if (socket) {
       socket.emit('leaveRoom', roomCode)
     }
