@@ -30,6 +30,7 @@ export type Props = {
     username: string | null;
     setUsername: React.Dispatch<React.SetStateAction<string | null>>;
     handleReset: () => void;
+    resetGame: () => void;
     showPromotionDialog: boolean;
     setShowPromotionDialog: (arg0: boolean) => void;
     promotionPosition: Position | null;
@@ -220,6 +221,7 @@ export type GameOverProps = {
     setWinner: (winner: string | null) => void;
     setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
     setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>; 
+    resetAI?: () => void; // Optional function to reset AI state
 };
 
 export interface CheckResult {

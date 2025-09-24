@@ -11,7 +11,7 @@ import { GameOverProps } from '../types/clientTypes';
 //import { GameState } from '../types/clientTypes';
 
 
-function GameOver( {gameState, winner, setWinner, setGameState, setTurnState}: GameOverProps) {
+function GameOver( {gameState, winner, setWinner, setGameState, setTurnState, resetAI}: GameOverProps) {
     const socket = useContext(SocketContext);
     console.log('winner',winner)
     const [saveStatus, setSaveStatus] = useState<null | string>(null);
@@ -34,10 +34,18 @@ function GameOver( {gameState, winner, setWinner, setGameState, setTurnState}: G
     }
 
     const handleExit = () => {
-        const { initialBoard } = resetGameState()
-        setGameState(initialBoard!);
-        setWinner(null);
-        setTurnState(1);
+        // Reset AI state if this is an AI game (this includes resetting game state)
+        if (resetAI) {
+            console.log('Exiting AI game - resetting AI and game state...');
+            resetAI(); // This calls resetGame() which already resets everything
+        } else {
+            // For non-AI games, just reset game state manually
+            const { initialBoard } = resetGameState()
+            setGameState(initialBoard!);
+            setWinner(null);
+            setTurnState(1);
+        }
+        
         navigate('/');
         if (socket) {
             socket.emit('leaveRoom')

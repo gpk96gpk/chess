@@ -166,6 +166,25 @@ const Chess: React.FC<Props> = (props) => {
         const { moves: pieceValidMoves, threateningSquares, isKingInCheck, checkDirection, isKingInCheckMate, isOpponentKingInCheck, enPassantMove, canCastle, canPromote, promotionPosition } = validMovesResult as ValidMovesResult;
         console.log('761pieceValidMoves', pieceValidMoves, isOpponentKingInCheck);
         
+        // Check if a king is being captured BEFORE handling promotion
+        const targetPiece = gameState.board[toX][toY];
+        if (targetPiece.type === 'king') {
+            console.log('King captured during pawn promotion! Game over.', targetPiece.color, 'king was captured by', piece.color);
+            setGameOver(true);
+            if (props.isAIGame) {
+                setWinner(piece.color === 'white' ? 'AI (White)' : 'Player (Black)');
+            } else {
+                setWinner(piece.color === 'white' ? 'White' : 'Black');
+            }
+            setTurnState(3);
+            
+            // For AI games, don't emit to server
+            if (socket && !props.isAIGame) {
+                socket.emit('gameOver', true, targetPiece.color === 'white' ? 'White' : 'Black', roomCode);
+            }
+            return; // End the function here since game is over
+        }
+        
         // Handle pawn promotion
         if (canPromote && piece.type === 'pawn') {
             setShowPromotionDialog(true);
@@ -186,6 +205,25 @@ const Chess: React.FC<Props> = (props) => {
                 return
             }
             console.log('761updateBoard', x, y, piece, gameState.board[x][y]);
+            
+            // Check for captures BEFORE updating the board
+            const targetPiece = gameState.board[x][y];
+            const isCapturingMove = targetPiece.type !== 'empty' && targetPiece.color !== piece.color;
+            
+            if (isCapturingMove) {
+                console.log('Capturing piece:', targetPiece, 'at position:', [x, y]);
+                // Remove the captured piece from the opponent's piece positions array
+                if (targetPiece.color === 'white' && gameState.piecePositions.white) {
+                    gameState.piecePositions.white = gameState.piecePositions.white.filter(
+                        (p) => !(p.position && p.position.length === 2 && p.position[0] === x && p.position[1] === y)
+                    );
+                } else if (targetPiece.color === 'black' && gameState.piecePositions.black) {
+                    gameState.piecePositions.black = gameState.piecePositions.black.filter(
+                        (p) => !(p.position && p.position.length === 2 && p.position[0] === x && p.position[1] === y)
+                    );
+                }
+            }
+            
             piece.hasMoved = true;
             gameState.board[x][y].type = piece.type;
             gameState.board[x][y].color = piece.color;
@@ -432,29 +470,6 @@ const Chess: React.FC<Props> = (props) => {
                     console.log('847Castling king:', currentPlayerColor, toX, toY);
                     handleCastling(gameState, toX, toY, piece);
                 }
-            }
-
-            // Check if a king is being captured before moving the piece
-            const targetPiece = gameState.board[toX][toY];
-            if (targetPiece.type === 'king') {
-                console.log('King captured! Game over.', targetPiece.color, 'king was captured by', piece.color);
-                setGameOver(true);
-                if (props.isAIGame) {
-                    setWinner(piece.color === 'white' ? 'AI (White)' : 'Player (Black)');
-                } else {
-                    setWinner(piece.color === 'white' ? 'White' : 'Black');
-                }
-                setTurnState(3);
-                
-                // For AI games, don't emit to server
-                if (socket && !props.isAIGame) {
-                    socket.emit('gameOver', true, targetPiece.color === 'white' ? 'White' : 'Black', roomCode);
-                }
-                
-                // Still execute the capture move to update the board visually
-                piece.hasMoved = true;
-                updateBoard(gameState, toX, toY, piece);
-                return; // End the function here since game is over
             }
 
             piece.hasMoved = true;
@@ -824,6 +839,30 @@ const Chess: React.FC<Props> = (props) => {
         const toX = promotionPosition[0];
         const toY = promotionPosition[1];
         
+        // Check if the pawn is capturing a king during promotion
+        const targetPiece = gameState.board[toX!][toY!];
+        if (targetPiece.type === 'king') {
+            console.log('King captured during pawn promotion selection! Game over.', targetPiece.color, 'king was captured by promoted pawn');
+            setGameOver(true);
+            if (props.isAIGame) {
+                setWinner(pieceToPromote.color === 'white' ? 'AI (White)' : 'Player (Black)');
+            } else {
+                setWinner(pieceToPromote.color === 'white' ? 'White' : 'Black');
+            }
+            setTurnState(3);
+            
+            // For AI games, don't emit to server
+            if (socket && !props.isAIGame) {
+                socket.emit('gameOver', true, targetPiece.color === 'white' ? 'White' : 'Black', roomCode);
+            }
+            
+            // Close the promotion dialog
+            setShowPromotionDialog(false);
+            setPromotionPosition(null);
+            setPieceToPromote(null);
+            return; // End the function here since game is over
+        }
+        
         // Update the board with the promoted piece
         updatedGameState.board[toX!][toY!] = {
             ...pieceToPromote,
@@ -974,12 +1013,20 @@ const Chess: React.FC<Props> = (props) => {
     // Do not overwrite local gameState from props on every render — this caused stale flags to reappear
     const isCurrentPlayerInCheck = isKingInCheck && gameState.checkStatus[opponentPlayerNumber === 1 ? 'black' : 'white'];
     console.log('761isCurrentPlayerInCheck', isCurrentPlayerInCheck, gameState.checkStatus);
+    
+    // Create AI reset function that ensures AI state is fully reset when exiting
+    const resetAI = props.isAIGame ? () => {
+        console.log('Exiting AI game - resetting all AI state...');
+        props.setPlayingAgainstAI(false); // Explicitly reset AI state
+        props.resetGame(); // Reset game state and aiMoveInProgress
+    } : undefined;
+    
     return (
         <div className='Chess'>
             <h1>Room Code: <br /> {roomCode}</h1>
             <div className='chess-buttons-status'>
                 <h2>{turnState === 0 ? "Waiting for opponent" : (playerNumber === turnState ? "Your Turn" : "Opponent's Turn")}</h2>
-                {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
+                {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} resetAI={resetAI} />}
                 {gameState.checkStatus.white && <h2>White in check!</h2>}
                 {gameState.checkStatus.black && <h2>Black in check!</h2>}
                 <BoardButtons 

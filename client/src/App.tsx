@@ -569,6 +569,7 @@ function App() {
         setWinner,
         setIsPlayerInCheck,
         handleReset,
+        resetGame,
         setUsername,
         setShowPromotionDialog,
         setPromotionPosition,
