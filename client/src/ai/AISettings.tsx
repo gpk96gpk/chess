@@ -11,11 +11,7 @@ interface AISettingsProps {
 }
 
 const AISettings: React.FC<AISettingsProps> = ({
-  playingAgainstAI,
   setPlayingAgainstAI,
-  aiDifficulty,
-  setAIDifficulty,
-  turnState,
   setTurnState
 }) => {
   const navigate = useNavigate();
@@ -40,39 +36,12 @@ const AISettings: React.FC<AISettingsProps> = ({
 
   return (
     <div className="ai-settings">
-      <div className="setting-group">
-        <label>
-          <input
-            type="checkbox"
-            checked={playingAgainstAI}
-            onChange={(e) => setPlayingAgainstAI(e.target.checked)}
-          />
-          Play against AI
-        </label>
-      </div>
-      
-      {playingAgainstAI && (
-        <div className="setting-group">
-          <label>AI Difficulty:</label>
-          <select
-            value={aiDifficulty}
-            onChange={(e) => setAIDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </div>
-      )}
-      
-      <div className="ai-action">
-        <button 
-          className="play-ai-button"
-          onClick={startAIGame}
-        >
-          Start Game with AI
-        </button>
-      </div>
+      <button 
+        className="ai-game-button"
+        onClick={startAIGame}
+      >
+        Play Against AI
+      </button>
     </div>
   );
 };

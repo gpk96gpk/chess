@@ -141,7 +141,7 @@ button:active {
 }
 
 input[type=text],input[type=password] {
-  font-size: 16px;
+  font-size: 15px;
   border-color: inherit;
   text-align: right;
   margin-bottom: 15px;
@@ -372,63 +372,47 @@ form>input {
 }
 
 .ai-settings {
-  margin-top: 20px;
-  padding: 15px;
-  border-radius: 4px;
-  text-align: center;
+  opacity: 0!important;
+  visibility: hidden;
+  margin-top: 60px;
+  transition: visibility 0s 2s,opacity 2s linear
 }
 
-.setting-group {
-  margin-bottom: 10px;
+.ai-settings.visible {
+  opacity: 1!important;
+  visibility: visible;
+  margin-top: 60px;
+  transition: visibility 2s,opacity 2s linear
 }
 
-.ai-settings label {
-  margin-right: 10px;
-  font-weight: 500;
-}
-
-.ai-settings select {
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-left: 10px;
-}
-.ai-action {
-  margin-top: 15px;
-}
-
-.play-ai-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 15px;
+.ai-game-button {
   border: none;
-  border-radius: 4px;
+  border-bottom: 2px solid;
+  border-color: inherit;
+  text-transform: uppercase;
+  padding: .4em 0 0 .8em;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  background-color: transparent;
   cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
+  transition: color .7s ease;
+  margin-top: 0;
+  text-align: left;
 }
 
-.play-ai-button:hover {
-  background-color: #45a049;
+.ai-game-button:hover {
+  color: #646cff;
+  border-color: #646cff;
+  transition: all .4s ease-in;
 }
 
-/* .join-room-button {
-  padding: 6px 12px;
-  cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
+.ai-game-button:active {
   border: none;
-  border-radius: 4px;
+  color: green;
 }
 
-.join-room-button:hover {
-  background-color: #45a049;
-}
 
-.join-room-button.error {
-  animation: shake 0.5s;
-  background-color: #f44336;
-} */
 
 @keyframes shake {
   0% { transform: translateX(0); }

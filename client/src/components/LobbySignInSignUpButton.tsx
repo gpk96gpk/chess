@@ -48,10 +48,11 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
           handleContinueAsGuest();
           const element: HTMLElement | null = document.querySelector('.ConnectionManager');
           const showSavedGames = document.querySelector('.show-saved-games-button') as HTMLElement;
+          const aiSettings = document.querySelector('.ai-settings') as HTMLElement;
           if (element) {
             element.classList.add('visible');
             showSavedGames.classList.add('visible');
-
+            if (aiSettings) aiSettings.classList.add('visible');
           }
         }
       });
@@ -88,10 +89,12 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
         const element: HTMLElement | null = document.querySelector('.ConnectionManager');
         const showSavedGames = document.querySelector('.show-saved-games-button') as HTMLElement;
         const availableRooms = document.querySelector('.OpenRoomsList') as HTMLElement;
+        const aiSettings = document.querySelector('.ai-settings') as HTMLElement;
         if (element) {
           element.style.visibility = 'visible';
           showSavedGames.style.visibility = 'visible';
           availableRooms.style.visibility = 'visible';
+          if (aiSettings) aiSettings.style.visibility = 'visible';
         }
       });
     //}
@@ -110,6 +113,7 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
         const element = document.querySelector('.ConnectionManager');
         const showSavedGames = document.querySelector('.show-saved-games-button');
         const availableRooms = document.querySelector('.OpenRoomsList');
+        const aiSettings = document.querySelector('.ai-settings');
 
         if (element) {
           (element as HTMLElement).style.visibility = 'visible';
@@ -120,6 +124,9 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
         if (availableRooms) {
           (availableRooms as HTMLElement).style.visibility = 'visible';
         }
+        if (aiSettings) {
+          (aiSettings as HTMLElement).style.visibility = 'visible';
+        }
       }, 100);
     }
   }, []); // Empty dependency array to run only once on mount
@@ -129,6 +136,7 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
     const element = document.querySelector('.ConnectionManager');
     const showSavedGames = document.querySelector('.show-saved-games-button');
     const availableRooms = document.querySelector('.OpenRoomsList');
+    const aiSettings = document.querySelector('.ai-settings');
   
     const handleClick = () => {
       setIsGuest(true);
@@ -136,6 +144,7 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
         element.classList.add('visible');
         showSavedGames.classList.add('visible');
         availableRooms.classList.add('visible');
+        if (aiSettings) aiSettings.classList.add('visible');
       }
     };
   
@@ -148,6 +157,7 @@ const LobbySignInSignUpButton = ({ setUsername }: LobbySignInSignUpButtonProps) 
       element.classList.add('visible');
       showSavedGames.classList.add('visible');
       availableRooms.classList.add('visible');
+      if (aiSettings) aiSettings.classList.add('visible');
     }
   
     // Clean up the event listener when the component is unmounted
