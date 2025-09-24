@@ -39,7 +39,13 @@ const LobbyGameButtons = ({
                 turnState={turnState}
                 setTurnState={setTurnState}
             />
-            <LobbySavedGames setGameState={setGameState} username={username}/>
+            <LobbySavedGames 
+                setGameState={setGameState} 
+                username={username}
+                setPlayingAgainstAI={setPlayingAgainstAI}
+                setAIDifficulty={setAIDifficulty}
+                setTurnState={setTurnState}
+            />
         </>
     )
 };

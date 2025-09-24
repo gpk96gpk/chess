@@ -41,6 +41,8 @@ export type Props = {
     highlightedTiles: Position[];
     setHighlightedTiles: Dispatch<SetStateAction<Position[]>>;
     setPlayingAgainstAI: Dispatch<SetStateAction<boolean>>;
+    isAIGame?: boolean;
+    aiDifficulty?: 'easy' | 'medium' | 'hard';
 };
 
 export type TestPieceMoveAdapter = PieceMoveType & {
@@ -116,6 +118,10 @@ export interface GameStateType {
     };
     username1: string | null;
     username2: string | null;
+    // AI-specific properties
+    isAIGame?: boolean;
+    aiDifficulty?: 'easy' | 'medium' | 'hard';
+    currentTurnState?: 0 | 1 | 2 | 3;
 }
 
 export type BoardPiece = {
@@ -133,7 +139,10 @@ export type BoardPiece = {
 } 
 
 export interface BoardSaveGameButtonProps {
-    gameState: GameStateType; 
+    gameState: GameStateType;
+    isAIGame?: boolean;
+    aiDifficulty?: 'easy' | 'medium' | 'hard';
+    turnState?: 0 | 1 | 2 | 3;
 }
 
 export type Move = {
@@ -155,6 +164,9 @@ export interface BoardButtonsProps {
     setPlayingAgainstAI: Dispatch<SetStateAction<boolean>>;
     setSelectedPiece: Dispatch<SetStateAction<PieceType | null>>;
     setHighlightedTiles: Dispatch<SetStateAction<Position[]>>;
+    isAIGame?: boolean;
+    aiDifficulty?: 'easy' | 'medium' | 'hard';
+    turnState?: 0 | 1 | 2 | 3;
 }
 
 export type ValidMovesResult = {

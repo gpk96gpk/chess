@@ -969,6 +969,9 @@ const Chess: React.FC<Props> = (props) => {
                     setPlayingAgainstAI={props.setPlayingAgainstAI}
                     setSelectedPiece={props.setSelectedPiece}
                     setHighlightedTiles={props.setHighlightedTiles}
+                    isAIGame={props.isAIGame}
+                    aiDifficulty={props.aiDifficulty}
+                    turnState={props.turnState}
                 />
             </div>
             

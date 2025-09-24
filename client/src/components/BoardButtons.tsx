@@ -18,7 +18,7 @@ import BoardSaveGameButton from './BoardSaveGameButton';
 import { BoardButtonsProps } from '../types/clientTypes';
 import resetGameState from '../gameLogic/resetGameState';
 
-const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, setWinner, setTurnState, roomCode, handleReset, setPlayingAgainstAI, setSelectedPiece, setHighlightedTiles }) => {
+const BoardButtons = ({ setTurnState, setWinner, setGameState, gameState, roomCode, handleReset, setPlayingAgainstAI, setSelectedPiece, setHighlightedTiles, isAIGame, aiDifficulty, turnState }: BoardButtonsProps) => {
   const socket = useContext(SocketContext);
   const [showExitOverlay, setShowExitOverlay] = useState(false);
   const navigate = useNavigate();
@@ -60,7 +60,12 @@ const BoardButtons: React.FC<BoardButtonsProps> = ({ gameState, setGameState, se
         <>
           <button onClick={handleExit}>Exit</button>
           <button onClick={handleReset}>New Game</button>
-          <BoardSaveGameButton gameState={gameState} />
+          <BoardSaveGameButton 
+            gameState={gameState}
+            isAIGame={isAIGame}
+            aiDifficulty={aiDifficulty}
+            turnState={turnState}
+          />
         </>
       )}
       

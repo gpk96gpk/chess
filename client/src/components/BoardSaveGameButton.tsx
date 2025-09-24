@@ -4,13 +4,21 @@
 //render button to trigger function for POST request
 import { useState } from 'react';
 import { saveGame } from '../apis/ChessGame';
-import { BoardSaveGameButtonProps } from '../types/clientTypes';
+import { BoardSaveGameButtonProps, GameStateType } from '../types/clientTypes';
 
 
-const BoardSaveGameButton: React.FC<BoardSaveGameButtonProps> = ({ gameState }) => {
+const BoardSaveGameButton: React.FC<BoardSaveGameButtonProps> = ({ gameState, isAIGame, aiDifficulty, turnState }) => {
     const [saveStatus, setSaveStatus] = useState<string | null>(null);
     const handleSave = async () => {
-        const success = await saveGame(gameState);
+        // Create enhanced game state with AI data
+        const enhancedGameState: GameStateType = {
+            ...gameState,
+            isAIGame: isAIGame || false,
+            aiDifficulty: isAIGame ? aiDifficulty : undefined,
+            currentTurnState: isAIGame ? turnState : undefined
+        };
+        
+        const success = await saveGame(enhancedGameState);
         if (success) {
             setSaveStatus('Game saved successfully');
         } else {

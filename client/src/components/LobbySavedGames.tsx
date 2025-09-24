@@ -28,9 +28,12 @@ interface SavedGames {
 interface LobbySavedGamesProps {
   setGameState: Dispatch<SetStateAction<GameStateType>>;
   username: string | null;
+  setPlayingAgainstAI?: (value: boolean) => void;
+  setAIDifficulty?: (difficulty: 'easy' | 'medium' | 'hard') => void;
+  setTurnState?: Dispatch<SetStateAction<0 | 1 | 2 | 3>>;
 }
 
-const LobbySavedGames = ({ setGameState, username }: LobbySavedGamesProps) => {
+const LobbySavedGames = ({ setGameState, username, setPlayingAgainstAI, setAIDifficulty, setTurnState }: LobbySavedGamesProps) => {
   const [games, setGames] = useState<SavedGames | string | null>(null);
   const [showGames, setShowGames] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -115,15 +118,38 @@ const LobbySavedGames = ({ setGameState, username }: LobbySavedGamesProps) => {
                   <td>{game.date}</td>
                   <td>
                   <Link
-                    to={`/game/${game.id}`}
+                    to={`/game/${JSON.parse(game.gamestate).isAIGame ? 'ai-' : ''}${game.id}`}
                     className="btn btn-warning"
                     onClick={() => {
                     const parsedGameState: GameStateType = JSON.parse(game.gamestate);
                     setGameState(parsedGameState);
                     console.log('loading game0', parsedGameState, game.id);
-                    if (socket) {
-                      // Emit an event to the server to create a new room
-                      socket.emit('createRoom', game.id, parsedGameState);
+                    
+                    // Restore AI settings if this was an AI game
+                    if (parsedGameState.isAIGame) {
+                      console.log('Restoring AI game settings:', {
+                        difficulty: parsedGameState.aiDifficulty,
+                        turnState: parsedGameState.currentTurnState
+                      });
+                      
+                      if (setPlayingAgainstAI) {
+                        setPlayingAgainstAI(true);
+                      }
+                      if (setAIDifficulty && parsedGameState.aiDifficulty) {
+                        setAIDifficulty(parsedGameState.aiDifficulty);
+                      }
+                      if (setTurnState && parsedGameState.currentTurnState !== undefined) {
+                        setTurnState(parsedGameState.currentTurnState);
+                      }
+                    } else {
+                      // Non-AI game
+                      if (setPlayingAgainstAI) {
+                        setPlayingAgainstAI(false);
+                      }
+                      if (socket) {
+                        // Emit an event to the server to create a new room for multiplayer
+                        socket.emit('createRoom', game.id, parsedGameState);
+                      }
                     }
                     }}
                   >
