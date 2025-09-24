@@ -434,6 +434,29 @@ const Chess: React.FC<Props> = (props) => {
                 }
             }
 
+            // Check if a king is being captured before moving the piece
+            const targetPiece = gameState.board[toX][toY];
+            if (targetPiece.type === 'king') {
+                console.log('King captured! Game over.', targetPiece.color, 'king was captured by', piece.color);
+                setGameOver(true);
+                if (props.isAIGame) {
+                    setWinner(piece.color === 'white' ? 'AI (White)' : 'Player (Black)');
+                } else {
+                    setWinner(piece.color === 'white' ? 'White' : 'Black');
+                }
+                setTurnState(3);
+                
+                // For AI games, don't emit to server
+                if (socket && !props.isAIGame) {
+                    socket.emit('gameOver', true, targetPiece.color === 'white' ? 'White' : 'Black', roomCode);
+                }
+                
+                // Still execute the capture move to update the board visually
+                piece.hasMoved = true;
+                updateBoard(gameState, toX, toY, piece);
+                return; // End the function here since game is over
+            }
+
             piece.hasMoved = true;
             console.log('847piece.hasMoved', piece.hasMoved, piece);
             updateBoard(gameState, toX, toY, piece);

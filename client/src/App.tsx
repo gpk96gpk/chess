@@ -4,7 +4,7 @@ import { SocketContext } from './context/SocketContext';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
-import { Props, GameStateType, Position, PieceType } from './types/clientTypes';
+import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
 import { getAIMove } from "./ai/aiEngine";
 import resetGameState from './gameLogic/resetGameState';
 
@@ -160,6 +160,18 @@ function App() {
             // Get target piece BEFORE updating the board
             const targetPiece = {...updatedGameState.board[toX][toY]};
             const isCapturingMove = targetPiece.type !== 'empty' && targetPiece.color !== movingPiece.color;
+
+            // Check if a king is being captured (should end the game)
+            if (targetPiece.type === 'king') {
+                console.log('🤖 AI captured the king! Game over.', targetPiece.color, 'king was captured by AI');
+                setGameOver(true);
+                setWinner('AI (White)');
+                setTurnState(3);
+                
+                // Release AI move lock immediately since game is over
+                aiMoveInProgress.current = false;
+                return;
+            }
 
             if (isCapturingMove) {
                 console.log("About to capture:", targetPiece);
@@ -563,6 +575,9 @@ function App() {
         setPieceToPromote,
         setSelectedPiece,
         setHighlightedTiles,
+        setPlayingAgainstAI,
+        isAIGame,
+        aiDifficulty,
     };
 
     // Debug logging for AI games
