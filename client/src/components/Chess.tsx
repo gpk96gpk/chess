@@ -847,18 +847,26 @@ const Chess: React.FC<Props> = (props) => {
             promotedTo: promoteTo
         });
         
-        // Update game state
+        // Change turn BEFORE updating game state
+        const nextTurn = turnState === 1 ? 2 : 1;
+        updatedGameState.turn = nextTurn === 1 ? 'black' : 'white';
+        
+        console.log("🎯 Player move completed - Turn changing:", {
+            oldTurn: gameState.turn,
+            newTurn: updatedGameState.turn,
+            turnState,
+            nextTurn,
+            isAIGame: roomCode && roomCode.startsWith('ai-')
+        });
+        
+        // Update game state with turn change included
         setGameState(updatedGameState);
+        setTurnState(nextTurn);
         
         // Reset promotion dialog
         setShowPromotionDialog(false);
         setPromotionPosition(null);
         setPieceToPromote(null);
-        
-        // Change turn
-        const nextTurn = turnState === 1 ? 2 : 1;
-        updatedGameState.turn = nextTurn === 1 ? 'black' : 'white';
-        setTurnState(nextTurn);
         
         // Emit updated game state to other player if multiplayer
         if (socket) {
@@ -951,7 +959,7 @@ const Chess: React.FC<Props> = (props) => {
                 {gameOver && <GameOver setGameState={setGameState} setTurnState={setTurnState} setWinner={setWinner} gameState={gameState} winner={winner} />}
                 {gameState.checkStatus.white && <h2>White in check!</h2>}
                 {gameState.checkStatus.black && <h2>Black in check!</h2>}
-                <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} />
+                <BoardButtons setTurnState={setTurnState} setWinner={setWinner} setGameState={setGameState} gameState={gameState} roomCode={roomCode} handleReset={props.handleReset} />
             </div>
             
             <div className="board-container">

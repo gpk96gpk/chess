@@ -147,7 +147,8 @@ export interface BoardButtonsProps {
     setGameState: React.Dispatch<React.SetStateAction<GameStateType>>;
     setWinner: (winner: string | null) => void;
     setTurnState: React.Dispatch<React.SetStateAction<0 | 1 | 2 | 3>>;
-    roomCode: string | undefined; 
+    roomCode: string | undefined;
+    handleReset: () => void;
 }
 
 export type ValidMovesResult = {

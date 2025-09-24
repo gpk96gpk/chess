@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SocketContext } from '../context/SocketContext';
 
 interface AISettingsProps {
   playingAgainstAI: boolean;
@@ -20,7 +19,6 @@ const AISettings: React.FC<AISettingsProps> = ({
   setTurnState
 }) => {
   const navigate = useNavigate();
-  const socket = useContext(SocketContext);
   
   const startAIGame = () => {
     // Enable AI
@@ -33,9 +31,8 @@ const AISettings: React.FC<AISettingsProps> = ({
     // This bypasses the "waiting for opponent" state (0)
     setTurnState(1);
     
-    // Emit events to update server state
-    socket.emit('createRoom', aiRoomCode);
-    socket.emit('turn', 1, aiRoomCode);
+    // For AI games, we don't emit to the server - everything is local
+    console.log('Starting AI game with room code:', aiRoomCode);
     
     // Navigate to the game with the AI room code
     navigate(`/game/${aiRoomCode}`);
@@ -59,7 +56,7 @@ const AISettings: React.FC<AISettingsProps> = ({
           <label>AI Difficulty:</label>
           <select
             value={aiDifficulty}
-            onChange={(e) => setAIDifficulty(e.target.value as any)}
+            onChange={(e) => setAIDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
           >
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
