@@ -412,7 +412,55 @@ form>input {
   color: green;
 }
 
+.ai-difficulty-menu {
+  opacity: 0!important;
+  visibility: hidden;
+  margin-top: 0;
+  transition: visibility 0s 2s,opacity 2s linear;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 100%;
+}
 
+.ai-difficulty-menu.visible {
+  opacity: 1!important;
+  visibility: visible;
+  margin-top: 0;
+  transition: visibility 2s,opacity 2s linear;
+}
+
+.ai-difficulty-button {
+  border: none;
+  border-bottom: 2px solid;
+  border-color: inherit;
+  text-transform: uppercase;
+  padding: .4em 0 0 .8em;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  transition: color .7s ease;
+  margin-top: 15px;
+  text-align: right;
+  width: 5em;
+}
+
+.ai-difficulty-button:first-child {
+  margin-top: 0;
+}
+
+.ai-difficulty-button:hover {
+  color: #646cff;
+  border-color: #646cff;
+  transition: all .4s ease-in;
+}
+
+.ai-difficulty-button:active {
+  border: none;
+  color: green;
+}
 
 @keyframes shake {
   0% { transform: translateX(0); }
