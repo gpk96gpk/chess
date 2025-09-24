@@ -5,7 +5,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
-import { getAIMove } from "./ai/aiEngine";
+import { getAIMove } from "./ai/optimizedAiEngine";
 import resetGameState from './gameLogic/resetGameState';
 
 // Connect to the real server for multiplayer games

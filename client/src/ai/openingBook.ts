@@ -50,6 +50,12 @@ export function getBoardSignature(gameState: GameStateType): string {
   return '';
 }
 
+export interface AIMoveResult {
+  piece: any;
+  from: Position;
+  to: Position;
+}
+
 export function getBookMove(gameState: GameStateType): AIMoveResult | null {
   const signature = getBoardSignature(gameState);
   if (!signature || !openingBook[signature]) return null;

@@ -1,6 +1,7 @@
 import { GameStateType, PieceType, Position } from '../types/clientTypes';
 import validMoves from '../gameLogic/validMoves';
 import { evaluatePosition } from './evaluation';
+import { getBookMove } from './openingBook';
 
 export type AIDifficulty = 'easy' | 'medium' | 'hard';
 export type AIMoveResult = {
@@ -13,6 +14,15 @@ export async function getAIMove(
   gameState: GameStateType, 
   difficulty: AIDifficulty
 ): Promise<AIMoveResult> {
+  // Try opening book first for early game moves (first 8 moves)
+  if (gameState.history.length < 8) {
+    const bookMove = getBookMove(gameState);
+    if (bookMove) {
+      console.log('Using opening book move');
+      return bookMove;
+    }
+  }
+  
   switch(difficulty) {
     case 'easy':
       return getRandomMove(gameState);
