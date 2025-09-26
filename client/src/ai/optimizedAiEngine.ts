@@ -2,6 +2,80 @@ import { GameStateType, PieceType, Position } from '../types/clientTypes';
 import { evaluatePosition } from './evaluation';
 import { getBookMove } from './openingBook';
 
+// Function to detect if AI king is in check and find threatening pieces
+function findThreateningPieces(gameState: GameStateType, aiColor: 'white' | 'black'): PieceType[] {
+  const threateningPieces: any[] = [];
+  const opponentColor = aiColor === 'white' ? 'black' : 'white';
+  const aiKingPos = gameState.kingPositions[aiColor];
+  
+  console.log(`🔍 THREAT DETECTION: AI Color = ${aiColor}, King position = [${aiKingPos}]`);
+  
+  if (!aiKingPos || aiKingPos.length !== 2) {
+    console.log(`❌ THREAT DETECTION: Invalid king position for ${aiColor}`);
+    return threateningPieces;
+  }
+  
+  // Get opponent pieces from the board directly instead of piecePositions
+  const board = gameState.board;
+  console.log(`🔍 THREAT DETECTION: Scanning board for ${opponentColor} pieces`);
+  
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const piece = board[row][col];
+      
+      if (!piece || piece.type === 'empty' || piece.color !== opponentColor) continue;
+      
+      console.log(`🔍 Checking ${piece.type} (${piece.color}) at [${row},${col}] vs AI king at [${aiKingPos}]`);
+      
+      // Create piece with proper position
+      const pieceForCheck = {
+        ...piece,
+        position: [row, col] as Position
+      };
+      
+      if (canPieceAttackSquare(pieceForCheck, aiKingPos, gameState)) {
+        console.log(`⚠️ THREAT FOUND: ${piece.type} at [${row},${col}] can attack AI king!`);
+        threateningPieces.push({
+          ...piece,
+          position: [row, col]
+        });
+      }
+    }
+  }
+  
+  console.log(`🎯 THREAT DETECTION RESULT: Found ${threateningPieces.length} threatening pieces`);
+  return threateningPieces;
+}
+
+// Function to find moves that capture threatening pieces
+function getCaptureThreateningMoves(gameState: GameStateType, aiColor: 'white' | 'black', threateningPieces: PieceType[]): AIMoveResult[] {
+  const captureMoves: AIMoveResult[] = [];
+  const allMoves = getSimpleLegalMoves(gameState, aiColor);
+  
+  console.log(`🔍 Checking ${allMoves.length} AI moves to see which capture ${threateningPieces.length} threatening pieces`);
+  
+  for (const move of allMoves) {
+    if (!move.to || move.to.length !== 2) continue;
+    
+    // Check if this move captures a threatening piece
+    for (const threateningPiece of threateningPieces) {
+      if (!threateningPiece.position || threateningPiece.position.length !== 2) continue;
+      
+      const [threatRow, threatCol] = threateningPiece.position as [number, number];
+      const [moveRow, moveCol] = move.to as [number, number];
+      
+      if (threatRow === moveRow && threatCol === moveCol) {
+        console.log(`💥 Found capture move: ${move.piece.type} from [${move.from}] can capture ${threateningPiece.type} at [${move.to}]`);
+        captureMoves.push(move);
+        break;
+      }
+    }
+  }
+  
+  console.log(`⚔️ Total capture moves found: ${captureMoves.length}`);
+  return captureMoves;
+}
+
 export type AIDifficulty = 'easy' | 'medium' | 'hard';
 export interface AIMoveResult {
   piece: PieceType;
@@ -9,21 +83,197 @@ export interface AIMoveResult {
   to: Position;
 }
 
-// Basic move generation without complex validation to avoid infinite recursion
+// Validate that a move doesn't put own king in check
+function isMoveLegal(move: AIMoveResult, gameState: GameStateType, color: 'white' | 'black'): boolean {
+  // Create a copy of the game state to simulate the move
+  const tempGameState = JSON.parse(JSON.stringify(gameState));
+  const { piece, from, to } = move;
+  
+  // Validate positions exist and are valid
+  if (!from || from.length !== 2 || !to || to.length !== 2) return false;
+  
+  const [fromRow, fromCol] = from as [number, number];
+  const [toRow, toCol] = to as [number, number];
+  
+  // Validate coordinates are in bounds
+  if (fromRow < 0 || fromRow >= 8 || fromCol < 0 || fromCol >= 8 ||
+      toRow < 0 || toRow >= 8 || toCol < 0 || toCol >= 8) {
+    return false;
+  }
+  
+  // Make the move on the temporary board
+  tempGameState.board[toRow][toCol] = { ...piece, position: to, hasMoved: true };
+  tempGameState.board[fromRow][fromCol] = { type: 'empty', color: 'none', hasMoved: false, position: [] };
+  
+  // Update king position if king moved
+  if (piece.type === 'king') {
+    tempGameState.kingPositions[color] = to;
+  }
+  
+  // Update piece positions array
+  if (tempGameState.piecePositions[color]) {
+    const pieceIndex = tempGameState.piecePositions[color].findIndex((p: PieceType) => 
+      p.position && p.position.length === 2 && p.position[0] === fromRow && p.position[1] === fromCol && p.type === piece.type
+    );
+    if (pieceIndex !== -1) {
+      tempGameState.piecePositions[color][pieceIndex].position = to;
+      tempGameState.piecePositions[color][pieceIndex].hasMoved = true;
+    }
+  }
+  
+  // Check if this move puts own king in check
+  const kingPos = tempGameState.kingPositions[color];
+  if (!kingPos || kingPos.length !== 2) return false;
+  
+  const opponentColor = color === 'white' ? 'black' : 'white';
+  const opponentPieces = tempGameState.piecePositions[opponentColor] || [];
+  
+  // Simple check: see if any opponent piece can attack our king
+  for (const opponentPiece of opponentPieces) {
+    if (!opponentPiece.position || opponentPiece.type === 'empty') continue;
+    
+    if (canPieceAttackSquare(opponentPiece, kingPos, tempGameState)) {
+      return false; // This move would put our king in check
+    }
+  }
+  
+  return true;
+}
+
+// Helper function to check if a piece can attack a square
+function canPieceAttackSquare(piece: PieceType, targetSquare: Position, gameState: GameStateType): boolean {
+  if (!piece.position || piece.position.length !== 2 || !targetSquare || targetSquare.length !== 2) {
+    console.log(`❌ Attack check failed: Invalid positions - piece at [${piece.position}], target at [${targetSquare}]`);
+    return false;
+  }
+  
+  const [pieceRow, pieceCol] = piece.position as [number, number];
+  const [targetRow, targetCol] = targetSquare as [number, number];
+  
+  console.log(`🎯 Checking if ${piece.type} (${piece.color}) at [${pieceRow},${pieceCol}] can attack [${targetRow},${targetCol}]`);
+  
+  switch (piece.type) {
+    case 'pawn': {
+      const direction = piece.color === 'white' ? -1 : 1;
+      const attackRows = [pieceRow + direction];
+      const attackCols = [pieceCol - 1, pieceCol + 1];
+      const canAttack = attackRows.includes(targetRow) && attackCols.includes(targetCol);
+      console.log(`   Pawn attack check: direction=${direction}, attackRows=[${attackRows}], attackCols=[${attackCols}], result=${canAttack}`);
+      return canAttack;
+    }
+    case 'rook': {
+      const sameLine = (pieceRow === targetRow || pieceCol === targetCol);
+      const pathClear = sameLine ? isPathClear(piece.position, targetSquare, gameState) : false;
+      const canAttack = sameLine && pathClear;
+      console.log(`   Rook attack check: sameLine=${sameLine}, pathClear=${pathClear}, result=${canAttack}`);
+      return canAttack;
+    }
+    case 'bishop': {
+      const rowDiff = Math.abs(pieceRow - targetRow);
+      const colDiff = Math.abs(pieceCol - targetCol);
+      const diagonal = rowDiff === colDiff;
+      const pathClear = diagonal ? isPathClear(piece.position, targetSquare, gameState) : false;
+      const canAttack = diagonal && pathClear;
+      console.log(`   Bishop attack check: diagonal=${diagonal} (rowDiff=${rowDiff}, colDiff=${colDiff}), pathClear=${pathClear}, result=${canAttack}`);
+      return canAttack;
+    }
+    case 'queen': {
+      const sameLine = (pieceRow === targetRow || pieceCol === targetCol);
+      const diagonal = Math.abs(pieceRow - targetRow) === Math.abs(pieceCol - targetCol);
+      const inRange = sameLine || diagonal;
+      const pathClear = inRange ? isPathClear(piece.position, targetSquare, gameState) : false;
+      const canAttack = inRange && pathClear;
+      console.log(`   Queen attack check: sameLine=${sameLine}, diagonal=${diagonal}, pathClear=${pathClear}, result=${canAttack}`);
+      return canAttack;
+    }
+    case 'knight': {
+      const rowDiff = Math.abs(pieceRow - targetRow);
+      const colDiff = Math.abs(pieceCol - targetCol);
+      const canAttack = (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
+      console.log(`   Knight attack check: rowDiff=${rowDiff}, colDiff=${colDiff}, result=${canAttack}`);
+      return canAttack;
+    }
+    case 'king': {
+      const rowDiff = Math.abs(pieceRow - targetRow);
+      const colDiff = Math.abs(pieceCol - targetCol);
+      const canAttack = rowDiff <= 1 && colDiff <= 1;
+      console.log(`   King attack check: rowDiff=${rowDiff}, colDiff=${colDiff}, result=${canAttack}`);
+      return canAttack;
+    }
+    default:
+      console.log(`   Unknown piece type: ${piece.type}`);
+      return false;
+  }
+}
+
+// Helper function to check if path is clear for sliding pieces
+function isPathClear(from: Position, to: Position, gameState: GameStateType): boolean {
+  if (!from || from.length !== 2 || !to || to.length !== 2) return false;
+  
+  const [fromRow, fromCol] = from as [number, number];
+  const [toRow, toCol] = to as [number, number];
+  
+  const rowStep = toRow > fromRow ? 1 : toRow < fromRow ? -1 : 0;
+  const colStep = toCol > fromCol ? 1 : toCol < fromCol ? -1 : 0;
+  
+  let currentRow = fromRow + rowStep;
+  let currentCol = fromCol + colStep;
+  
+  while (currentRow !== toRow || currentCol !== toCol) {
+    if (currentRow < 0 || currentRow >= 8 || currentCol < 0 || currentCol >= 8) return false;
+    if (gameState.board[currentRow][currentCol].type !== 'empty') {
+      return false;
+    }
+    currentRow += rowStep;
+    currentCol += colStep;
+  }
+  
+  return true;
+}
+
+// Basic move generation with legal move validation
 function getSimpleLegalMoves(gameState: GameStateType, color: 'white' | 'black'): AIMoveResult[] {
-  const moves: AIMoveResult[] = [];
+  const allMoves: AIMoveResult[] = [];
   const pieces = gameState.piecePositions[color];
   
-  if (!pieces) return moves;
+  if (!pieces) return allMoves;
   
+  // Generate all possible moves
   pieces.forEach(piece => {
     if (!piece.position || piece.type === 'empty') return;
     
     const pieceMoves = getMovesForPiece(piece as PieceType, gameState);
-    moves.push(...pieceMoves);
+    allMoves.push(...pieceMoves);
   });
   
-  return moves;
+  // Filter out illegal moves (those that put king in check)
+  const legalMoves = allMoves.filter(move => isMoveLegal(move, gameState, color));
+  
+  console.log(`🔍 AI Generated ${allMoves.length} moves, ${legalMoves.length} are legal for ${color}`);
+  
+  // Debug: Log some moves to see what's being generated
+  if (legalMoves.length > 0) {
+    console.log('🎯 Sample legal moves:', legalMoves.slice(0, 5).map(move => 
+      `${move.piece.type} from [${move.from}] to [${move.to}]`
+    ));
+    
+    // Check for captures specifically
+    const captures = legalMoves.filter(move => {
+      if (!move.to || move.to.length !== 2) return false;
+      const [toRow, toCol] = move.to as [number, number];
+      return gameState.board[toRow][toCol].type !== 'empty';
+    });
+    
+    if (captures.length > 0) {
+      console.log('💥 Capture moves available:', captures.map(move => {
+        if (!move.to || move.to.length !== 2) return 'invalid move';
+        const [toRow, toCol] = move.to as [number, number];
+        return `${move.piece.type} captures ${gameState.board[toRow][toCol].type} at [${move.to}]`;
+      }));
+    }
+  }
+  
+  return legalMoves;
 }
 
 function getMovesForPiece(piece: PieceType, gameState: GameStateType): AIMoveResult[] {
@@ -193,11 +443,47 @@ function applyMoveToState(gameState: GameStateType, move: AIMoveResult): void {
   const [fromRow, fromCol] = from as [number, number];
   const [toRow, toCol] = to as [number, number];
   
+  // Check if this is a capture
+  const capturedPiece = gameState.board[toRow][toCol];
+  const isCapture = capturedPiece.type !== 'empty';
+  
+  // Update piecePositions arrays
+  if (gameState.piecePositions) {
+    // Remove captured piece from opponent's pieces
+    if (isCapture && capturedPiece.color !== 'none' && (capturedPiece.color === 'white' || capturedPiece.color === 'black')) {
+      const opponentColor = capturedPiece.color;
+      if (gameState.piecePositions[opponentColor]) {
+        // @ts-expect-error - Complex type inference issue with piecePositions
+        gameState.piecePositions[opponentColor] = gameState.piecePositions[opponentColor].filter((p) => 
+          !(p.position && p.position.length === 2 && p.position[0] === toRow && p.position[1] === toCol)
+        );
+      }
+    }
+    
+    // Update moving piece's position
+    if (piece.color !== 'none' && (piece.color === 'white' || piece.color === 'black')) {
+      if (gameState.piecePositions[piece.color]) {
+        const pieceToUpdate = gameState.piecePositions[piece.color].find((p) =>
+          p.position && p.position.length === 2 && p.position[0] === fromRow && p.position[1] === fromCol && p.type === piece.type
+        );
+        if (pieceToUpdate) {
+          pieceToUpdate.position = to;
+          pieceToUpdate.hasMoved = true;
+        }
+      }
+    }
+  }
+  
+  // Update king positions if king moved
+  if (piece.type === 'king' && gameState.kingPositions && piece.color !== 'none' && (piece.color === 'white' || piece.color === 'black')) {
+    gameState.kingPositions[piece.color] = to;
+  }
+  
   // Clear source square
   gameState.board[fromRow][fromCol] = { 
     type: 'empty', 
     color: 'none', 
-    position: from,
+    position: [fromRow, fromCol],
     hasMoved: false 
   };
   
@@ -216,6 +502,8 @@ export async function getAIMove(
   gameState: GameStateType, 
   difficulty: AIDifficulty
 ): Promise<AIMoveResult | null> {
+  console.log(`🤖 AI MOVE REQUEST: Difficulty = ${difficulty}, AI Color = ${gameState.turn}`);
+  
   // Add thinking time based on difficulty
   const thinkingTime = difficulty === 'easy' ? 500 : difficulty === 'medium' ? 1000 : 1500;
   
@@ -241,10 +529,13 @@ export async function getAIMove(
   
   switch(difficulty) {
     case 'easy':
+      console.log('🎲 Using EASY AI (random moves)');
       return getRandomMoveAntiRepetition(gameState, aiColor);
     case 'medium':
+      console.log('🧠 Using MEDIUM AI (threat-aware one-depth)');
       return getBestMoveOneDepthAntiRepetition(gameState, aiColor);
     case 'hard':
+      console.log('🔥 Using HARD AI (threat-aware minimax depth 4)');
       return getMinimaxMoveAntiRepetition(gameState, aiColor, 4); // Increased depth for stronger play
     default:
       return getRandomMoveAntiRepetition(gameState, aiColor);
@@ -297,6 +588,43 @@ function getRandomMoveAntiRepetition(gameState: GameStateType, aiColor: 'white' 
 }
 
 function getBestMoveOneDepthAntiRepetition(gameState: GameStateType, aiColor: 'white' | 'black'): AIMoveResult | null {
+  console.log(`💻 MEDIUM AI: Starting threat detection for ${aiColor} AI`);
+  console.log(`💻 GameState king positions:`, gameState.kingPositions);
+  console.log(`💻 GameState piece positions:`, gameState.piecePositions);
+  
+  // FIRST PRIORITY: Check if AI king is in check and prioritize capturing threatening pieces
+  const threateningPieces = findThreateningPieces(gameState, aiColor);
+  
+  if (threateningPieces.length > 0) {
+    console.log(`🚨 Medium AI: King in CHECK! Found ${threateningPieces.length} threatening pieces`);
+    
+    const captureMoves = getCaptureThreateningMoves(gameState, aiColor, threateningPieces);
+    
+    if (captureMoves.length > 0) {
+      console.log(`⚔️ Medium AI: PRIORITIZING capture of threatening pieces!`);
+      
+      // Evaluate only the threat-capturing moves
+      let bestMove = captureMoves[0];
+      let bestScore = -Infinity;
+      
+      for (const move of captureMoves) {
+        const newState = cloneGameState(gameState);
+        applyMoveToState(newState, move);
+        
+        let score = evaluatePosition(newState, aiColor);
+        score += 1000; // Massive bonus for capturing threats
+        
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = move;
+        }
+      }
+      
+      return bestMove;
+    }
+  }
+
+  // SECOND PRIORITY: Normal move evaluation
   const allMoves = getSimpleLegalMoves(gameState, aiColor);
   
   if (allMoves.length === 0) return null;
@@ -325,6 +653,45 @@ function getBestMoveOneDepthAntiRepetition(gameState: GameStateType, aiColor: 'w
 }
 
 function getMinimaxMoveAntiRepetition(gameState: GameStateType, aiColor: 'white' | 'black', maxDepth: number): AIMoveResult | null {
+  // FIRST PRIORITY: Check if AI king is in check and prioritize capturing threatening pieces
+  const threateningPieces = findThreateningPieces(gameState, aiColor);
+  
+  if (threateningPieces.length > 0) {
+    console.log(`🚨 AI King in CHECK! Found ${threateningPieces.length} threatening pieces`);
+    
+    // Get all possible capture moves that eliminate threats
+    const captureMoves = getCaptureThreateningMoves(gameState, aiColor, threateningPieces);
+    
+    if (captureMoves.length > 0) {
+      console.log(`⚔️ Found ${captureMoves.length} moves to capture threatening pieces - PRIORITIZING THESE!`);
+      
+      // ONLY consider threat-capturing moves - evaluate them with minimax
+      let bestMove = captureMoves[0];
+      let bestScore = -Infinity;
+      
+      for (const move of captureMoves) {
+        const newState = cloneGameState(gameState);
+        applyMoveToState(newState, move);
+        
+        let score = minimax(newState, maxDepth - 1, -Infinity, Infinity, false, aiColor);
+        
+        // Massive bonus for capturing threatening pieces
+        score += 1000;
+        
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = move;
+        }
+      }
+      
+      console.log(`🎯 AI choosing to capture threatening piece at [${bestMove.to}]`);
+      return bestMove;
+    } else {
+      console.log(`🛡️ No direct captures available - must find other escape moves`);
+    }
+  }
+  
+  // SECOND PRIORITY: Normal move evaluation (only if not in check or no capture moves available)
   const moves = getSimpleLegalMoves(gameState, aiColor);
   
   if (moves.length === 0) return null;

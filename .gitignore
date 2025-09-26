@@ -41,3 +41,6 @@ server/.ssh/ChessPair.pem
 postgresql.log.2025-03-24-06
 .gitignore
 server/.elasticbeanstalk/config.yml
+AI_BUG_FIX_SUMMARY.md
+TEST_AI_IMPROVEMENTS.md
+THREAT_PRIORITY_UPDATE.md

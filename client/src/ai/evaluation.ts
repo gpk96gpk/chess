@@ -20,17 +20,28 @@ export function evaluatePosition(gameState: GameStateType, aiColor: 'white' | 'b
   let score = 0;
   
   // Material evaluation
+  let aiMaterial = 0;
+  let opponentMaterial = 0;
+  
   gameState.piecePositions[aiColor].forEach(piece => {
     if (piece.type !== 'empty' && piece.type !== 'king') {
+      aiMaterial += PIECE_VALUES[piece.type];
       score += PIECE_VALUES[piece.type];
     }
   });
   
   gameState.piecePositions[opponentColor].forEach(piece => {
     if (piece.type !== 'empty' && piece.type !== 'king') {
+      opponentMaterial += PIECE_VALUES[piece.type];
       score -= PIECE_VALUES[piece.type];
     }
   });
+  
+  // Debug material difference for significant changes
+  const materialDiff = aiMaterial - opponentMaterial;
+  if (Math.abs(materialDiff) > 200) {
+    console.log(`📊 Material: ${aiColor} ${aiMaterial} vs ${opponentColor} ${opponentMaterial} (diff: ${materialDiff})`);
+  }
   
   // Advanced positional and strategic evaluation
   gameState.piecePositions[aiColor].forEach(piece => {
