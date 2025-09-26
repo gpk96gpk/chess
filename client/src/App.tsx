@@ -5,7 +5,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import Chess from './components/Chess';
 import Lobby from './components/Lobby';
 import { Props, GameStateType, Position, PieceType, PieceNames } from './types/clientTypes';
-import { getAIMove } from "./ai/optimizedAiEngine";
+import { getAIMove, AIMoveResult } from "./ai/optimizedAiEngine";
 import resetGameState from './gameLogic/resetGameState';
 
 // Connect to the real server for multiplayer games
@@ -17,6 +17,66 @@ const createLocalSocket = () => ({
     on: () => console.log('AI game - local on (no server)'),
     off: () => console.log('AI game - local off (no server)'),
 });
+
+// Simple check detection function
+function canPieceAttackSquare(piece: PieceType, targetSquare: [number, number], gameState: GameStateType): boolean {
+    if (!piece.position || piece.position.length !== 2) return false;
+    
+    const [fromRow, fromCol] = piece.position as [number, number];
+    const [toRow, toCol] = targetSquare;
+    
+    switch (piece.type) {
+        case 'pawn': {
+            const direction = piece.color === 'white' ? -1 : 1;
+            const attackRow = fromRow + direction;
+            return attackRow === toRow && Math.abs(fromCol - toCol) === 1;
+        }
+            
+        case 'rook':
+            return (fromRow === toRow || fromCol === toCol) && 
+                   isPathClear(fromRow, fromCol, toRow, toCol, gameState);
+                   
+        case 'bishop':
+            return Math.abs(fromRow - toRow) === Math.abs(fromCol - toCol) &&
+                   isPathClear(fromRow, fromCol, toRow, toCol, gameState);
+                   
+        case 'queen':
+            return ((fromRow === toRow || fromCol === toCol) || 
+                    (Math.abs(fromRow - toRow) === Math.abs(fromCol - toCol))) &&
+                   isPathClear(fromRow, fromCol, toRow, toCol, gameState);
+                   
+        case 'knight': {
+            const rowDiff = Math.abs(fromRow - toRow);
+            const colDiff = Math.abs(fromCol - toCol);
+            return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
+        }
+            
+        case 'king':
+            return Math.abs(fromRow - toRow) <= 1 && Math.abs(fromCol - toCol) <= 1;
+            
+        default:
+            return false;
+    }
+}
+
+// Check if path is clear for sliding pieces
+function isPathClear(fromRow: number, fromCol: number, toRow: number, toCol: number, gameState: GameStateType): boolean {
+    const rowDir = toRow > fromRow ? 1 : toRow < fromRow ? -1 : 0;
+    const colDir = toCol > fromCol ? 1 : toCol < fromCol ? -1 : 0;
+    
+    let currentRow = fromRow + rowDir;
+    let currentCol = fromCol + colDir;
+    
+    while (currentRow !== toRow || currentCol !== toCol) {
+        if (gameState.board[currentRow][currentCol].type !== 'empty') {
+            return false;
+        }
+        currentRow += rowDir;
+        currentCol += colDir;
+    }
+    
+    return true;
+}
 
 
 
@@ -242,6 +302,29 @@ function App() {
             // Special handling for king moves (update king position)
             if (movingPiece.type === 'king') {
               updatedGameState.kingPositions.white = [toX, toY];
+            }
+            
+            // Check if AI move puts player in check
+            const playerKingPos = updatedGameState.kingPositions.black;
+            if (playerKingPos && playerKingPos.length === 2) {
+              // Simple check detection: see if any AI piece can attack the player's king
+              let isPlayerInCheck = false;
+              
+              // Check each AI piece to see if it can attack the king
+              for (const aiPiece of updatedGameState.piecePositions.white) {
+                if (aiPiece.position && aiPiece.position.length === 2) {
+                  if (canPieceAttackSquare(aiPiece, playerKingPos, updatedGameState)) {
+                    isPlayerInCheck = true;
+                    console.log(`🔥 AI ${aiPiece.type} at [${aiPiece.position}] puts player king in check!`);
+                    break;
+                  }
+                }
+              }
+              
+              updatedGameState.checkStatus.black = isPlayerInCheck;
+              if (isPlayerInCheck) {
+                console.log("🔥 PLAYER IS NOW IN CHECK after AI move!");
+              }
             }
             
             // Change turn to player

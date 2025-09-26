@@ -610,6 +610,16 @@ const Chess: React.FC<Props> = (props) => {
             }
         }
 
+        // Check if the player's move puts the opponent in check
+        if (isOpponentKingInCheck) {
+            console.log('🔥 Player move puts opponent in check!', opponentColor);
+            gameState.checkStatus[opponentColor] = true;
+        } else {
+            gameState.checkStatus[opponentColor] = false;
+        }
+
+        // Update the game state after the move
+        setGameState({...gameState});
 
     //Maybe everything above should be gameState instead of newGameState or should just change everything to be either gameState or newGameState
         if (socket) {

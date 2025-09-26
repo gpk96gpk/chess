@@ -245,7 +245,7 @@ export async function getAIMove(
     case 'medium':
       return getBestMoveOneDepthAntiRepetition(gameState, aiColor);
     case 'hard':
-      return getMinimaxMoveAntiRepetition(gameState, aiColor, 2);
+      return getMinimaxMoveAntiRepetition(gameState, aiColor, 4); // Increased depth for stronger play
     default:
       return getRandomMoveAntiRepetition(gameState, aiColor);
   }
