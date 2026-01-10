@@ -1,3 +1,15 @@
+--Create chess database
+CREATE DATABASE chess;
+
+-- Create chessapp user (if not exists)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'chessapp') THEN
+    CREATE USER chessapp WITH PASSWORD 'chessapp';
+  END IF;
+END
+$$;
+
 --Create user table
 CREATE TABLE users (
     id BIGSERIAL NOT NULL PRIMARY KEY,

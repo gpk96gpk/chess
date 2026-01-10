@@ -1,11 +1,3 @@
-//TODO: 
-// render component
-//header Welcome to Chess Game
-//render Welcome would you like to sign in and create account button 
-
-//render LobbySignInSignUpButton component
-//render LobbyGameButtons component
-
 import LobbySignInSignUpButton from './LobbySignInSignUpButton';
 import LobbyGameButtons from './LobbyGameButtons';
 // import LobbySignUpButton from './LobbySignUpButton';

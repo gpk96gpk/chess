@@ -11,8 +11,6 @@ const ConnectionManager = () => {
     const [errorClass, setErrorClass] = useState<string>('');
     const navigate = useNavigate();
 
-
-    //const { initialBoard } = resetGameState();
     const createRoom = () => {
         const newRoomId = Math.floor(1000 + Math.random() * 9000);
         setRoomId(newRoomId);
@@ -20,8 +18,6 @@ const ConnectionManager = () => {
             socket.emit('createRoom', newRoomId);
         }
         // Copy the text inside the text field for testing
-        // navigator.clipboard.writeText(newRoomId.toString());
-
 
         navigate(`/game/${newRoomId}`);
     }
@@ -62,7 +58,9 @@ const ConnectionManager = () => {
             return Number(roomId);
         }
     }
-    
+    if (error){
+        console.error('error', error);
+    }
     // Revert the error class after a delay
     useEffect(() => {
         if (errorClass === 'error') {

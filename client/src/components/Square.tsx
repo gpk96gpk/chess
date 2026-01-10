@@ -30,6 +30,10 @@ type SquareProps = {
         props: Props
     ) => void;
     children: React.ReactNode;
+    handlePieceClick: (event: React.MouseEvent, piece: PieceType, position: Position) => void;
+    handleSquareClick: (event: React.MouseEvent, position: Position) => void;
+    highlightedTiles: Position[];
+    isHighlighted: boolean;
 };
 
 // passed in function handleDropWrapper takes in event and sets piece to the event dataTransfer
@@ -39,7 +43,7 @@ type SquareProps = {
 //onDrop event calls handleDropWrapper function
 //onDragOver event prevents default behavior
 // render children
-const Square: React.FC<SquareProps> = ({ style, position, className, handleDragStart, handleDragEnter, handleDragOver, handleDrop, children }) => {
+const Square: React.FC<SquareProps> = ({ style, position, className, handleDragStart, handleDragEnter, handleDragOver, handleDrop, handleSquareClick, isHighlighted, children }) => {
     //const isHighlighted = Array.isArray(highlightedTiles) && Array.isArray(position) && highlightedTiles.some(([x, y]) => x === position[0] && y === position[1]);
     const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
         const pieceData = event.currentTarget.getAttribute('data-piece');
@@ -59,11 +63,20 @@ const Square: React.FC<SquareProps> = ({ style, position, className, handleDragS
     const onDragEnter = (event: React.DragEvent<HTMLDivElement>) => handleDragEnter(event, position as Position);
     const onDragOver = (event: React.DragEvent<HTMLDivElement>) => handleDragOver(event, position as Position);
     const onDrop = (event: React.DragEvent<HTMLDivElement>) => handleDrop(event, {} as Props);
+    const onClick = (event: React.MouseEvent) =>  handleSquareClick(event, position as Position);
+
 
     return (
         <div 
-            className={`square ${className}`}
-            style={{...style}}
+            className={`square ${className} ${isHighlighted ? 'highlighted-square' : ''}`}
+            style={{
+                position: 'relative',
+                ...style
+            }}
+            onClick={(event) => {
+                event.stopPropagation();
+                onClick(event);
+            }}
             draggable={false}
             onDragEnter={onDragEnter}
             onDragStart={onDragStart}
@@ -71,6 +84,7 @@ const Square: React.FC<SquareProps> = ({ style, position, className, handleDragS
             onDrop={onDrop}
         >
             {children || null}
+            {/* No need for the separate move-indicator div anymore */}
         </div>
     );
 };

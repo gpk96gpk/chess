@@ -1,0 +1,36 @@
+Merge Similar Check Functions:
+  • Both isCheck and isCheckOpponent share many similarities. Create a single “check” module that takes 
+all needed parameters and returns a unified result. This reduces duplicate logic and simplifies testing.
+
+• Centralize Threat Evaluation:
+  • Calculating threatening squares is repeated across validMoves, isCheck, etc. Create a single 
+function (with caching or memoization when possible) that computes threatening squares once per move.
+  • Refactor directional checks and blocking logic into reusable helpers.
+
+• Consolidate Utility Functions:
+  • Functions like canBlock, getCastlingMove, enPassant, and various board-updating functions could 
+be grouped under a “moveLogic” module. This makes code easier to maintain and may allow you to optimize shared data structures.
+
+• Improve Data Cloning and Updates:
+  • Many operations do deep cloning (JSON.parse/stringify) of gameState. Consider using an immutable 
+data library or well-optimized shallow updates to prevent unnecessary overhead.
+
+• Reduce Redundant Iterations:
+  • Several loops in check functions iterate over board directions or piece arrays. Combine loops 
+where possible or precompute indexes to save CPU cycles in time-critical paths.
+
+• Enhance Type Safety and Code Reuse with TypeScript:
+  • Ensure shared types (such as Position, ThreateningSquares, etc.) are centralized and used across
+ modules so that refactored functions work uniformly.   • Use generics where applicable for utility 
+ modules that process board data.
+
+• Project Structure and Organization:
+  • Divide the game logic into dedicated modules (e.g., boardUtils, moveLogic, checkUtils, uiHelpers).
+  • Keep your API calls separate from game logic. This separation makes unit testing and optimization easier.
+  • If some functions are used only by certain components, consider co-locating them in subfolders.
+
+• Performance Optimizations:
+  • Profile your functions (especially those with nested loops) to find hotspots and optimize by caching 
+and reducing unnecessary recalculations.
+  • Use lazy initialization for data that isn’t needed until a move is made.   • Consider using memoization 
+(or React’s useMemo hook) in components that repeatedly compute derived values from the game state.

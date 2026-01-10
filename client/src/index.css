@@ -101,7 +101,7 @@ button {
   border-color: inherit;
   text-transform: uppercase;
   padding: .4em 0 0 .8em;
-  font-size: 1.1em;
+  font-size: 17px;
   font-weight: 600;
   font-family: inherit;
   background-color: transparent;
@@ -141,6 +141,7 @@ button:active {
 }
 
 input[type=text],input[type=password] {
+  font-size: 16px;
   border-color: inherit;
   text-align: right;
   margin-bottom: 15px;
@@ -165,7 +166,7 @@ input::placeholder {
   flex-direction: column;
   width: 100%;
   height: 100%;
-  font-size: 1.1em;
+  font-size: 17px;
   font-weight: 500;
   font-family: inherit;
   opacity: 1
@@ -209,7 +210,7 @@ input::placeholder {
   opacity: 1
 }
 
-.ConnectionManager,.show-saved-games-button {
+.ConnectionManager,.show-saved-games-button, .OpenRoomsList {
   opacity: 0!important;
   visibility: hidden;
   margin-top: 60px;
@@ -233,7 +234,7 @@ form>input {
   position: fixed;
   top: 0;
   right: 1px;
-  font-size: 95%;
+  font-size: 17px;
   line-height: normal;
 }
 
@@ -277,6 +278,125 @@ form>input {
 .light-square {
   background-color: #fff !important;
 }
+
+.highlighted-square {
+  position: relative;
+  /* Remove box-shadow - no more border */
+  box-shadow: none !important;
+  z-index: 5;
+}
+
+/* This will be used as our visual indicator inside highlighted squares */
+.highlighted-square::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(255, 225, 0, 0.866); /* Semi-transparent green */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* Make the original move-indicator invisible but keep it in DOM for functionality */
+.move-indicator {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Special styling for highlighted squares that contain pieces */
+.highlighted-square:has(img)::after {
+  /* For squares with pieces, show a different indicator */
+  background-color: rgba(76, 175, 80, 0.4);
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+/* Ensure pieces have a lower z-index than the highlight */
+.piece, .square img {
+  position: relative;
+  z-index: 50; /* Lower than the highlight's z-index */
+}
+
+/* Special styling for check situations */
+.king-in-check .highlighted-square::after {
+  animation: pulse 0.8s infinite alternate;
+  box-shadow: 0 0 10px 2px rgba(255, 0, 0, 0.7);
+}
+
+.OpenRoomsList {
+  opacity: 0!important;
+  visibility: hidden;
+  margin-top: 30px;
+  transition: visibility 0s 2s,opacity 2s linear
+}
+
+.OpenRoomsList p {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: #ffffffde 2px solid;
+}
+
+.OpenRoomsList.visible {
+  opacity: 1!important;
+  visibility: visible;
+  margin-top: 30px;
+  transition: visibility 2s,opacity 2s linear
+}
+
+.rooms-table {
+  width: 90%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.rooms-table th,
+.rooms-table td {
+  padding: 10px;
+  text-align: right;
+  border-bottom: 1px solid #ddd;
+}
+
+.rooms-table th {
+  font-weight: bold;
+}
+
+/* .join-room-button {
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.join-room-button:hover {
+  background-color: #45a049;
+}
+
+.join-room-button.error {
+  animation: shake 0.5s;
+  background-color: #f44336;
+} */
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(5px); }
+  50% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}
+
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -327,7 +447,24 @@ form>input {
   100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-1.5px);
+  }
+}
+
 .error {
   animation: shake 0.5s;
   border-color: red !important;
+}
+.success {
+  animation: bounce 0.5s;
+  border-color: #4CAF50 !important; /* Green border */
+  color: #4CAF50 !important;
 }
