@@ -5,3 +5,8 @@ Untitled Diagram.drawio
 
 
 docker-compose.yml
+
+# Local environment files can contain credentials.
+.env
+.env.*
+!.env.example
